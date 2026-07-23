@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* LIGHT MODE VARIABLES */
+  --bg-main: #F1F5F9;
+  --bg-header: #ffffff;
+  --bg-card: #ffffff;
+  --bg-elevated: #F8FAFC;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --border-subtle: #F1F5F9;
+  --border-strong: #E2E8F0;
+}
+
+html.dark {
+  /* DARK MODE VARIABLES */
+  --bg-main: #0B0F19;         
+  --bg-header: #151521;
+  --bg-card: #151B2E;         
+  --bg-elevated: #1E243D;     
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --border-subtle: rgba(255,255,255,0.05);
+  --border-strong: rgba(255,255,255,0.1);
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  scroll-behavior: smooth;
+}
+
+/* Force elements to use our strict variables */
+.theme-bg-main { background-color: var(--bg-main) !important; }
+.theme-bg-header { background-color: var(--bg-header) !important; }
+.theme-bg-card { background-color: var(--bg-card) !important; }
+.theme-bg-elevated { background-color: var(--bg-elevated) !important; }
+
+.theme-text-primary { color: var(--text-primary) !important; }
+.theme-text-secondary { color: var(--text-secondary) !important; }
+
+.theme-border { border-color: var(--border-subtle) !important; }
+.theme-border-strong { border-color: var(--border-strong) !important; }
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .glass-card {
+    @apply theme-bg-card backdrop-blur-xl border theme-border shadow-[0_8px_30px_rgb(0,0,0,0.04)];
+  }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .animate-float-delayed {
+    animation: float 6s ease-in-out 3s infinite;
+  }
+  .animate-pulse-slow {
+    animation: pulse-slow 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  .animate-orbit {
+    animation: orbit 20s linear infinite;
+  }
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+  .text-gradient-premium {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-[#60A5FA] via-[#C084FC] to-[#F472B6];
+  }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+}
+
+@keyframes orbit {
+  0% { transform: rotate(0deg) translateX(180px) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(180px) rotate(-360deg); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+/* Ensure inputs stay visible in dark mode */
+html.dark input, html.dark select, html.dark textarea {
+  color: #F8FAFC !important;
+  background-color: transparent !important;
+}
+
+/* Fix specific pill states */
+html.dark .theme-bg-elevated button.bg-white {
+  background-color: #2A2A44 !important;
+  color: #F8FAFC !important;
+  border-radius: 6px;
+}
+
+/* Corrige o texto do Logo Fugleman no Modo Escuro */
+html.dark .text-\[\#0A1A44\] {
+  color: #FFFFFF !important;
+}

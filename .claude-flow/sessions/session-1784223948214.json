@@ -1,0 +1,14 @@
+{
+  "id": "session-1784223948214",
+  "startedAt": "2026-07-16T17:45:48.214Z",
+  "cwd": "/Users/macbook/Desktop/Projetos/Fugleman",
+  "context": {},
+  "metrics": {
+    "edits": 0,
+    "commands": 0,
+    "tasks": 0,
+    "errors": 0
+  },
+  "endedAt": "2026-07-16T18:00:58.655Z",
+  "duration": 910443
+}

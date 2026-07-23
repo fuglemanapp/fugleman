@@ -1,0 +1,609 @@
+{
+  "colors": [
+    "rgb(0, 0, 0)",
+    "rgb(255, 255, 255)",
+    "rgba(255, 255, 255, 0.01)",
+    "rgb(0, 0, 238)",
+    "rgba(255, 255, 255, 0.6)",
+    "rgba(255, 255, 255, 0.85)",
+    "rgba(255, 255, 255, 0.8)",
+    "rgba(0, 0, 0, 0.5)",
+    "rgba(255, 255, 255, 0.043)",
+    "rgba(255, 255, 255, 0.78)",
+    "rgb(37, 211, 102)",
+    "rgba(255, 255, 255, 0.06)",
+    "rgba(255, 255, 255, 0.68)",
+    "rgba(226, 123, 183, 0.28)",
+    "color(srgb 0.681104 0.380268 0.563519 / 0.940392)",
+    "color(srgb 0.908152 0.581934 0.771964 / 0.935686)",
+    "rgba(255, 255, 255, 0.58)",
+    "color(srgb 0.570116 0.409475 0.753366 / 0.940392)",
+    "color(srgb 0.7878 0.613605 0.97783 / 0.935686)",
+    "color(srgb 0.511701 0.336457 0.694952 / 0.940392)",
+    "color(srgb 0.724456 0.534426 0.914486 / 0.935686)",
+    "color(srgb 0.625517 0.45124 0.7266 / 0.92549)",
+    "color(srgb 0.851763 0.662524 0.95269 / 0.919608)",
+    "rgb(234, 230, 223)",
+    "rgb(17, 27, 33)",
+    "rgb(240, 235, 228)",
+    "rgba(0, 0, 0, 0.06)",
+    "rgb(83, 189, 235)",
+    "rgba(0, 0, 0, 0.45)",
+    "rgb(217, 253, 211)",
+    "rgba(17, 27, 33, 0.45)",
+    "rgb(102, 119, 129)",
+    "rgba(0, 168, 132, 0.08)",
+    "rgb(0, 168, 132)",
+    "rgb(142, 142, 147)",
+    "rgb(245, 240, 235)",
+    "rgb(26, 26, 46)",
+    "rgb(107, 107, 136)",
+    "rgba(245, 240, 235, 0.5)",
+    "rgb(45, 45, 78)",
+    "rgba(245, 240, 235, 0.55)",
+    "rgb(134, 150, 160)",
+    "rgb(52, 183, 241)",
+    "rgb(60, 64, 67)",
+    "rgb(112, 117, 122)",
+    "rgb(26, 115, 232)",
+    "rgb(232, 234, 237)",
+    "rgba(66, 133, 244, 0.12)",
+    "rgba(11, 128, 67, 0.12)",
+    "rgba(142, 36, 170, 0.12)",
+    "rgba(255, 255, 255, 0.92)",
+    "rgb(231, 252, 230)",
+    "rgb(95, 99, 104)",
+    "rgb(10, 10, 14)",
+    "rgba(255, 255, 255, 0.75)",
+    "rgb(17, 17, 17)",
+    "rgb(26, 26, 26)",
+    "rgba(255, 255, 255, 0)",
+    "rgba(255, 255, 255, 0.03)",
+    "rgba(255, 255, 255, 0.7)",
+    "rgba(255, 255, 255, 0.08)",
+    "rgba(255, 255, 255, 0.5)",
+    "rgba(255, 255, 255, 0.04)",
+    "rgb(130, 10, 209)",
+    "rgba(255, 255, 255, 0.4)",
+    "rgba(255, 255, 255, 0.35)",
+    "rgba(255, 255, 255, 0.15)",
+    "rgb(204, 9, 47)",
+    "rgb(0, 0, 102)",
+    "rgb(236, 0, 0)",
+    "rgb(255, 122, 0)",
+    "rgba(241, 115, 184, 0.15)",
+    "rgb(241, 115, 184)",
+    "rgba(255, 255, 255, 0.55)",
+    "rgba(255, 255, 255, 0.1)",
+    "rgba(255, 255, 255, 0.45)",
+    "rgb(239, 68, 68)",
+    "rgb(34, 197, 94)",
+    "rgba(255, 255, 255, 0.05)",
+    "rgba(34, 197, 94, 0.08)",
+    "rgba(34, 197, 94, 0.1)",
+    "rgba(255, 255, 255, 0.12)",
+    "rgba(255, 255, 255, 0.25)",
+    "rgba(193, 131, 251, 0.6)",
+    "rgba(255, 255, 255, 0.02)",
+    "rgba(193, 131, 251, 0.15)",
+    "rgb(193, 131, 251)",
+    "rgb(26, 31, 54)",
+    "rgb(74, 85, 104)",
+    "rgba(245, 240, 235, 0.95)",
+    "rgb(237, 232, 227)",
+    "rgb(22, 23, 34)",
+    "rgb(21, 21, 31)",
+    "rgb(91, 93, 107)",
+    "rgba(255, 255, 255, 0.86)",
+    "rgb(139, 69, 209)",
+    "rgb(35, 38, 55)",
+    "rgba(139, 69, 209, 0.72)",
+    "rgb(226, 123, 183)",
+    "rgb(253, 242, 248)",
+    "rgb(237, 233, 254)",
+    "rgb(156, 163, 175)",
+    "rgb(107, 114, 128)",
+    "rgb(249, 250, 251)",
+    "rgb(99, 102, 241)",
+    "rgb(243, 244, 246)",
+    "rgb(55, 65, 81)",
+    "rgb(79, 70, 229)",
+    "rgb(254, 242, 242)",
+    "rgb(236, 253, 245)",
+    "rgb(16, 185, 129)",
+    "rgb(240, 242, 245)",
+    "rgb(209, 213, 219)",
+    "rgb(75, 85, 99)",
+    "rgb(212, 212, 216)",
+    "rgb(229, 231, 235)",
+    "rgb(254, 226, 226)",
+    "rgb(248, 249, 250)",
+    "rgb(240, 237, 232)",
+    "rgba(0, 0, 0, 0.04)",
+    "rgb(243, 240, 236)",
+    "rgba(188, 133, 248, 0.06)",
+    "rgba(234, 67, 53, 0.1)",
+    "rgb(234, 67, 53)",
+    "rgba(66, 133, 244, 0.1)",
+    "rgb(66, 133, 244)",
+    "rgb(249, 199, 79)",
+    "rgba(255, 255, 255, 0.2)",
+    "rgba(255, 255, 255, 0.82)",
+    "rgba(226, 123, 183, 0.12)",
+    "rgb(255, 79, 176)",
+    "rgb(255, 24, 140)",
+    "rgb(236, 253, 243)",
+    "rgb(6, 118, 71)",
+    "rgb(102, 112, 133)",
+    "rgba(26, 31, 54, 0.035)",
+    "rgba(226, 123, 183, 0.16)",
+    "rgb(255, 42, 154)",
+    "rgba(193, 131, 251, 0.08)",
+    "rgba(255, 255, 255, 0.9)",
+    "rgba(255, 255, 255, 0.72)",
+    "rgba(255, 255, 255, 0.66)",
+    "rgba(255, 255, 255, 0.035)",
+    "rgb(33, 194, 103)",
+    "rgb(4, 19, 10)",
+    "rgba(0, 0, 0, 0.15)",
+    "rgb(241, 236, 236)",
+    "rgb(208, 200, 200)"
+  ],
+  "fonts": [
+    "Times",
+    "Poppins, \"Poppins Fallback\", sans-serif",
+    "Arial",
+    "-apple-system, \"system-ui\", \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+    "-apple-system, \"system-ui\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+    "Poppins, \"Poppins Fallback\"",
+    "Poppins, \"Poppins Fallback\", -apple-system, sans-serif"
+  ],
+  "images": [
+    {
+      "src": "https://www.meuassessor.com/images/logo-header.svg",
+      "alt": "Meu Assessor",
+      "width": 560,
+      "height": 160,
+      "parentClasses": "logo"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/logo-header-dark.svg",
+      "alt": "Meu Assessor",
+      "width": 560,
+      "height": 160,
+      "parentClasses": "logo"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/logo-header-dark.svg",
+      "alt": "Meu Assessor",
+      "width": 560,
+      "height": 160,
+      "parentClasses": "mobile-sidebar-header"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/perfi%20fundo%20preto.png",
+      "alt": "",
+      "width": 700,
+      "height": 700,
+      "parentClasses": "hero-wa-avatar"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/celular%202.webp",
+      "alt": "Dashboard App - Verso",
+      "width": 480,
+      "height": 937,
+      "parentClasses": "phones-floating-container"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/celular%201.webp",
+      "alt": "Dashboard App - Frente",
+      "width": 620,
+      "height": 1102,
+      "parentClasses": "phones-floating-container"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/perfi%20fundo%20preto.png",
+      "alt": "Meu Assessor",
+      "width": 700,
+      "height": 700,
+      "parentClasses": "ma-avatar-wrap"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/titto%20celular.webp",
+      "alt": "App Meu Assessor",
+      "width": 4203,
+      "height": 3386,
+      "parentClasses": "cta-block-image"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/logo%20nubank.webp",
+      "alt": "Nubank",
+      "width": 220,
+      "height": 220,
+      "parentClasses": "of-proof-avatars"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/logo%20itau.webp",
+      "alt": "Itaú",
+      "width": 220,
+      "height": 220,
+      "parentClasses": "of-proof-avatars"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/logo%20bradesco.webp",
+      "alt": "Bradesco",
+      "width": 220,
+      "height": 220,
+      "parentClasses": "of-proof-avatars"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/logo%20santander.webp",
+      "alt": "Santander",
+      "width": 220,
+      "height": 220,
+      "parentClasses": "of-proof-avatars"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/logo%20branca.svg",
+      "alt": "Meu Assessor",
+      "width": 560,
+      "height": 160,
+      "parentClasses": "of-invite-bar"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/logo%20nubank.webp",
+      "alt": "Nubank",
+      "width": 220,
+      "height": 220,
+      "parentClasses": "of-bank-logo"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/logo%20bradesco.webp",
+      "alt": "Bradesco",
+      "width": 220,
+      "height": 220,
+      "parentClasses": "of-bank-logo"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/logo%20itau.webp",
+      "alt": "Itaú",
+      "width": 220,
+      "height": 220,
+      "parentClasses": "of-bank-logo"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/logo%20santander.webp",
+      "alt": "Santander",
+      "width": 220,
+      "height": 220,
+      "parentClasses": "of-bank-logo"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/logo%20inter.webp",
+      "alt": "Inter",
+      "width": 220,
+      "height": 220,
+      "parentClasses": "of-bank-logo"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/simbologia.png",
+      "alt": "Meu Assessor",
+      "width": 459,
+      "height": 459,
+      "parentClasses": "sa-center-hub"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/perfi%20fundo%20preto.png",
+      "alt": "Meu Assessor",
+      "width": 700,
+      "height": 700,
+      "parentClasses": "drive-chat-avatar"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/perfi%20fundo%20preto.png",
+      "alt": "Meu Assessor",
+      "width": 700,
+      "height": 700,
+      "parentClasses": "drive-chat-avatar"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/avatar%20lucas%20lucco.webp",
+      "alt": "Lucas Lucco",
+      "width": 320,
+      "height": 320,
+      "parentClasses": "sp-av-circle"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/avatar%20felipe%20titto.webp",
+      "alt": "Felipe Titto",
+      "width": 320,
+      "height": 320,
+      "parentClasses": "sp-av-circle"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/carol%20bresolin%20avatar.webp",
+      "alt": "Carol Bresolin",
+      "width": 320,
+      "height": 320,
+      "parentClasses": "sp-av-circle"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/avatar%20jon%20vlogs.webp",
+      "alt": "Jon Vlogs",
+      "width": 320,
+      "height": 427,
+      "parentClasses": "sp-av-circle"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/avatar%20gkay.webp",
+      "alt": "Gkay",
+      "width": 320,
+      "height": 427,
+      "parentClasses": "sp-av-circle"
+    },
+    {
+      "src": "https://www.meuassessor.com/images/tittanium%20logo.webp",
+      "alt": "Tittanium INC",
+      "width": 480,
+      "height": 111,
+      "parentClasses": "tittanium-logo-wrap"
+    }
+  ],
+  "videos": [],
+  "backgroundImages": [
+    {
+      "url": "linear-gradient(135deg, rgba(188, 133, 248, 0.12) 0%, rgba(0, 0, 0, 0) 34%), linear-gradient(225deg, rgba(226, 123, 183, 0.14) 0%, rgba(0, 0, 0, 0) 38%), none",
+      "element": "SECTION.hero"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(188, 133, 248) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.headline-bold"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(188, 133, 248) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.headline-bold"
+    },
+    {
+      "url": "radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.34), rgba(0, 0, 0, 0) 32%), none",
+      "element": "SPAN.hero-signal-icon"
+    },
+    {
+      "url": "radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.34), rgba(0, 0, 0, 0) 32%), none",
+      "element": "SPAN.hero-signal-icon"
+    },
+    {
+      "url": "radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.34), rgba(0, 0, 0, 0) 32%), none",
+      "element": "SPAN.hero-signal-icon"
+    },
+    {
+      "url": "radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.34), rgba(0, 0, 0, 0) 32%), none",
+      "element": "SPAN.hero-signal-icon"
+    },
+    {
+      "url": "linear-gradient(165deg, rgb(138, 141, 147) 0%, rgb(92, 94, 99) 8%, rgb(58, 60, 64) 20%, rgb(42, 44, 47) 40%, rgb(29, 30, 33) 60%, rgb(42, 44, 47) 80%, rgb(92, 94, 99) 95%, rgb(138, 141, 147) 100%)",
+      "element": "DIV.hero-phone-frame"
+    },
+    {
+      "url": "radial-gradient(circle at 35% 35%, rgb(26, 39, 68), rgb(10, 15, 26))",
+      "element": "DIV.hero-iphone-island-cam"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(188, 133, 248) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.feature-badge"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(188, 133, 248) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.feature-badge"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(188, 133, 248) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.feature-badge"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(188, 133, 248), rgb(226, 123, 183))",
+      "element": "DIV.gcal-avatar-small"
+    },
+    {
+      "url": "radial-gradient(55% 85% at -5% 40%, rgba(193, 131, 251, 0.28) 0%, rgba(0, 0, 0, 0) 75%), radial-gradient(55% 85% at 105% 70%, rgba(241, 115, 184, 0.28) 0%, rgba(0, 0, 0, 0) 75%)",
+      "element": "DIV.cta-block-container"
+    },
+    {
+      "url": "linear-gradient(90deg, rgb(59, 130, 246), rgb(96, 165, 250))",
+      "element": "DIV.of-dash-bar-fill"
+    },
+    {
+      "url": "linear-gradient(165deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%)",
+      "element": "DIV.feature-card"
+    },
+    {
+      "url": "linear-gradient(165deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%)",
+      "element": "DIV.feature-card"
+    },
+    {
+      "url": "linear-gradient(165deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%)",
+      "element": "DIV.feature-card"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(188, 133, 248) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.feature-badge"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(188, 133, 248) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.highlight-purple"
+    },
+    {
+      "url": "radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.92), rgba(0, 0, 0, 0) 38%), linear-gradient(145deg, rgb(255, 255, 255) 0%, rgb(241, 238, 248) 100%)",
+      "element": "DIV.center-whatsapp"
+    },
+    {
+      "url": "linear-gradient(135deg, rgba(193, 131, 251, 0.17), rgba(226, 123, 183, 0.12))",
+      "element": "DIV.card-icon"
+    },
+    {
+      "url": "linear-gradient(135deg, rgba(193, 131, 251, 0.17), rgba(226, 123, 183, 0.12))",
+      "element": "DIV.card-icon"
+    },
+    {
+      "url": "linear-gradient(135deg, rgba(193, 131, 251, 0.17), rgba(226, 123, 183, 0.12))",
+      "element": "DIV.card-icon"
+    },
+    {
+      "url": "linear-gradient(135deg, rgba(193, 131, 251, 0.17), rgba(226, 123, 183, 0.12))",
+      "element": "DIV.card-icon"
+    },
+    {
+      "url": "linear-gradient(135deg, rgba(193, 131, 251, 0.17), rgba(226, 123, 183, 0.12))",
+      "element": "DIV.card-icon"
+    },
+    {
+      "url": "linear-gradient(135deg, rgba(193, 131, 251, 0.17), rgba(226, 123, 183, 0.12))",
+      "element": "DIV.card-icon"
+    },
+    {
+      "url": "linear-gradient(135deg, rgba(193, 131, 251, 0.17), rgba(226, 123, 183, 0.12))",
+      "element": "DIV.card-icon"
+    },
+    {
+      "url": "linear-gradient(rgba(88, 28, 135, 0.4) 0%, rgba(0, 0, 0, 0) 45%)",
+      "element": "SECTION.productivity-section"
+    },
+    {
+      "url": "linear-gradient(rgb(244, 245, 247) 0%, rgb(255, 255, 255) 55%)",
+      "element": "DIV.bento-card"
+    },
+    {
+      "url": "linear-gradient(90deg, rgb(99, 102, 241), rgb(167, 139, 250))",
+      "element": "DIV.proj-cm-bar-fill"
+    },
+    {
+      "url": "linear-gradient(90deg, rgb(99, 102, 241), rgb(167, 139, 250))",
+      "element": "DIV.proj-cm-bar-fill"
+    },
+    {
+      "url": "linear-gradient(rgb(244, 245, 247) 0%, rgb(255, 255, 255) 55%)",
+      "element": "DIV.bento-card"
+    },
+    {
+      "url": "linear-gradient(rgb(244, 245, 247) 0%, rgb(255, 255, 255) 55%)",
+      "element": "DIV.bento-card"
+    },
+    {
+      "url": "linear-gradient(rgb(244, 245, 247) 0%, rgb(255, 255, 255) 55%)",
+      "element": "DIV.bento-card"
+    },
+    {
+      "url": "linear-gradient(rgb(244, 245, 247) 0%, rgb(255, 255, 255) 55%)",
+      "element": "DIV.bento-card"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(188, 133, 248) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.feature-badge"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "DIV.drive-chat-avatar"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.drive-panel-file-new"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "DIV.drive-chat-avatar"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.sp-highlight"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.sp-metric-plus"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.sp-metric-plus"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.sp-metric-plus"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.sp-metric-pct"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "DIV.sp-av-circle"
+    },
+    {
+      "url": "radial-gradient(circle, rgba(193, 131, 251, 0.22) 0%, rgba(0, 0, 0, 0) 70%)",
+      "element": "DIV.sp-av-halo"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "DIV.sp-av-circle"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "DIV.sp-av-circle"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "DIV.sp-av-circle"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "DIV.sp-av-circle"
+    },
+    {
+      "url": "linear-gradient(90deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.sp-dot"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(188, 133, 248) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.pricing-badge"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(226, 123, 183) 100%)",
+      "element": "SPAN.pricing-highlight"
+    },
+    {
+      "url": "linear-gradient(135deg, rgba(193, 131, 251, 0.28), rgba(226, 123, 183, 0.22)), none",
+      "element": "DIV.pricing-card"
+    },
+    {
+      "url": "linear-gradient(rgb(255, 255, 255) 0%, rgb(251, 248, 246) 100%)",
+      "element": "DIV.pricing-card-inner"
+    },
+    {
+      "url": "radial-gradient(circle at 14% 0%, rgba(193, 131, 251, 0.18), rgba(0, 0, 0, 0) 42%), radial-gradient(circle at 92% 8%, rgba(226, 123, 183, 0.18), rgba(0, 0, 0, 0) 45%), linear-gradient(135deg, rgb(255, 255, 255) 0%, rgb(251, 243, 248) 100%)",
+      "element": "DIV.pricing-hero-panel"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(241, 17, 144) 0%, rgb(201, 31, 120) 100%)",
+      "element": "A.pricing-btn"
+    },
+    {
+      "url": "linear-gradient(135deg, rgba(193, 131, 251, 0.12), rgba(226, 123, 183, 0.06)), none",
+      "element": "DIV.footer-support-card"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(241, 115, 184) 100%)",
+      "element": "BUTTON.modal-close"
+    },
+    {
+      "url": "linear-gradient(135deg, rgb(193, 131, 251) 0%, rgb(241, 115, 184) 100%)",
+      "element": "A.modal-btn-primary"
+    }
+  ],
+  "favicons": [
+    {
+      "href": "https://www.meuassessor.com/images/icone.png",
+      "sizes": "32x32"
+    },
+    {
+      "href": "https://www.meuassessor.com/images/icone.png",
+      "sizes": ""
+    }
+  ]
+}
