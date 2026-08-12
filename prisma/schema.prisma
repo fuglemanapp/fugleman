@@ -6,14 +6,16 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
   id            String         @id @default(cuid())
   name          String?
   email         String?        @unique
+  passwordHash  String?
   emailVerified DateTime?
   image         String?
   phone         String?        @unique // For WhatsApp identification
@@ -26,6 +28,15 @@ model User {
   transactions  Transaction[]
   projects      Project[]
   events        Event[]
+  notes         Note[]
+  financialInvitesCreated FinancialInvite[] @relation("FinancialInviteCreator")
+  financialInvitesAccepted FinancialInvite[] @relation("FinancialInviteAcceptor")
+  budgets       Budget[]
+  financialGoals FinancialGoal[]
+  recurringTransactions RecurringTransaction[]
+  financialAlerts FinancialAlert[]
+  preferences   FinancialPreferences?
+  calendarShares FamilyCalendarShare[]
 }
 
 model Account {
@@ -63,6 +74,133 @@ model Team {
   members     TeamMember[]
   transactions Transaction[]
   projects    Project[]
+  invitations FinancialInvite[]
+  budgets     Budget[]
+  financialGoals FinancialGoal[]
+  recurringTransactions RecurringTransaction[]
+  calendarShares FamilyCalendarShare[]
+}
+
+model FamilyCalendarShare {
+  id                  String   @id @default(cuid())
+  teamId              String
+  userId              String
+  enabled             Boolean  @default(false)
+  primaryCalendarId   String?
+  partnerAccessRuleId String?
+  lastSyncedAt        DateTime?
+  lastError           String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  team                Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([userId])
+}
+
+model FinancialInvite {
+  id          String    @id @default(cuid())
+  teamId      String
+  tokenHash   String    @unique
+  createdById String
+  acceptedById String?
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  team        Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdBy   User      @relation("FinancialInviteCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  acceptedBy  User?     @relation("FinancialInviteAcceptor", fields: [acceptedById], references: [id], onDelete: SetNull)
+
+  @@index([teamId, expiresAt])
+  @@index([createdById])
+}
+
+model Budget {
+  id        String   @id @default(cuid())
+  category  String
+  limit     Float
+  month     DateTime
+  userId    String?
+  teamId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team      Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([userId, month])
+  @@index([teamId, month])
+}
+
+model FinancialGoal {
+  id            String   @id @default(cuid())
+  name          String
+  targetAmount  Float
+  currentAmount Float    @default(0)
+  dueDate       DateTime?
+  userId        String?
+  teamId        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team          Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([teamId])
+}
+
+model RecurringTransaction {
+  id          String   @id @default(cuid())
+  description String
+  category    String
+  type        String
+  amount      Float
+  frequency   String
+  nextDate    DateTime
+  isActive    Boolean  @default(true)
+  userId      String
+  teamId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team        Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([userId, nextDate])
+  @@index([teamId, nextDate])
+}
+
+model FinancialAlert {
+  id        String   @id @default(cuid())
+  type      String
+  periodKey String
+  contextKey String
+  userId    String
+  payload   Json?
+  sentAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([type, periodKey, contextKey, userId])
+  @@index([userId, createdAt])
+}
+
+model FinancialPreferences {
+  id                 String  @id @default(cuid())
+  userId             String  @unique
+  personalAlerts     Boolean @default(true)
+  familyAlerts       Boolean @default(true)
+  weeklySummary      Boolean @default(true)
+  monthlySummary     Boolean @default(true)
+  updatedAt          DateTime @updatedAt
+
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model TeamMember {
@@ -85,6 +223,8 @@ model Transaction {
   category    String
   type        String   // EXPENSE, INCOME
   date        DateTime @default(now())
+  externalId  String?  @unique
+  source      String?
   
   userId      String
   user        User     @relation(fields: [userId], references: [id])
@@ -134,10 +274,22 @@ model Event {
   description String?
   startTime   DateTime
   endTime     DateTime
+  googleEventId String? @unique
+  googleSyncedAt DateTime?
   
   userId      String
   user        User     @relation(fields: [userId], references: [id])
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
