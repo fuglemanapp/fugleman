@@ -32,7 +32,7 @@ export async function GET(request: Request) {
   if (!user) return NextResponse.json({ error: "Faça login para acessar seus cartões." }, { status: 401 });
   const context = await resolveFinancialContext(user.id, new URL(request.url).searchParams.get("context"));
   if (!context) return NextResponse.json({ error: "Espaço financeiro inválido ou sem acesso." }, { status: 403 });
-  const where = context.type === "FAMILY" ? { teamId: context.teamId } : { userId: user.id, teamId: null };
+  const where = context.type === "FAMILY" ? { teamId: context.teamId } : { userId: user.id };
   const cards = await prisma.creditCard.findMany({ where, include: { user: { select: { id: true, name: true, email: true } } }, orderBy: [{ isActive: "desc" }, { createdAt: "asc" }] });
   return NextResponse.json({ context: { key: context.key, type: context.type }, cards, canCreate: true });
 }

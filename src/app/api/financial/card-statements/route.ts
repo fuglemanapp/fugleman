@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const from = dateFromMonthKey(params.get("from") || new Date().toISOString().slice(0, 7));
   const months = Math.min(Math.max(Number(params.get("months") || 6), 1), 24);
   if (!from) return NextResponse.json({ error: "Período de fatura inválido." }, { status: 400 });
-  const cardWhere = context.type === "FAMILY" ? { teamId: context.teamId } : { userId: user.id, teamId: null };
+  const cardWhere = context.type === "FAMILY" ? { teamId: context.teamId } : { userId: user.id };
   const cards = await prisma.creditCard.findMany({ where: cardWhere, include: { user: { select: { id: true, name: true, email: true } } }, orderBy: { createdAt: "asc" } });
   const monthsList = statementRange(from, months);
   const end = new Date(monthsList[monthsList.length - 1]); end.setUTCMonth(end.getUTCMonth() + 1);
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
   const dueMonth = typeof body?.dueMonth === "string" ? dateFromMonthKey(body.dueMonth) : null;
   if (!context) return NextResponse.json({ error: "Espaço financeiro inválido ou sem acesso." }, { status: 403 });
   if (!cardId || !dueMonth) return NextResponse.json({ error: "Fatura inválida." }, { status: 400 });
-  const cardWhere = context.type === "FAMILY" ? { id: cardId, teamId: context.teamId } : { id: cardId, userId: user.id, teamId: null };
+  const cardWhere = context.type === "FAMILY" ? { id: cardId, teamId: context.teamId } : { id: cardId, userId: user.id };
   const card = await prisma.creditCard.findFirst({ where: cardWhere, select: { id: true } });
   if (!card) return NextResponse.json({ error: "Fatura não encontrada nesse contexto." }, { status: 404 });
   const paid = body?.paid !== false;

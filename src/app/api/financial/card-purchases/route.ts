@@ -23,7 +23,7 @@ export async function GET(request: Request) {
   const context = await resolveFinancialContext(user.id, params.get("context"));
   const cardId = params.get("cardId") || "";
   if (!context) return NextResponse.json({ error: "Espaço financeiro inválido ou sem acesso." }, { status: 403 });
-  const cardWhere = context.type === "FAMILY" ? { id: cardId, teamId: context.teamId } : { id: cardId, userId: user.id, teamId: null };
+  const cardWhere = context.type === "FAMILY" ? { id: cardId, teamId: context.teamId } : { id: cardId, userId: user.id };
   const card = await prisma.creditCard.findFirst({ where: cardWhere, select: { id: true } });
   if (!card) return NextResponse.json({ error: "Cartão não encontrado nesse contexto." }, { status: 404 });
   const purchases = await prisma.cardPurchase.findMany({ where: { cardId }, include: { installmentsList: { orderBy: { number: "asc" } }, user: { select: { id: true, name: true, email: true } } }, orderBy: { purchaseDate: "desc" } });
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
   const installments = validInstallments(body?.installments);
   if (!context) return NextResponse.json({ error: "Espaço financeiro inválido ou sem acesso." }, { status: 403 });
   if (!cardId || !description || !category || !amount || !purchaseDate || !installments) return NextResponse.json({ error: "Informe cartão, descrição, categoria, valor, data e parcelas válidas." }, { status: 400 });
-  const cardWhere = context.type === "FAMILY" ? { id: cardId, teamId: context.teamId, userId: user.id, isActive: true } : { id: cardId, userId: user.id, teamId: null, isActive: true };
+  const cardWhere = context.type === "FAMILY" ? { id: cardId, teamId: context.teamId, userId: user.id, isActive: true } : { id: cardId, userId: user.id, isActive: true };
   const card = await prisma.creditCard.findFirst({ where: cardWhere });
   if (!card) return NextResponse.json({ error: "Escolha um cartão ativo que pertença a você nesse contexto." }, { status: 403 });
   const suggestion = await applyTransactionRule(user.id, description, { category, type: "EXPENSE" });
