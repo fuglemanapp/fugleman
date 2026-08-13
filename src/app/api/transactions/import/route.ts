@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/current-user";
 import { resolveFinancialContext } from "@/lib/financial-context";
 import { importExternalId, importableRecords, previewStatement, type CsvMapping } from "@/lib/statement-import";
 import prisma from "@/lib/prisma";
-import { applyTransactionRule } from "@/lib/transaction-rules";
+import { applyRules } from "@/lib/transaction-rules";
 
 export const dynamic = "force-dynamic";
 
@@ -40,21 +40,23 @@ export async function POST(request: Request) {
   if (Buffer.byteLength(content, "utf8") > maximumFileSize) return NextResponse.json({ error: "O arquivo deve ter no máximo 2 MB." }, { status: 413 });
 
   try {
-    const enrich = async () => {
+    const rules = await prisma.transactionRule.findMany({ where: { userId: user.id, isActive: true }, orderBy: { createdAt: "asc" } });
+    const enrich = () => {
       const records = importableRecords(content, fileName, mapping);
-      return Promise.all(records.map(async (record) => {
-        const suggestion = await applyTransactionRule(user.id, record.description, { category: record.category, type: record.type });
+      return records.map((record) => {
+        const suggestion = applyRules(rules, record.description, { category: record.category, type: record.type });
         return { ...record, category: suggestion.category, type: suggestion.type || record.type, matchedBy: suggestion.matchedBy };
-      }));
+      });
     };
     if (payload?.action === "inspect") {
       const preview = previewStatement(content, fileName, mapping);
-      const records = await enrich();
+      if (!preview.preview.length) return NextResponse.json(preview);
+      const records = enrich();
       return NextResponse.json({ ...preview, preview: records.slice(0, 8) });
     }
     if (payload?.action !== "import") return NextResponse.json({ error: "Ação de importação inválida." }, { status: 400 });
 
-    const records = await enrich();
+    const records = enrich();
     const occurrences = new Map<string, number>();
     const candidates = records.map((record) => {
       const fingerprint = `${record.date}|${record.type}|${record.amount}|${record.description.trim().toLocaleLowerCase("pt-BR")}`;
