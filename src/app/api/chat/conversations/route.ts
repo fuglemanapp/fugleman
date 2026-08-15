@@ -55,5 +55,5 @@ export async function GET() {
     };
   }));
 
-  return NextResponse.json({ conversations: result });
+  return NextResponse.json({ currentUserId: user.id, conversations: result });
 }
