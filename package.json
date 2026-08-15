@@ -10,9 +10,10 @@
     "vercel-build": "next build"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "^2.4.1",
+    "@auth/prisma-adapter": "2.11.3",
     "@base-ui/react": "^1.6.0",
     "@prisma/client": "^5.16.1",
+    "@vercel/blob": "^2.8.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.24.0",
@@ -32,6 +33,13 @@
     "postcss": "^8",
     "prisma": "^5.16.1",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.7"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "8.5.18",
+      "sharp": "0.35.0"
+    }
   }
 }
