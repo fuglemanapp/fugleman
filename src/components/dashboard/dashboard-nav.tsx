@@ -5,7 +5,7 @@ import { ChevronDown, CircleHelp, Menu } from "lucide-react";
 type DashboardNavProps = { activePath?: string };
 
 const sections = [
-  { label: "Visão geral", links: [{ href: "/dashboard", label: "Dashboard", description: "Resumo do seu dia" }] },
+  { label: "Visão geral", links: [{ href: "/dashboard", label: "Dashboard", description: "Resumo do seu dia" }, { href: "/dashboard/conversas", label: "Conversas", description: "Chat privado da família" }] },
   { label: "Financeiro", links: [
     { href: "/dashboard/financeiro/transacoes", label: "Transações", description: "Entradas e saídas" },
     { href: "/dashboard/financeiro/planejamento", label: "Planejamento", description: "Orçamentos, metas e recorrências" },
