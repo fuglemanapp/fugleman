@@ -16,6 +16,7 @@
 - Não adicionar conversas públicas, chamadas, reações, edição, exclusão, encaminhamento, push notifications ou criptografia ponta a ponta.
 - Não aceitar senderId, lista de participantes, URL de anexo ou userId como autoridade vinda do cliente.
 - Sem BLOB_READ_WRITE_TOKEN, texto deve funcionar e anexos devem informar como habilitar o recurso.
+- O Blob deve ser criado com acesso Private; anexos são entregues por rota autenticada.
 - Manter a aparência premium branca e verde já usada no dashboard.
 
 ---
@@ -27,7 +28,7 @@
 - src/lib/chat.ts: validação de arquivo, autorização e criação idempotente de conversa.
 - src/lib/chat.test.ts: testes de regras puras.
 - src/app/api/chat/conversations: lista, conversa direta, leitura e mensagens.
-- src/app/api/chat/uploads: autorização e conclusão de upload Vercel Blob.
+- src/app/api/chat/uploads e src/app/api/chat/attachments/[attachmentId]: upload e entrega autenticada do Vercel Blob privado.
 - src/app/manifest.ts, public/sw.js e src/components/pwa: PWA.
 - src/components/chat/chat-workspace.tsx: interface responsiva, polling e envio.
 - src/app/dashboard/conversas/page.tsx e src/components/dashboard/dashboard-nav.tsx: rota e navegação.
@@ -56,7 +57,7 @@ Atualize package.json sem remover scripts existentes:
 ~~~json
 {
   "scripts": { "test": "vitest run" },
-  "dependencies": { "@vercel/blob": "^2.0.0" },
+  "dependencies": { "@vercel/blob": "^2.3.0" },
   "devDependencies": { "vitest": "^3.0.0" }
 }
 ~~~
@@ -151,7 +152,6 @@ model ChatAttachment {
   id          String       @id @default(cuid())
   messageId   String?
   ownerId     String
-  blobUrl     String
   pathname    String       @unique
   fileName    String
   contentType String
@@ -310,6 +310,7 @@ git commit -m "feat: adiciona APIs seguras de conversas"
 **Files:**
 - Create: src/app/api/chat/uploads/route.ts
 - Create: src/app/api/chat/uploads/complete/route.ts
+- Create: src/app/api/chat/attachments/[attachmentId]/route.ts
 - Modify: .env.example
 - Modify: src/lib/chat.test.ts
 
@@ -340,9 +341,11 @@ Expected: todos os testes passam após Task 1; este teste registra a regra de co
 
 POST /api/chat/uploads recebe { conversationId, fileName, contentType, size }; exige participante, chama validateChatFile e retorna 503 com { error: "Anexos ainda não foram configurados. Ative o Vercel Blob na Vercel." } se não houver token.
 
-Com token, use handleUpload de @vercel/blob/client, prefixo chat/{conversationId}/{currentUser.id}/, addRandomSuffix: true e maximumSizeInBytes: 25 * 1024 * 1024. No callback onUploadCompleted, repita validação de participação e pathname.
+Com token, use handleUpload de @vercel/blob/client, prefixo chat/{conversationId}/{currentUser.id}/, access: private, addRandomSuffix: true e maximumSizeInBytes: 25 * 1024 * 1024. No callback onUploadCompleted, repita validação de participação e pathname.
 
-POST /api/chat/uploads/complete recebe { conversationId, blobUrl, pathname, fileName, contentType, size }; exige participação, exige prefixo do usuário/conversa e validateChatFile, e cria ChatAttachment com ownerId do usuário atual e messageId nulo. Antes do create, consulte por pathname para tornar reenvios idempotentes.
+POST /api/chat/uploads/complete recebe { conversationId, pathname, fileName, contentType, size }; exige participação, exige prefixo do usuário/conversa e validateChatFile, e cria ChatAttachment com ownerId do usuário atual e messageId nulo. Antes do create, consulte por pathname para tornar reenvios idempotentes. Não persista URL pública.
+
+Em GET /api/chat/attachments/:attachmentId, busque o anexo com message e conversation, valide requireChatParticipant e use get(pathname) de @vercel/blob para devolver o stream com contentType e Content-Disposition seguro. Retorne 404 quando não houver anexo ou quando o usuário não participar, sem indicar qual caso ocorreu.
 
 - [ ] **Step 4: Documentar a variável**
 
@@ -510,13 +513,13 @@ type Conversation = {
 type Message = {
   id: string; text: string | null; createdAt: string;
   sender: { id: string; name: string | null; email: string | null; image: string | null };
-  attachments: { id: string; blobUrl: string; fileName: string; contentType: string; size: number }[];
+  attachments: { id: string; fileName: string; contentType: string; size: number }[];
 };
 ~~~
 
 Use useSearchParams para conversa em ?conversation=<id>. Carregue lista ao montar; carregue mensagens e chame POST /read ao abrir. Com conversa ativa, faça polling de 8.000 ms e atualização em visibilitychange; limpe intervalo/listener ao sair.
 
-No compositor, recuse texto vazio sem arquivo, permita remover arquivo pendente, solicite autorização, envie arquivo, confirme-o, depois envie { text, attachmentIds }. Exiba miniatura de imagem, controles nativos de áudio/vídeo e link para PDF/documento. Em resposta 503, mostre orientação para ativar Vercel Blob.
+No compositor, recuse texto vazio sem arquivo, permita remover arquivo pendente, solicite autorização, envie arquivo, confirme-o, depois envie { text, attachmentIds }. Carregue anexos por /api/chat/attachments/:id para exibir miniatura de imagem, controles nativos de áudio/vídeo e link para PDF/documento. Em resposta 503, mostre orientação para ativar Vercel Blob.
 
 - [ ] **Step 4: Criar rota e menu**
 
@@ -554,7 +557,7 @@ Inclua:
 ~~~text
 1. Abra WhatSpent na Vercel.
 2. Acesse Storage > Create Database > Blob.
-3. Conecte o Blob ao projeto.
+3. Conecte o Blob ao projeto com acesso Private.
 4. Verifique BLOB_READ_WRITE_TOKEN em Settings > Environment Variables para Production, Preview e Development.
 5. Faça redeploy e envie um PDF menor que 25 MB em /dashboard/conversas.
 ~~~
@@ -600,4 +603,3 @@ git commit -m "docs: orienta ativacao do chat familiar"
 - Cobertura: Task 1 cria schema, migração, validações e testes; Task 2 implementa grupo, direto e autorização; Task 3 cobre anexos; Task 4 cobre PWA sem cache de dados autenticados; Task 5 cobre interface, menu e responsividade; Task 6 cobre produção.
 - Não há placeholders de implementação; funções, rotas, payloads e comandos são definidos no plano.
 - Consistência: teamId_kind_directKey, directConversationKey, requireChatParticipant e o fluxo de anexo pendente são usados de forma idêntica em todas as tarefas.
-

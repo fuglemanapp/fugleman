@@ -55,11 +55,11 @@ Nova rota: `/dashboard/conversas`.
 
 ### 3. Anexos
 
-- Vercel Blob guarda o arquivo; o banco persiste apenas metadados e URL.
+- Um armazenamento privado do Vercel Blob guarda o arquivo; o banco persiste apenas metadados e pathname interno.
 - Tipos aceitos: imagens, áudio, vídeo, PDF, planilhas, texto e formatos comuns de documentos. O servidor valida tipo declarado, tamanho máximo e vínculo do remetente com a conversa.
 - O envio usa URL assinada gerada para usuário autenticado. A aplicação não aceitará uma URL arbitrária enviada pelo navegador.
-- O download acontece dentro de uma conversa à qual o usuário tem acesso. A primeira versão usará URLs de blob; se arquivos confidenciais forem enviados, uma camada futura de URLs temporárias/privadas deve substituir essa exposição.
-- Para ativar em produção, será necessário criar um armazenamento Vercel Blob e cadastrar `BLOB_READ_WRITE_TOKEN` nos ambientes da Vercel. Sem essa variável, o chat continua permitindo texto e mostra orientação clara ao tentar anexar.
+- O download acontece por rota do WhatSpent, que valida a participação na conversa e lê o blob privado no servidor. O navegador não recebe uma URL pública ou token do armazenamento.
+- Para ativar em produção, será necessário criar um armazenamento privado Vercel Blob e cadastrar `BLOB_READ_WRITE_TOKEN` nos ambientes da Vercel. Sem essa variável, o chat continua permitindo texto e mostra orientação clara ao tentar anexar.
 
 ## Modelo de dados
 
@@ -92,7 +92,7 @@ Uma mensagem deve possuir texto ou pelo menos um anexo. Nesta etapa não há edi
 ### `ChatAttachment`
 
 ```text
-id, messageId, blobUrl, pathname, fileName, contentType, size, createdAt
+id, messageId, pathname, fileName, contentType, size, createdAt
 ```
 
 Índice por `messageId`.
@@ -106,7 +106,8 @@ Todas as rotas exigem sessão válida e nunca aceitam IDs de remetente fornecido
 - `GET /api/chat/conversations/:id/messages?cursor=`: pagina mensagens e anexos. Só funciona para participantes.
 - `POST /api/chat/conversations/:id/messages`: envia texto e/ou anexos previamente autorizados. Só funciona para participantes.
 - `POST /api/chat/conversations/:id/read`: avança `lastReadAt` do participante atual.
-- `POST /api/chat/uploads`: gera autorização para upload no Vercel Blob após validar conversa, tamanho e tipo de arquivo.
+- `POST /api/chat/uploads`: gera autorização para upload privado no Vercel Blob após validar conversa, tamanho e tipo de arquivo.
+- `GET /api/chat/attachments/:id`: confirma a participação na conversa e entrega o arquivo privado sem expor credenciais de armazenamento.
 
 O grupo Família terá todos os membros do time como participantes. Conversas diretas terão exatamente dois participantes. Ao remover um membro da família no futuro, suas permissões de chat deverão ser revogadas; como a remoção de membros ainda não existe, esta versão já centraliza a checagem de acesso no vínculo `TeamMember`.
 
@@ -168,7 +169,7 @@ O grupo Família terá todos os membros do time como participantes. Conversas di
 3. Cada membro consegue iniciar e acessar uma única conversa direta com o outro membro.
 4. Usuário sem sessão recebe 401; usuário fora da família recebe 403 ou 404 sem vazar conteúdo.
 5. Mensagem sem texto e sem anexo é recusada; arquivo acima de 25 MB ou executável é recusado.
-6. Um anexo só pode ser vinculado à conversa para a qual foi autorizado.
+6. Um anexo só pode ser vinculado à conversa para a qual foi autorizado e só pode ser baixado por participante dela.
 7. Contadores de não lidas diminuem ao abrir a conversa correspondente.
 8. Chat com texto continua utilizável sem Vercel Blob; anexos exibem orientação de configuração nesse caso.
 9. Migração Prisma, TypeScript, lint e build passam antes do deploy.
