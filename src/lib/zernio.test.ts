@@ -37,4 +37,11 @@ describe("Zernio WhatsApp helpers", () => {
     expect(verifyZernioSignature(raw, signature, "whatspent-test-secret")).toBe(true);
     expect(verifyZernioSignature(`${raw} `, signature, "whatspent-test-secret")).toBe(false);
   });
+
+  it("does not accept a signature generated with another secret", () => {
+    const raw = '{"event":"webhook.test"}';
+    const signature = "e439cfc9f4104ef3c768cecff1b32f1b9cfce56f0928906e64caaac51754cada";
+
+    expect(verifyZernioSignature(raw, signature, "another-secret")).toBe(false);
+  });
 });
