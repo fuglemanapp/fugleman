@@ -68,6 +68,9 @@ export async function POST(request: Request) {
 
     try {
       const persistence = await persistAgentAction(user.id, action);
+      if (persistence.confirmation) {
+        reply = persistence.confirmation;
+      }
       if (persistence.warning) {
         reply = `${reply}\n\n${persistence.warning}`;
       }

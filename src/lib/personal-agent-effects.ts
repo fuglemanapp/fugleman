@@ -1,5 +1,5 @@
 import { createGoogleCalendarEvent } from "./google-calendar";
-import type { AgentAction } from "./personal-agent";
+import { actionConfirmation, type AgentAction } from "./personal-agent";
 import prisma from "./prisma";
 
 export async function persistAgentAction(userId: string, action: AgentAction) {
@@ -15,7 +15,7 @@ export async function persistAgentAction(userId: string, action: AgentAction) {
         source: "ASSISTANT",
       },
     });
-    return { warning: null };
+    return { warning: null, confirmation: actionConfirmation(action) };
   }
 
   if (action.kind === "EVENT") {
@@ -29,8 +29,8 @@ export async function persistAgentAction(userId: string, action: AgentAction) {
       },
     });
     const sync = await createGoogleCalendarEvent(userId, event);
-    return { warning: sync.synced ? null : sync.error };
+    return { warning: sync.synced ? null : sync.error, confirmation: actionConfirmation(action) };
   }
 
-  return { warning: null };
+  return { warning: null, confirmation: null };
 }

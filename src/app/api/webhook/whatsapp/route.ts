@@ -30,6 +30,7 @@ async function createAssistantReply(userId: string, text: string, hasAttachments
 
     try {
       const persistence = await persistAgentAction(userId, action);
+      if (persistence.confirmation) reply = persistence.confirmation;
       if (persistence.warning) reply = `${reply}\n\n${persistence.warning}`;
     } catch {
       action = { kind: "NONE" };
