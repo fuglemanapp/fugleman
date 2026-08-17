@@ -38,7 +38,12 @@ export async function PUT(request: Request) {
     });
 
     return NextResponse.json({ phone: updated.phone, replacedExisting: replaceExisting });
-  } catch {
+  } catch (error) {
+    console.error("Failed to update the WhatsApp phone link", {
+      userId: user.id,
+      replaceExisting,
+      error,
+    });
     return NextResponse.json({ error: "Esse número já está vinculado a outra conta WhatSpent." }, { status: 409 });
   }
 }
