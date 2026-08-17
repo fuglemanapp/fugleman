@@ -1,94 +1,118 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { NextResponse } from "next/server";
 
-// Webhook que o Evolution API vai chamar
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    
-    // O Evolution API envia eventos, queremos apenas mensagens novas
-    if (body.event !== 'messages.upsert') {
-      return NextResponse.json({ status: 'ignored' });
-    }
+import { ensureAssistantConversation } from "@/lib/assistant-conversation";
+import { persistAgentAction } from "@/lib/personal-agent-effects";
+import { runPersonalAgent, type AgentAction } from "@/lib/personal-agent";
+import prisma from "@/lib/prisma";
+import { normalizePhone, parseZernioInboundMessage, sendZernioInboxMessage, verifyZernioSignature } from "@/lib/zernio";
 
-    const messageData = body.data.messages[0];
-    if (!messageData.message || messageData.key.fromMe) {
-      return NextResponse.json({ status: 'ignored' });
-    }
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
-    const phone = messageData.key.remoteJid.split('@')[0];
-    const text = messageData.message.conversation || messageData.message.extendedTextMessage?.text || "";
-
-    if (!text) {
-      return NextResponse.json({ status: 'no_text' });
-    }
-
-    console.log(`Mensagem de ${phone}: ${text}`);
-
-    // 1. Achar o usuário no banco
-    let user = await prisma.user.findUnique({ where: { phone } });
-    if (!user) {
-      user = await prisma.user.create({ data: { phone, name: body.data.pushName || 'Usuário WhatsApp' } });
-    }
-
-    // 2. Chamar a IA (Groq - Llama 3) para entender a intenção
-    const aiResponse = await processWithGroq(text);
-
-    // 3. Salvar no banco baseado na intenção (Simulação)
-    if (aiResponse.intent === 'EXPENSE') {
-      await prisma.transaction.create({
-        data: {
-          amount: aiResponse.amount || 0,
-          description: text,
-          category: aiResponse.category || 'Outros',
-          type: 'EXPENSE',
-          userId: user.id
-        }
-      });
-    }
-
-    // 4. Aqui você chamaria o Evolution API de volta para responder o usuário
-    // sendWhatsAppMessage(phone, aiResponse.reply);
-
-    return NextResponse.json({ success: true, aiResponse });
-
-  } catch (error) {
-    console.error('Erro no webhook:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  }
+async function findUserByPhone(phone: string) {
+  const users = await prisma.user.findMany({ where: { phone: { not: null } }, select: { id: true, phone: true } });
+  return users.find((user) => normalizePhone(user.phone) === phone) || null;
 }
 
-// Função para chamar a API da Groq (Gratuita)
-async function processWithGroq(text: string) {
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) {
-    console.warn("GROQ_API_KEY não configurada. Simulando resposta.");
-    return { intent: 'EXPENSE', amount: 45, category: 'Transporte', reply: "Missão cumprida! Gasto registrado." };
+async function createAssistantReply(userId: string, text: string, hasAttachments: boolean) {
+  const conversation = await ensureAssistantConversation(userId);
+  await prisma.assistantMessage.create({ data: { conversationId: conversation.id, role: "USER", text } });
+
+  let reply = hasAttachments
+    ? "Recebi seu anexo. Por enquanto, descreva em texto o que você quer registrar ou analisar para eu agir com segurança."
+    : "Não consegui interpretar essa mensagem com segurança. Pode reformular?";
+  let action: AgentAction = { kind: "NONE" };
+
+  if (text) {
+    const result = await runPersonalAgent({ userId, text });
+    reply = result.reply;
+    action = result.action;
+
+    try {
+      const persistence = await persistAgentAction(userId, action);
+      if (persistence.warning) reply = `${reply}\n\n${persistence.warning}`;
+    } catch {
+      action = { kind: "NONE" };
+      reply = "Não consegui salvar essa ação com segurança. Tente novamente; nenhum lançamento foi criado.";
+    }
   }
 
-  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: 'llama3-70b-8192',
-      messages: [
-        { 
-          role: 'system', 
-          content: 'Você é o Fugleman, um assessor pessoal de WhatsApp. Analise a mensagem e retorne um JSON com: "intent" (EXPENSE, EVENT, QUESTION), "amount" (se for gasto, em número), "category", e "reply" (sua resposta carismática).' 
-        },
-        { role: 'user', content: text }
-      ],
-      response_format: { type: "json_object" }
-    })
-  });
+  await prisma.assistantMessage.create({ data: { conversationId: conversation.id, role: "ASSISTANT", text: reply, action } });
+  await prisma.assistantConversation.update({ where: { id: conversation.id }, data: { updatedAt: new Date() } });
+  return reply;
+}
 
-  const data = await response.json();
+export async function POST(request: Request) {
+  const rawBody = await request.text();
+  const signature = request.headers.get("x-zernio-signature");
+
+  if (!verifyZernioSignature(rawBody, signature, process.env.ZERNIO_WEBHOOK_SECRET)) {
+    return NextResponse.json({ error: "Assinatura inválida." }, { status: 401 });
+  }
+
+  let body: unknown;
   try {
-    return JSON.parse(data.choices[0].message.content);
-  } catch (e) {
-    return { intent: 'UNKNOWN', reply: 'Não entendi direito, pode repetir?' };
+    body = JSON.parse(rawBody) as unknown;
+  } catch {
+    return NextResponse.json({ error: "Webhook payload inválido." }, { status: 400 });
   }
+  if (typeof body === "object" && body && (body as { event?: unknown }).event === "webhook.test") {
+    return NextResponse.json({ status: "ok" });
+  }
+
+  const inbound = parseZernioInboundMessage(body);
+  if (!inbound) return NextResponse.json({ status: "ignored" });
+
+  const configuredAccountId = process.env.ZERNIO_WHATSAPP_ACCOUNT_ID;
+  if (!process.env.ZERNIO_API_KEY) {
+    return NextResponse.json({ error: "A chave da integração do WhatsApp ainda não foi configurada." }, { status: 503 });
+  }
+
+  if (
+    !inbound.accountId ||
+    (configuredAccountId && inbound.accountId !== configuredAccountId) ||
+    !inbound.conversationId ||
+    !inbound.senderPhone
+  ) {
+    return NextResponse.json({ status: "ignored" });
+  }
+
+  let event = await prisma.zernioWebhookEvent.findUnique({ where: { id: inbound.eventId } });
+  if (!event) {
+    try {
+      event = await prisma.zernioWebhookEvent.create({
+        data: { id: inbound.eventId, event: "message.received", accountId: inbound.accountId, conversationId: inbound.conversationId },
+      });
+    } catch {
+      event = await prisma.zernioWebhookEvent.findUnique({ where: { id: inbound.eventId } });
+    }
+  }
+
+  if (!event) return NextResponse.json({ error: "Não foi possível processar esta mensagem." }, { status: 500 });
+
+  if (!event.responseText) {
+    const user = await findUserByPhone(inbound.senderPhone);
+    if (!user) return NextResponse.json({ status: "unlinked_sender" });
+
+    const reply = await createAssistantReply(user.id, inbound.text || "", inbound.hasAttachments);
+    event = await prisma.zernioWebhookEvent.update({ where: { id: event.id }, data: { userId: user.id, responseText: reply } });
+  }
+
+  if (!event.deliveredAt && event.responseText) {
+    try {
+      await sendZernioInboxMessage({
+        accountId: inbound.accountId,
+        conversationId: inbound.conversationId,
+        message: event.responseText,
+        replyTo: inbound.platformMessageId,
+        idempotencyKey: `whatspent:${event.id}:reply`,
+      });
+      await prisma.zernioWebhookEvent.update({ where: { id: event.id }, data: { deliveredAt: new Date() } });
+    } catch (error) {
+      console.error("Zernio reply failed", error);
+      return NextResponse.json({ error: "Não foi possível responder agora." }, { status: 503 });
+    }
+  }
+
+  return NextResponse.json({ status: "processed" });
 }
