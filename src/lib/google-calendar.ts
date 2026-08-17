@@ -45,7 +45,11 @@ function hasCalendarSharingScope(scope: string | null) {
 }
 
 async function getGoogleAccount(userId: string) {
-  return prisma.account.findFirst({ where: { userId, provider: "google" }, orderBy: { id: "desc" } });
+  return prisma.account.findFirst({
+    where: { userId, provider: "google" },
+    orderBy: { id: "desc" },
+    include: { user: { select: { email: true } } },
+  });
 }
 
 async function getAccessToken(userId: string, requirement: "events" | "sharing" = "events") {
@@ -97,7 +101,7 @@ export async function getGoogleCalendarStatus(userId: string) {
   return {
     connected: Boolean(account && hasCalendarScope(account.scope)),
     sharingConnected: Boolean(account && hasCalendarSharingScope(account.scope)),
-    email: account?.providerAccountId ?? null,
+    email: account?.user.email ?? null,
   };
 }
 
