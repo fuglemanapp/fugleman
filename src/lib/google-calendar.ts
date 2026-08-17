@@ -50,7 +50,6 @@ async function getGoogleAccount(userId: string) {
   return prisma.account.findFirst({
     where: { userId, provider: "google" },
     orderBy: { id: "desc" },
-    include: { user: { select: { email: true } } },
   });
 }
 
@@ -103,7 +102,9 @@ export async function getGoogleCalendarStatus(userId: string) {
   return {
     connected: Boolean(account && hasCalendarScope(account.scope)),
     sharingConnected: Boolean(account && hasCalendarSharingScope(account.scope)),
-    email: account?.user.email ?? null,
+    // A conta Google pode ser diferente do e-mail usado para entrar no WhatSpent.
+    // Não exibimos o e-mail do perfil WhatSpent como se ele fosse o e-mail do Google.
+    email: null,
   };
 }
 
