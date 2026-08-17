@@ -11,7 +11,7 @@
     "db:generate": "prisma generate",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:validate": "prisma validate",
-    "vercel-build": "prisma migrate deploy && prisma generate && next build"
+    "vercel-build": "node scripts/vercel-build.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "2.11.3",
