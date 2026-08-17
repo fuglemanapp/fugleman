@@ -3,25 +3,23 @@
 @tailwind utilities;
 
 :root {
-  /* LIGHT MODE VARIABLES */
-  --bg-main: #F1F5F9;
+  --bg-main: #f6faf7;
   --bg-header: #ffffff;
   --bg-card: #ffffff;
-  --bg-elevated: #F8FAFC;
-  --text-primary: #0F172A;
-  --text-secondary: #64748B;
-  --border-subtle: #F1F5F9;
-  --border-strong: #E2E8F0;
+  --bg-elevated: #eff7f1;
+  --text-primary: #17372b;
+  --text-secondary: #678176;
+  --border-subtle: #e5f0e8;
+  --border-strong: #d6e8dc;
 }
 
 html.dark {
-  /* DARK MODE VARIABLES */
-  --bg-main: #0B0F19;         
-  --bg-header: #151521;
-  --bg-card: #151B2E;         
-  --bg-elevated: #1E243D;     
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
+  --bg-main: #0d2017;
+  --bg-header: #12261c;
+  --bg-card: #163021;
+  --bg-elevated: #1d3a29;
+  --text-primary: #f3fff6;
+  --text-secondary: #b2cbbb;
   --border-subtle: rgba(255,255,255,0.05);
   --border-strong: rgba(255,255,255,0.1);
 }
@@ -67,8 +65,103 @@ body {
     animation: marquee 30s linear infinite;
   }
   .text-gradient-premium {
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-[#60A5FA] via-[#C084FC] to-[#F472B6];
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-[#087d3c] via-[#17ab5a] to-[#61b98a];
   }
+}
+
+/* A única moldura do dashboard é a do WhatSpent. As telas antigas continuam
+   funcionais, mas não podem renderizar um segundo cabeçalho legado. */
+.dashboard-shell {
+  min-height: 100dvh;
+  background: var(--bg-main);
+  color: var(--text-primary);
+}
+
+.dashboard-route > * > header:first-child {
+  display: none !important;
+}
+
+.dashboard-route > * {
+  min-height: calc(100dvh - 4rem);
+}
+
+/* Ponte de compatibilidade para as páginas que ainda usam as classes do
+   tema anterior. Mantém todos os conteúdos na identidade do WhatSpent. */
+.dashboard-route .bg-\[\#F1F5F9\],
+.dashboard-route .bg-slate-50,
+.dashboard-route .bg-slate-100,
+.dashboard-route .bg-slate-200 {
+  background-color: #f6faf7 !important;
+}
+
+.dashboard-route .text-slate-900,
+.dashboard-route .text-\[\#0A1A44\] {
+  color: #17372b !important;
+}
+
+.dashboard-route .text-slate-500,
+.dashboard-route .text-slate-400,
+.dashboard-route .text-slate-300,
+.dashboard-route .text-gray-500,
+.dashboard-route .text-gray-400 {
+  color: #6f887b !important;
+}
+
+.dashboard-route .border-slate-100,
+.dashboard-route .border-slate-200,
+.dashboard-route .border-slate-300,
+.dashboard-route .border-gray-100,
+.dashboard-route .border-gray-200 {
+  border-color: #dcebe2 !important;
+}
+
+.dashboard-route [class*="text-purple"],
+.dashboard-route [class*="text-violet"],
+.dashboard-route [class*="text-pink"],
+.dashboard-route [class*="text-fuchsia"],
+.dashboard-route [class*="text-blue"],
+.dashboard-route [class*="text-[#C084FC]"],
+.dashboard-route [class*="text-[#8B5CF6]"],
+.dashboard-route [class*="text-[#9333EA]"] {
+  color: #087d3c !important;
+}
+
+.dashboard-route [class*="bg-purple"],
+.dashboard-route [class*="bg-violet"],
+.dashboard-route [class*="bg-pink"],
+.dashboard-route [class*="bg-fuchsia"],
+.dashboard-route [class*="bg-blue"],
+.dashboard-route [class*="bg-[#F8E8F8]"],
+.dashboard-route [class*="bg-[#F3E8FF]"],
+.dashboard-route [class*="bg-[#F8F1FF]"] {
+  background-color: #edf9f1 !important;
+}
+
+.dashboard-route [class*="border-purple"],
+.dashboard-route [class*="border-violet"],
+.dashboard-route [class*="border-pink"],
+.dashboard-route [class*="border-fuchsia"],
+.dashboard-route [class*="border-blue"] {
+  border-color: #9bd8af !important;
+}
+
+.dashboard-route [class*="from-[#0A1A44]"],
+.dashboard-route [class*="from-[#8B5CF6]"],
+.dashboard-route [class*="from-[#9333EA]"] {
+  --tw-gradient-from: #087d3c var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(8 125 60 / 0) var(--tw-gradient-to-position) !important;
+}
+
+.dashboard-route [class*="to-[#C084FC]"],
+.dashboard-route [class*="to-[#8B5CF6]"],
+.dashboard-route [class*="to-[#9333EA]"] {
+  --tw-gradient-to: #61b98a var(--tw-gradient-to-position) !important;
+}
+
+html.dark .dashboard-route [class*="dark:bg-[#0B0F19]"],
+html.dark .dashboard-route [class*="dark:bg-[#151521]"],
+html.dark .dashboard-route [class*="dark:bg-[#1E1E2E]"] {
+  background-color: #12261c !important;
 }
 
 @keyframes float {
