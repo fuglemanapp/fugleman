@@ -45,6 +45,7 @@ model User {
   sentChatMessages ChatMessage[] @relation("ChatMessageSender")
   chatAttachments ChatAttachment[] @relation("ChatAttachmentOwner")
   assistantConversation AssistantConversation?
+  zernioWebhookEvents ZernioWebhookEvent[]
 }
 
 model Account {
@@ -500,4 +501,20 @@ model AssistantAttachment {
 
   @@index([conversationId, createdAt])
   @@index([messageId])
+}
+
+model ZernioWebhookEvent {
+  id             String   @id
+  event          String
+  accountId      String?
+  conversationId String?
+  responseText   String?
+  deliveredAt    DateTime?
+  userId         String?
+  createdAt      DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([userId])
 }
