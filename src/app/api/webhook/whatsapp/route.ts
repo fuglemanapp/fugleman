@@ -44,9 +44,16 @@ async function createAssistantReply(userId: string, text: string, hasAttachments
 
 export async function POST(request: Request) {
   const rawBody = await request.text();
-  const signature = request.headers.get("x-zernio-signature");
+  const zernioSignature = request.headers.get("x-zernio-signature");
+  const legacySignature = request.headers.get("x-late-signature");
+  const signatures = [zernioSignature, legacySignature].filter((signature): signature is string => Boolean(signature));
 
-  if (!verifyZernioSignature(rawBody, signature, process.env.ZERNIO_WEBHOOK_SECRET)) {
+  if (!signatures.some((signature) => verifyZernioSignature(rawBody, signature, process.env.ZERNIO_WEBHOOK_SECRET))) {
+    console.warn("Rejected Zernio webhook signature", {
+      hasWebhookSecret: Boolean(process.env.ZERNIO_WEBHOOK_SECRET),
+      signatureHeader: zernioSignature ? "x-zernio-signature" : legacySignature ? "x-late-signature" : "missing",
+      eventId: request.headers.get("x-zernio-event-id") ?? request.headers.get("x-late-event-id") ?? null,
+    });
     return NextResponse.json({ error: "Assinatura inválida." }, { status: 401 });
   }
 
