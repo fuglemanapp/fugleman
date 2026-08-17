@@ -1,236 +1,58 @@
-import { ChevronDown, HelpCircle, Bell, ArrowUpRight, ArrowDownRight, Folder, CreditCard, ListTodo, Calendar, Plus, Wallet, CheckCircle2, Tags, Building2, Link2, PieChart, Receipt, FileText, Users, Mail, Zap, Send, Briefcase, ShieldCheck, MessageSquare, UserPlus, FileSearch, DownloadCloud, AlertTriangle, Copy, ExternalLink, Trash2, ArrowRightLeft, Search, Filter, Check, Info, BarChart3, RotateCw, Edit2, Lock, X, Landmark, Keyboard, Layers, RefreshCw, ArrowRight, MessageCircle, Clock, CircleDollarSign, Percent, Calendar as CalendarIcon, Tag, Edit, Maximize2, MoreHorizontal, FileText as FileTextIcon, History, Grid3X3, List, Share2, Upload, FolderOpen, Home, ThumbsUp, ThumbsDown, BookOpen, HeadphonesIcon, ArrowLeft, TrendingUp, Bot, Shield } from "lucide-react"
+import { CalendarDays, Mail, ShieldCheck, UserRound } from "lucide-react";
 
-export default function ContaPage() {
+import { SignOutButton } from "@/components/account/sign-out-button";
+import { WhatsAppLinkCard } from "@/components/account/whatsapp-link-card";
+import { DashboardNav } from "@/components/dashboard/dashboard-nav";
+import { getCurrentUser } from "@/lib/current-user";
+
+export default async function ContaPage() {
+  const user = await getCurrentUser();
+  const displayName = user?.name?.trim() || "Sua conta";
+  const initial = displayName.charAt(0).toUpperCase() || "W";
+
   return (
-    <div className="flex flex-col min-h-screen bg-transparent transition-colors duration-300 dark:bg-[#0B0F19] font-sans text-slate-900">
+    <div className="min-h-[100dvh] bg-[#f4f8f5] text-[#17372b]">
+      <DashboardNav activePath="/dashboard/conta" />
 
-      {/* Top Navbar */}
-      <header className="bg-white dark:bg-[#151521] border-b border-slate-200 dark:border-slate-800 h-14 flex items-center px-4 md:px-6 justify-between shrink-0 sticky top-0 z-50">
-        <div className="flex items-center gap-12">
-          {/* Logo */}
-          <a href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
-            <div className="w-6 h-6 bg-gradient-to-tr from-[#0A1A44] to-[#C084FC] rounded flex items-center justify-center text-white">
-              <span className="font-bold text-xs italic">F</span>
-            </div>
-            <span className="font-bold text-[#0A1A44] dark:text-white tracking-tight">Fugleman</span>
-          </a>
+      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-10">
+        <header className="rounded-[2rem] border border-[#dcebe2] bg-white px-6 py-7 shadow-[0_20px_50px_-38px_rgba(12,100,53,.38)] sm:px-8">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#079347]">Minha conta</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-[#17372b]">Seu espaço no WhatSpent.</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#678176]">Gerencie sua identidade, o número que conversa com seu agente e a segurança da sua sessão.</p>
+        </header>
 
-          {/* Primary Nav */}
-                    <nav className="hidden lg:flex items-center gap-6 text-[13px] font-medium text-slate-500 relative dark:text-slate-400">
-            {/* Dropdown Visão Geral */}
-            <div className="group relative">
-              <button className="hover:text-slate-900 dark:hover:text-white flex items-center gap-1 py-4 text-slate-500 dark:text-slate-400">Visão Geral <ChevronDown className="w-3 h-3"/></button>
-              <div className="absolute top-full left-0 mt-0 w-64 bg-white dark:bg-[#1E1E2E] rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform translate-y-2 group-hover:translate-y-0 z-50 py-2">
-                <a href="/dashboard" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-lg flex items-center justify-center shrink-0"><BarChart3 className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Dashboard</div><div className="text-slate-400 text-xs font-normal">Visão geral do sistema</div></div>
-                </a>
+        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+          <section className="rounded-[1.75rem] border border-[#dcebe2] bg-white p-6 shadow-[0_20px_50px_-40px_rgba(12,100,53,.36)] sm:p-7">
+            <div className="flex items-start gap-4">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#087d3c] text-lg font-bold text-white shadow-[0_12px_26px_-16px_rgba(8,125,60,.85)]">{initial}</span>
+              <div className="min-w-0">
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#799187]">Seu perfil</p>
+                <h2 className="mt-1 truncate text-xl font-semibold tracking-[-0.03em]">{displayName}</h2>
+                <p className="mt-1 truncate text-sm text-[#678176]">{user?.email || "E-mail não disponível"}</p>
               </div>
             </div>
 
-            {/* Dropdown Financeiro */}
-            <div className="group relative">
-              <button className="hover:text-slate-900 dark:hover:text-white flex items-center gap-1 py-4 text-slate-500 dark:text-slate-400">Financeiro <ChevronDown className="w-3 h-3"/></button>
-              <div className="absolute top-full left-0 mt-0 w-64 bg-white dark:bg-[#1E1E2E] rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform translate-y-2 group-hover:translate-y-0 z-50 py-2">
-                <a href="/dashboard/financeiro/transacoes" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-pink-50 dark:bg-pink-500/10 text-pink-500 rounded-lg flex items-center justify-center shrink-0"><Wallet className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Transações</div><div className="text-slate-400 text-xs font-normal">Entradas e saídas</div></div>
-                </a>
-                <a href="/dashboard/financeiro/conciliacao" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-pink-50 dark:bg-pink-500/10 text-pink-500 rounded-lg flex items-center justify-center shrink-0"><CheckCircle2 className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Conciliação</div><div className="text-slate-400 text-xs font-normal">Conferir extratos</div></div>
-                </a>
-                <a href="/dashboard/financeiro/cartoes" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-pink-50 dark:bg-pink-500/10 text-pink-500 rounded-lg flex items-center justify-center shrink-0"><CreditCard className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Cartões</div><div className="text-slate-400 text-xs font-normal">Gerenciar cartões</div></div>
-                </a>
-                <a href="/dashboard/financeiro/categorias" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-pink-50 dark:bg-pink-500/10 text-pink-500 rounded-lg flex items-center justify-center shrink-0"><Tags className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Categorias</div><div className="text-slate-400 text-xs font-normal">Organizar gastos</div></div>
-                </a>
-                <a href="/dashboard/financeiro/bancos" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-pink-50 dark:bg-pink-500/10 text-pink-500 rounded-lg flex items-center justify-center shrink-0"><Building2 className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Bancos</div><div className="text-slate-400 text-xs font-normal">Contas bancárias</div></div>
-                </a>
-                <a href="/dashboard/financeiro/integracoes" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-pink-50 dark:bg-pink-500/10 text-pink-500 rounded-lg flex items-center justify-center shrink-0"><Link2 className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Integrações</div><div className="text-slate-400 text-xs font-normal">Gerenciar conexões</div></div>
-                </a>
-                <a href="/dashboard/financeiro/relatorios" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-pink-50 dark:bg-pink-500/10 text-pink-500 rounded-lg flex items-center justify-center shrink-0"><PieChart className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Relatórios</div><div className="text-slate-400 text-xs font-normal">Análise financeira</div></div>
-                </a>
-                <a href="/dashboard/financeiro/cobrancas" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-pink-50 dark:bg-pink-500/10 text-pink-500 rounded-lg flex items-center justify-center shrink-0"><span className="font-bold text-sm">$</span></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Cobranças</div><div className="text-slate-400 text-xs font-normal">Links de pagamento</div></div>
-                </a>
-                <a href="/dashboard/financeiro/notas-fiscais" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-pink-50 dark:bg-pink-500/10 text-pink-500 rounded-lg flex items-center justify-center shrink-0"><Receipt className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Notas fiscais</div><div className="text-slate-400 text-xs font-normal">Emissão fiscal</div></div>
-                </a>
-              </div>
+            <div className="mt-7 space-y-3 border-t border-[#e4eee7] pt-5 text-sm">
+              <div className="flex items-center gap-3 rounded-2xl bg-[#f6faf7] px-4 py-3 text-[#315f48]"><UserRound className="h-4 w-4 shrink-0 text-[#087d3c]" /><span className="min-w-0 truncate">{displayName}</span></div>
+              <div className="flex items-center gap-3 rounded-2xl bg-[#f6faf7] px-4 py-3 text-[#315f48]"><Mail className="h-4 w-4 shrink-0 text-[#087d3c]" /><span className="min-w-0 truncate">{user?.email || "E-mail não disponível"}</span></div>
+              <div className="flex items-center gap-3 rounded-2xl bg-[#f6faf7] px-4 py-3 text-[#315f48]"><CalendarDays className="h-4 w-4 shrink-0 text-[#087d3c]" /><span>Conta pessoal do WhatSpent</span></div>
             </div>
+          </section>
 
-            {/* Dropdown Agenda */}
-            <div className="group relative">
-              <button className="hover:text-slate-900 dark:hover:text-white flex items-center gap-1 py-4 text-slate-500 dark:text-slate-400">Agenda <ChevronDown className="w-3 h-3"/></button>
-              <div className="absolute top-full left-0 mt-0 w-60 bg-white dark:bg-[#1E1E2E] rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform translate-y-2 group-hover:translate-y-0 z-50 py-2">
-                <a href="/dashboard/agenda" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-purple-50 dark:bg-purple-500/10 text-purple-500 rounded-lg flex items-center justify-center shrink-0"><span className="font-bold">📅</span></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Minha Agenda</div><div className="text-slate-400 text-xs font-normal">Visualizar compromissos</div></div>
-                </a>
-                <a href="/dashboard/agenda/relatorios" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-purple-50 dark:bg-purple-500/10 text-purple-500 rounded-lg flex items-center justify-center shrink-0"><PieChart className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Relatórios</div><div className="text-slate-400 text-xs font-normal">Análise de agenda</div></div>
-                </a>
-                <a href="/dashboard/agenda/integracoes" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-purple-50 dark:bg-purple-500/10 text-purple-500 rounded-lg flex items-center justify-center shrink-0"><Link2 className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Integrações</div><div className="text-slate-400 text-xs font-normal">Conectar serviços</div></div>
-                </a>
-              </div>
-            </div>
-
-            {/* Dropdown Organização */}
-            <div className="group relative">
-              <button className="hover:text-slate-900 dark:hover:text-white flex items-center gap-1 py-4 text-slate-500 dark:text-slate-400">Organização <ChevronDown className="w-3 h-3"/></button>
-              <div className="absolute top-full left-0 mt-0 w-60 bg-white dark:bg-[#1E1E2E] rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform translate-y-2 group-hover:translate-y-0 z-50 py-2">
-                <a href="/dashboard/organizacao/tarefas" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 rounded-lg flex items-center justify-center shrink-0"><ListTodo className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Gerenciador de Tarefas</div><div className="text-slate-400 text-xs font-normal">Acompanhe seus lembretes</div></div>
-                </a>
-                <a href="/dashboard/organizacao/projetos" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 rounded-lg flex items-center justify-center shrink-0"><Folder className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Projetos</div><div className="text-slate-400 text-xs font-normal">Acompanhe seus projetos</div></div>
-                </a>
-                <a href="/dashboard/organizacao/categorias" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 rounded-lg flex items-center justify-center shrink-0"><Tags className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Categorias</div><div className="text-slate-400 text-xs font-normal">Classifique suas demandas</div></div>
-                </a>
-                <a href="/dashboard/organizacao/arquivos" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 rounded-lg flex items-center justify-center shrink-0"><Folder className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Arquivos</div><div className="text-slate-400 text-xs font-normal">Organize em nuvem</div></div>
-                </a>
-                <a href="/dashboard/organizacao/notas" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 rounded-lg flex items-center justify-center shrink-0"><FileText className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Notas</div><div className="text-slate-400 text-xs font-normal">Anotações e briefings</div></div>
-                </a>
-                <a href="/dashboard/organizacao/relatorios" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 rounded-lg flex items-center justify-center shrink-0"><PieChart className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Relatórios</div><div className="text-slate-400 text-xs font-normal">Resultados de organização</div></div>
-                </a>
-              </div>
-            </div>
-
-            {/* Dropdown Cadastros */}
-            <div className="group relative">
-              <button className="hover:text-slate-900 dark:hover:text-white flex items-center gap-1 py-4 text-slate-500 dark:text-slate-400">Cadastros <ChevronDown className="w-3 h-3"/></button>
-              <div className="absolute top-full left-0 mt-0 w-60 bg-white dark:bg-[#1E1E2E] rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform translate-y-2 group-hover:translate-y-0 z-50 py-2">
-                <a href="/dashboard/cadastros/pessoas" className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="w-8 h-8 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-lg flex items-center justify-center shrink-0"><Users className="w-4 h-4"/></div>
-                  <div><div className="text-slate-900 dark:text-white font-semibold text-sm">Pessoas</div><div className="text-slate-400 text-xs font-normal">Gerenciar contatos</div></div>
-                </a>
-              </div>
-            </div>
-          </nav>
+          <WhatsAppLinkCard initialPhone={user?.phone || null} />
         </div>
 
-        {/* User Actions */}
-        <div className="flex items-center gap-4 text-slate-400">
-          <a href="/dashboard/conta" className="flex items-center gap-2 bg-[#F8E8F8] text-[#C084FC] px-2 py-1 rounded-full text-xs font-bold mr-2 hover:bg-[#F3E8FF] transition-colors">
-            <div className="w-5 h-5 rounded-full bg-[#C084FC] text-white flex items-center justify-center text-[10px]">MA</div>
-            <span>Minha Conta</span>
-          </a>
-          <a href="/dashboard/ajuda" className="p-1 theme-text-secondary hover:theme-text-primary transition-colors">
-            <HelpCircle className="w-5 h-5" />
-          </a>
-          {/* Ícone de Lua (Dark Mode toggle fictício igual da imagem) */}
-          <svg className="w-5 h-5 hover:text-slate-600 cursor-pointer" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-          {/* Ícone de Sair */}
-          <svg className="w-5 h-5 hover:text-slate-600 cursor-pointer" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        </div>
-      </header>
-
-      <main className="flex-1 p-4 md:p-8 overflow-auto flex flex-col items-center">
-        
-        {/* Cabeçalho da Página */}
-        <div className="w-full max-w-5xl bg-white rounded-2xl shadow-sm border border-slate-100 p-8 mb-8">
-          <h1 className="text-2xl font-extrabold text-slate-900 mb-2">Minha Conta</h1>
-          <p className="text-sm text-slate-500">Gerencie suas informações, preferências e assinatura.</p>
-        </div>
-
-        {/* Abas de Navegação (Pill) */}
-        <div className="w-full max-w-5xl flex justify-center mb-8">
-          <div className="bg-white rounded-full p-1.5 shadow-sm border border-slate-100 flex items-center text-sm font-medium overflow-x-auto max-w-full hide-scrollbar">
-            <a href="/dashboard/conta" className="px-6 py-2 bg-[#F3E8FF] text-[#9333EA] rounded-full whitespace-nowrap transition-colors">Perfil</a>
-            <a href="/dashboard/conta/aplicativos" className="px-6 py-2 text-slate-500 hover:text-slate-800 whitespace-nowrap transition-colors">Conectar aplicativos</a>
-            <a href="/dashboard/conta/contador" className="px-6 py-2 text-slate-500 hover:text-slate-800 whitespace-nowrap transition-colors">Área do contador</a>
-            <a href="/dashboard/conta/personalizar" className="px-6 py-2 text-slate-500 hover:text-slate-800 whitespace-nowrap transition-colors">Personalizar</a>
-            <a href="/dashboard/conta/plano" className="px-6 py-2 text-slate-500 hover:text-slate-800 whitespace-nowrap transition-colors">Plano</a>
-            <a href="/dashboard/conta/dados" className="px-6 py-2 text-slate-500 hover:text-slate-800 whitespace-nowrap transition-colors">Meus Dados</a>
-            <a href="/dashboard/conta/agenda" className="px-6 py-2 text-slate-500 hover:text-slate-800 whitespace-nowrap transition-colors">Agenda</a>
-          </div>
-        </div>
-
-        {/* Informações Pessoais */}
-        <div className="w-full max-w-5xl bg-white rounded-2xl shadow-sm border border-slate-100 p-8 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <h2 className="text-xl font-bold text-slate-900">Informações Pessoais</h2>
-            <div className="flex gap-3">
-              <button className="px-6 py-2.5 bg-[#F8F1FF] hover:bg-[#F3E8FF] text-[#9333EA] font-semibold text-sm rounded-xl transition-colors">
-                Salvar Alterações
-              </button>
-              <button className="px-6 py-2.5 bg-[#F8F1FF] hover:bg-[#F3E8FF] text-[#9333EA] font-semibold text-sm rounded-xl transition-colors">
-                Alterar Senha
-              </button>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
+        <section className="mt-6 flex flex-col gap-5 rounded-[1.75rem] border border-[#dcebe2] bg-white p-6 shadow-[0_20px_50px_-40px_rgba(12,100,53,.36)] sm:flex-row sm:items-center sm:justify-between sm:p-7">
+          <div className="flex items-start gap-4">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#edf9f1] text-[#087d3c]"><ShieldCheck className="h-5 w-5" /></span>
             <div>
-              <label className="block text-[11px] font-bold text-slate-500 tracking-wider mb-2">NOME</label>
-              <input 
-                type="text" 
-                defaultValue="Lucas Simioni" 
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all bg-white"
-              />
-            </div>
-            <div>
-              <label className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 tracking-wider mb-2">
-                E-MAIL <Info className="w-3.5 h-3.5 text-blue-500" />
-              </label>
-              <input 
-                type="email" 
-                defaultValue="simioni@outlook.com.br" 
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all bg-white"
-              />
+              <h2 className="font-semibold tracking-[-0.02em]">Segurança da sessão</h2>
+              <p className="mt-1 max-w-xl text-sm leading-relaxed text-[#678176]">Para proteger seus dados financeiros, encerre a sessão ao usar um dispositivo compartilhado.</p>
             </div>
           </div>
-        </div>
-
-        {/* Convidar Novo Usuário */}
-        <div className="w-full max-w-5xl bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-            <div className="max-w-xl">
-              <h2 className="text-lg font-bold text-slate-900 mb-2">Convidar Novo Usuário</h2>
-              <p className="text-sm text-slate-500 leading-relaxed">
-                Gere um código e envie para quem deseja conectar à sua conta. O código permite iniciar o cadastro automaticamente via WhatsApp.
-              </p>
-            </div>
-            <button className="shrink-0 px-6 py-2.5 bg-[#F8F1FF] hover:bg-[#F3E8FF] text-[#9333EA] font-semibold text-sm rounded-xl transition-colors flex items-center gap-2">
-              <Plus className="w-4 h-4" /> Gerar Código
-            </button>
-          </div>
-        </div>
-
+          <SignOutButton />
+        </section>
       </main>
-
-      {/* Floating Action Button (WhatsApp Style) */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <button className="w-12 h-12 bg-[#25D366] hover:bg-[#20bd5a] rounded-full flex items-center justify-center shadow-lg text-white transition-transform hover:scale-105">
-          <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-        </button>
-      </div>
-
     </div>
-  )
+  );
 }

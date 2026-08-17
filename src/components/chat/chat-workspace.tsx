@@ -1,7 +1,7 @@
 "use client";
 
 import { upload } from "@vercel/blob/client";
-import { Bot, CheckCircle2, FileAudio, LoaderCircle, Mic, Paperclip, Send, Smartphone, Square, X } from "lucide-react";
+import { Bot, FileAudio, LoaderCircle, Mic, Paperclip, Send, Square, X } from "lucide-react";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
@@ -47,9 +47,6 @@ export function ChatWorkspace() {
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
   const [recording, setRecording] = useState(false);
-  const [whatsAppPhone, setWhatsAppPhone] = useState<string | null>(null);
-  const [phoneDraft, setPhoneDraft] = useState("");
-  const [savingPhone, setSavingPhone] = useState(false);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -67,15 +64,6 @@ export function ChatWorkspace() {
 
   useEffect(() => {
     void loadConversation();
-    void fetch("/api/assistant/whatsapp-phone", { cache: "no-store" })
-      .then(async (response) => ({ response, body: await response.json() }))
-      .then(({ response, body }) => {
-        if (response.ok) {
-          setWhatsAppPhone(body.phone || null);
-          setPhoneDraft(body.phone || "");
-        }
-      })
-      .catch(() => undefined);
     const timer = window.setInterval(() => {
       if (document.visibilityState === "visible") {
         void loadConversation();
@@ -148,29 +136,6 @@ export function ChatWorkspace() {
     }
   }
 
-  async function saveWhatsAppPhone(event: FormEvent) {
-    event.preventDefault();
-    if (savingPhone) return;
-    setSavingPhone(true);
-    setError("");
-
-    try {
-      const response = await fetch("/api/assistant/whatsapp-phone", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phoneDraft }),
-      });
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.error || "Não foi possível salvar seu número.");
-      setWhatsAppPhone(body.phone);
-      setPhoneDraft(body.phone);
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Não foi possível salvar seu número.");
-    } finally {
-      setSavingPhone(false);
-    }
-  }
-
   async function send(event: FormEvent) {
     event.preventDefault();
     if (!conversation || (!text.trim() && files.length === 0) || sending) {
@@ -236,10 +201,6 @@ export function ChatWorkspace() {
           <h1 className="mt-2 text-3xl font-semibold tracking-[-0.05em]">Converse com o WhatSpent.</h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#678176]">Registre gastos, entradas e compromissos em uma conversa privada. Este contato é só seu.</p>
         </header>
-
-        <section className="mb-5 rounded-2xl border border-[#dcebe2] bg-white p-4 shadow-[0_16px_36px_-30px_rgba(12,100,53,.55)]">
-          {whatsAppPhone ? <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#edf9f1] text-[#087d3c]"><CheckCircle2 className="h-5 w-5" /></span><div><p className="text-sm font-bold text-[#17372b]">Seu WhatsApp está identificado</p><p className="mt-0.5 text-sm text-[#678176]">Mensagens de <span className="font-semibold text-[#315f48]">{whatsAppPhone}</span> serão direcionadas somente ao seu assistente.</p></div></div><button type="button" onClick={() => setWhatsAppPhone(null)} className="text-left text-sm font-bold text-[#087d3c] hover:text-[#056c35]">Alterar número</button></div> : <form onSubmit={saveWhatsAppPhone} className="flex flex-col gap-3 lg:flex-row lg:items-end"><div className="flex min-w-0 flex-1 items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#edf9f1] text-[#087d3c]"><Smartphone className="h-5 w-5" /></span><div className="min-w-0"><p className="text-sm font-bold text-[#17372b]">Ligue seu WhatsApp pessoal ao seu agente</p><p className="mt-0.5 text-sm text-[#678176]">Informe o número do seu celular com DDI. Ele só será usado para reconhecer você ao falar com o WhatSpent no WhatsApp.</p></div></div><div className="flex flex-col gap-2 sm:flex-row"><input value={phoneDraft} onChange={(event) => setPhoneDraft(event.target.value)} inputMode="tel" placeholder="+5511999999999" className="h-10 rounded-xl border border-[#cfe1d6] px-3 text-sm outline-none placeholder:text-[#91a59b] focus:border-[#69b783]" /><button disabled={savingPhone || !phoneDraft.trim()} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#087d3c] px-4 text-sm font-bold text-white hover:bg-[#056c35] disabled:opacity-50">{savingPhone && <LoaderCircle className="h-4 w-4 animate-spin" />}{savingPhone ? "Salvando…" : "Vincular"}</button></div></form>}
-        </section>
 
         {error && <p role="alert" className="mb-4 rounded-xl bg-[#fff0ed] px-4 py-3 text-sm text-[#a1453f]">{error}</p>}
 
