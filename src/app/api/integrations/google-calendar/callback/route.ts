@@ -78,10 +78,6 @@ export async function GET(request: NextRequest) {
     select: { id: true, userId: true, refresh_token: true },
   });
 
-  if (existingAccount && existingAccount.userId !== state.userId) {
-    return redirectToIntegrations(request, { googleCalendarError: "google_account_in_use" });
-  }
-
   const accountData = {
     type: "oauth",
     access_token: token.access_token,
@@ -93,7 +89,11 @@ export async function GET(request: NextRequest) {
   };
 
   if (existingAccount) {
-    await prisma.account.update({ where: { id: existingAccount.id }, data: accountData });
+    // The Google authorization proves control of this Google account. This can
+    // happen after an earlier sign-in attempt created a separate WhatSpent
+    // profile, so move the Calendar connection to the currently authenticated
+    // profile instead of blocking the owner from using their own calendar.
+    await prisma.account.update({ where: { id: existingAccount.id }, data: { ...accountData, userId: state.userId } });
   } else {
     await prisma.account.create({
       data: {
