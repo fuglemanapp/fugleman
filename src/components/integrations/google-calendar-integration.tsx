@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { CalendarDays, CheckCircle2, LoaderCircle, RefreshCw } from "lucide-react";
 
-const calendarScopes = ["https://www.googleapis.com/auth/calendar.events", "https://www.googleapis.com/auth/calendar.acl"];
+const calendarScopes = ["https://www.googleapis.com/auth/calendar.events", "https://www.googleapis.com/auth/calendar.acls"];
 
 type Connection = { connected: boolean; sharingConnected: boolean; email: string | null; error?: string };
 
