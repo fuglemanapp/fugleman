@@ -474,7 +474,7 @@ export function CreditCardsWorkspace() {
 
     setError("");
     const response = await fetch(
-      `/api/financial/cards?id=${encodeURIComponent(card.id)}`,
+      `/api/financial/cards?id=${encodeURIComponent(card.id)}&context=${encodeURIComponent(context)}`,
       { method: "DELETE" },
     );
     if (!response.ok) {

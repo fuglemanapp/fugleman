@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   buildPendingInstallments: vi.fn(),
   calculatePurchaseTotal: vi.fn(),
   creditCardFindFirst: vi.fn(),
+  cardPurchaseFindMany: vi.fn(),
   cardPurchaseFindFirst: vi.fn(),
   cardPurchaseCreate: vi.fn(),
   cardPurchaseUpdate: vi.fn(),
@@ -33,6 +34,7 @@ vi.mock("@/lib/prisma", () => ({
   default: {
     creditCard: { findFirst: mocks.creditCardFindFirst },
     cardPurchase: {
+      findMany: mocks.cardPurchaseFindMany,
       findFirst: mocks.cardPurchaseFindFirst,
       create: mocks.cardPurchaseCreate,
       update: mocks.cardPurchaseUpdate,
@@ -138,6 +140,46 @@ describe("card purchases API", () => {
         installmentsList: { create: expect.arrayContaining([expect.objectContaining({ number: 20 }), expect.objectContaining({ number: 21 })]) },
       }),
     }));
+  });
+
+  it("does not expose a family-card purchase through the personal context", async () => {
+    mocks.resolveFinancialContext.mockResolvedValue(personalContext);
+    mocks.creditCardFindFirst.mockResolvedValue(null);
+
+    const response = await route.GET(new Request("http://localhost/api/financial/card-purchases?cardId=family-card&context=personal"));
+
+    expect(response.status).toBe(404);
+    expect(mocks.creditCardFindFirst).toHaveBeenCalledWith({
+      where: { id: "family-card", userId: "user-1", teamId: null },
+      select: { id: true },
+    });
+    expect(mocks.cardPurchaseFindMany).not.toHaveBeenCalled();
+  });
+
+  it("keeps the family-card selector scoped to its family on GET", async () => {
+    mocks.creditCardFindFirst.mockResolvedValue({ id: "card-1" });
+    mocks.cardPurchaseFindMany.mockResolvedValue([]);
+
+    const response = await route.GET(new Request("http://localhost/api/financial/card-purchases?cardId=card-1&context=team:family-1"));
+
+    expect(response.status).toBe(200);
+    expect(mocks.creditCardFindFirst).toHaveBeenCalledWith({
+      where: { id: "card-1", teamId: "family-1" },
+      select: { id: true },
+    });
+  });
+
+  it("does not create a purchase on a family card through the personal context", async () => {
+    mocks.resolveFinancialContext.mockResolvedValue(personalContext);
+    mocks.creditCardFindFirst.mockResolvedValue(null);
+
+    const response = await route.POST(request("POST", { ...purchaseInput, cardId: "family-card", context: "personal" }, "personal"));
+
+    expect(response.status).toBe(403);
+    expect(mocks.creditCardFindFirst).toHaveBeenCalledWith({
+      where: { id: "family-card", userId: "user-1", teamId: null, isActive: true },
+    });
+    expect(mocks.transactionCreate).not.toHaveBeenCalled();
   });
 
   it("rebuilds only a purchase's installments and linked transaction on PATCH", async () => {
