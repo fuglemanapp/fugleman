@@ -60,6 +60,16 @@ const familyContext = {
   role: "ADMIN" as const,
 };
 
+const personalContext = {
+  key: "personal" as const,
+  type: "PERSONAL" as const,
+  userId: "user-1",
+  memberIds: ["user-1"],
+  teamId: null,
+  name: "Pessoal",
+  role: null,
+};
+
 const purchaseInput = {
   id: "purchase-1",
   cardId: "card-1",
@@ -73,8 +83,8 @@ const purchaseInput = {
   purchaseDate: "2025-01-22T12:00:00.000Z",
 };
 
-function request(method: string, body?: Record<string, unknown>) {
-  return new Request("http://localhost/api/financial/card-purchases?id=purchase-1&context=team:family-1", {
+function request(method: string, body?: Record<string, unknown>, context = "team:family-1") {
+  return new Request(`http://localhost/api/financial/card-purchases?id=purchase-1&context=${context}`, {
     method,
     headers: body ? { "Content-Type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined,
@@ -180,5 +190,44 @@ describe("card purchases API", () => {
     expect(mocks.cardPurchaseDelete).not.toHaveBeenCalled();
     expect(mocks.transactionDelete).not.toHaveBeenCalled();
     expect(mocks.creditCardFindFirst).not.toHaveBeenCalled();
+  });
+
+  it("does not delete a family-card purchase from the personal context", async () => {
+    mocks.resolveFinancialContext.mockResolvedValue(personalContext);
+    mocks.cardPurchaseFindFirst.mockResolvedValue(null);
+
+    const response = await route.DELETE(request("DELETE", undefined, "personal"));
+
+    expect(response.status).toBe(404);
+    expect(mocks.cardPurchaseFindFirst).toHaveBeenCalledWith({
+      where: {
+        id: "purchase-1",
+        userId: "user-1",
+        card: { teamId: null, userId: "user-1", isActive: true },
+      },
+      select: { id: true, transactionId: true },
+    });
+    expect(mocks.cardPurchaseDelete).not.toHaveBeenCalled();
+    expect(mocks.transactionDelete).not.toHaveBeenCalled();
+  });
+
+  it("does not update a family-card purchase from the personal context", async () => {
+    mocks.resolveFinancialContext.mockResolvedValue(personalContext);
+    mocks.cardPurchaseFindFirst.mockResolvedValue(null);
+
+    const patch = (route as Record<string, unknown>).PATCH as (input: Request) => Promise<Response>;
+    const response = await patch(request("PATCH", { ...purchaseInput, context: "personal" }));
+
+    expect(response.status).toBe(404);
+    expect(mocks.cardPurchaseFindFirst).toHaveBeenCalledWith({
+      where: {
+        id: "purchase-1",
+        userId: "user-1",
+        card: { teamId: null, userId: "user-1", isActive: true },
+      },
+      select: { id: true, transactionId: true, card: { select: { closingDay: true } } },
+    });
+    expect(mocks.transactionUpdate).not.toHaveBeenCalled();
+    expect(mocks.cardPurchaseUpdate).not.toHaveBeenCalled();
   });
 });

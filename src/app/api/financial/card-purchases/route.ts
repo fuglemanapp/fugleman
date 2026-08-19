@@ -72,7 +72,7 @@ export async function PATCH(request: Request) {
   if (!id || !description || !category || !purchaseDate) return NextResponse.json({ error: "Informe compra, descrição, categoria e data válidos." }, { status: 400 });
   const normalized = normalizeCardPurchaseInput(body || {});
   if ("error" in normalized) return NextResponse.json({ error: normalized.error }, { status: 400 });
-  const cardWhere = context.type === "FAMILY" ? { teamId: context.teamId, userId: user.id, isActive: true } : { userId: user.id, isActive: true };
+  const cardWhere = context.type === "FAMILY" ? { teamId: context.teamId, userId: user.id, isActive: true } : { teamId: null, userId: user.id, isActive: true };
   const purchase = await prisma.cardPurchase.findFirst({ where: { id, userId: user.id, card: cardWhere }, select: { id: true, transactionId: true, card: { select: { closingDay: true } } } });
   if (!purchase) return NextResponse.json({ error: "Compra não encontrada ou sem permissão para alterar." }, { status: 404 });
   const suggestion = await applyTransactionRule(user.id, description, { category, type: "EXPENSE" });
@@ -113,7 +113,7 @@ export async function DELETE(request: Request) {
   const context = await resolveFinancialContext(user.id, params.get("context"));
   const id = params.get("id") || "";
   if (!context) return NextResponse.json({ error: "Espaço financeiro inválido ou sem acesso." }, { status: 403 });
-  const cardWhere = context.type === "FAMILY" ? { teamId: context.teamId, userId: user.id, isActive: true } : { userId: user.id, isActive: true };
+  const cardWhere = context.type === "FAMILY" ? { teamId: context.teamId, userId: user.id, isActive: true } : { teamId: null, userId: user.id, isActive: true };
   const purchase = await prisma.cardPurchase.findFirst({ where: { id, userId: user.id, card: cardWhere }, select: { id: true, transactionId: true } });
   if (!purchase) return NextResponse.json({ error: "Compra não encontrada ou sem permissão para remover." }, { status: 404 });
   await prisma.$transaction([prisma.cardPurchase.delete({ where: { id: purchase.id } }), prisma.transaction.delete({ where: { id: purchase.transactionId } })]);

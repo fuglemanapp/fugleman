@@ -26,6 +26,15 @@
 
 Commit da correção: `316bf99` — `fix: validate card purchase delete context`.
 
+## Correção de revisão — contexto pessoal
+
+- As ações `PATCH` e `DELETE` agora exigem `teamId: null` quando o contexto é pessoal. Assim, uma compra em cartão familiar não pode ser editada ou excluída por meio do contexto pessoal.
+- O filtro do contexto familiar permanece inalterado: cartão ativo do usuário no `teamId` da família selecionada.
+- Foram adicionadas regressões para acesso família → pessoal: tanto a exclusão como a edição retornam `404` sem remover ou alterar a compra e sua transação.
+- `npm test -- src/app/api/financial/card-purchases/route.test.ts` — 6 testes aprovados.
+- `npm run lint` — aprovado.
+- `git diff --check -- src/app/api/financial/card-purchases/route.ts src/app/api/financial/card-purchases/route.test.ts` — aprovado.
+
 ## Commit
 
 - `21e3e4b` — `feat: add card purchase actions`
