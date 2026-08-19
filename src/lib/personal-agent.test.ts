@@ -45,6 +45,18 @@ describe("parseAgentAction", () => {
     });
   });
 
+  it("turns an explicit Brazilian date into a São Paulo event", () => {
+    expect(
+      parseExplicitEventCommand("Crie um compromisso para mim para o dia 21/08 às 12:00: Atividade dejem", new Date("2026-08-18T12:00:00.000Z")),
+    ).toEqual({
+      kind: "EVENT",
+      title: "Atividade dejem",
+      description: null,
+      startTime: "2026-08-21T15:00:00.000Z",
+      endTime: "2026-08-21T16:00:00.000Z",
+    });
+  });
+
   it("only uses a created confirmation for persisted event actions", () => {
     expect(
       actionConfirmation({

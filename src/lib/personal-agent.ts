@@ -60,22 +60,43 @@ function dateInSaoPauloAfterDays(now: Date, days: number) {
   return date.toISOString().slice(0, 10);
 }
 
+function dateInSaoPauloFromBrazilianDate(day: number, month: number, year: number | null, now: Date) {
+  const today = datePartsInSaoPaulo(now);
+  let targetYear = year || Number(today.year);
+
+  if (!year && (month < Number(today.month) || (month === Number(today.month) && day < Number(today.day)))) {
+    targetYear += 1;
+  }
+
+  const date = new Date(Date.UTC(targetYear, month - 1, day));
+  if (date.getUTCFullYear() !== targetYear || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+    return null;
+  }
+
+  return date.toISOString().slice(0, 10);
+}
+
 function eventTimeInSaoPaulo(date: string, hour: number, minute: number) {
   return new Date(`${date}T${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:00-03:00`);
 }
 
 export function parseExplicitEventCommand(text: string, now: Date = new Date()): EventAction | null {
-  const match = text.match(/^\s*(?:crie|criar|agende|agendar|marque|marcar)(?:\s+(?:um|uma))?\s+(?:compromisso|evento)(?:\s+para)?\s+(hoje|amanhã|amanha)\s+(?:às|as)\s+(\d{1,2})(?:h|:(\d{2}))?\s*[:\-]\s*(.+)\s*$/i);
+  const command = text.replace(/\bpara\s+mim\b/giu, " ").replace(/\s+/gu, " ").trim();
+  const match = command.match(/^\s*(?:crie|criar|agende|agendar|marque|marcar)(?:\s+(?:um|uma))?\s+(?:compromisso|evento)(?:\s+para)?\s+(?:(hoje|amanhã|amanha)|(?:(?:o\s+)?dia\s+)?(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?)\s+(?:às|as)\s+(\d{1,2})(?:h|:(\d{2}))?\s*[:\-]\s*(.+)\s*$/i);
   if (!match) return null;
 
-  const relativeDay = match[1].normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
-  const hour = Number(match[2]);
-  const minute = match[3] ? Number(match[3]) : 0;
-  const title = match[4].trim().replace(/[.]+$/, "");
+  const relativeDay = match[1]?.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+  const hour = Number(match[5]);
+  const minute = match[6] ? Number(match[6]) : 0;
+  const title = match[7].trim().replace(/[.]+$/, "");
 
   if (!title || title.length > 120 || hour > 23 || minute > 59) return null;
 
-  const date = dateInSaoPauloAfterDays(now, relativeDay === "amanha" ? 1 : 0);
+  const date = relativeDay
+    ? dateInSaoPauloAfterDays(now, relativeDay === "amanha" ? 1 : 0)
+    : dateInSaoPauloFromBrazilianDate(Number(match[2]), Number(match[3]), match[4] ? Number(match[4]) : null, now);
+  if (!date) return null;
+
   const startTime = eventTimeInSaoPaulo(date, hour, minute);
   const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
   return { kind: "EVENT", title, description: null, startTime: startTime.toISOString(), endTime: endTime.toISOString() };
