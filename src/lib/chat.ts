@@ -3,8 +3,26 @@ import prisma from "./prisma";
 export const CHAT_MAX_FILE_SIZE = 25 * 1024 * 1024;
 export const CHAT_MAX_TEXT_LENGTH = 4_000;
 
-const blockedExtensions = new Set(["apk", "bat", "cmd", "com", "dmg", "exe", "msi", "sh"]);
-const supportedContentTypes = new Set([
+const blockedExtensions = new Set([
+  "apk", "app", "bat", "cmd", "com", "dmg", "exe", "htm", "html", "jar", "js", "jse", "msi", "ps1", "py", "rb", "scr", "sh", "svg", "vbs", "xhtml",
+]);
+
+const mediaContentTypes = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "audio/aac",
+  "audio/mpeg",
+  "audio/mp4",
+  "audio/ogg",
+  "audio/wav",
+  "video/mp4",
+  "video/quicktime",
+  "video/webm",
+]);
+
+const documentContentTypes = new Set([
   "application/pdf",
   "application/json",
   "application/vnd.ms-excel",
@@ -16,6 +34,8 @@ const supportedContentTypes = new Set([
   "application/x-ofx",
   "application/ofx",
 ]);
+
+export const CHAT_ALLOWED_UPLOAD_CONTENT_TYPES = [...mediaContentTypes, ...documentContentTypes];
 
 type ChatFile = { name: string; size: number; type: string };
 
@@ -29,13 +49,35 @@ export function normalizeChatText(value: unknown) {
   return text && text.length <= CHAT_MAX_TEXT_LENGTH ? text : null;
 }
 
-export function validateChatFile(file: ChatFile) {
-  const extension = file.name.split(".").pop()?.toLowerCase();
-  if (!file.name.trim() || !extension) return "Escolha um arquivo com nome e extensão válidos.";
+export function validateChatFileName(value: string) {
+  const fileName = value.trim();
+  if (!fileName || fileName.length > 180 || fileName.includes("..") || /[\\/\u0000-\u001F]/.test(fileName)) {
+    return "Escolha um arquivo com nome válido.";
+  }
+
+  const extension = fileName.split(".").pop()?.toLowerCase();
+  if (!extension) return "Escolha um arquivo com nome e extensão válidos.";
   if (blockedExtensions.has(extension)) return "Esse tipo de arquivo não é permitido.";
+  return null;
+}
+
+export function validateChatFile(file: ChatFile) {
+  const fileNameError = validateChatFileName(file.name);
+  if (fileNameError) return fileNameError;
   if (!Number.isFinite(file.size) || file.size <= 0 || file.size > CHAT_MAX_FILE_SIZE) return "Cada anexo pode ter no máximo 25 MB.";
-  if (file.type.startsWith("image/") || file.type.startsWith("audio/") || file.type.startsWith("video/") || supportedContentTypes.has(file.type)) return null;
+  const contentType = file.type.split(";", 1)[0]?.toLowerCase();
+  if (contentType && CHAT_ALLOWED_UPLOAD_CONTENT_TYPES.includes(contentType)) return null;
   return "Esse tipo de arquivo ainda não é aceito no chat.";
+}
+
+export function isExpectedChatUploadPath(pathname: string, prefix: string) {
+  if (!pathname.startsWith(prefix)) return false;
+  const uploadedName = pathname.slice(prefix.length);
+  return Boolean(uploadedName) && !uploadedName.includes("/") && !uploadedName.includes("\\") && !uploadedName.includes("..");
+}
+
+export function shouldRenderAttachmentInline(contentType: string) {
+  return mediaContentTypes.has(contentType.split(";", 1)[0]?.toLowerCase() ?? "");
 }
 
 export function isBlobConfigured() {

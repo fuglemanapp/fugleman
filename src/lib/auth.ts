@@ -7,11 +7,14 @@ import { getServerSession } from "next-auth"
 import { Adapter } from "next-auth/adapters"
 import { verifyPassword } from "@/lib/password"
 import { GOOGLE_CALENDAR_SCOPES } from "@/lib/google-calendar"
+import { consumeRateLimit } from "@/lib/rate-limit"
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET
+const authSecret = process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET
 
 export const authOptions: NextAuthOptions = {
+  secret: authSecret,
   adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     CredentialsProvider({
@@ -27,6 +30,9 @@ export const authOptions: NextAuthOptions = {
         if (!email || !password) {
           return null;
         }
+
+        const attempt = consumeRateLimit(`credentials:${email}`, { limit: 5, windowMs: 15 * 60 * 1_000 });
+        if (!attempt.allowed) return null;
 
         const user = await prisma.user.findUnique({
           where: { email },
