@@ -2,8 +2,9 @@ import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 
 import { ensureAssistantConversation } from "@/lib/assistant-conversation";
-import { CHAT_MAX_FILE_SIZE, isBlobConfigured, validateChatFile } from "@/lib/chat";
+import { CHAT_ALLOWED_UPLOAD_CONTENT_TYPES, CHAT_MAX_FILE_SIZE, isBlobConfigured, isExpectedChatUploadPath, validateChatFileName } from "@/lib/chat";
 import { getCurrentUser } from "@/lib/current-user";
+import { consumeRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -42,24 +43,24 @@ export async function POST(request: Request) {
           throw new Error("Faça login para anexar arquivos.");
         }
 
+        const limit = consumeRateLimit(`assistant-upload:${user.id}`, { limit: 10, windowMs: 60 * 1_000 });
+        if (!limit.allowed) throw new Error("Muitos uploads em pouco tempo. Aguarde um minuto e tente novamente.");
+
         const conversation = await ensureAssistantConversation(user.id);
         const conversationId = parsePayload(clientPayload);
-        if (conversationId !== conversation.id || !pathname.startsWith(`assistant/${conversation.id}/`)) {
+        const prefix = `assistant/${conversation.id}/`;
+        if (conversationId !== conversation.id || !isExpectedChatUploadPath(pathname, prefix)) {
           throw new Error("Destino do anexo inválido.");
         }
 
         const fileName = pathname.split("/").pop() || "";
-        const validationError = validateChatFile({ name: fileName, size: 1, type: "application/octet-stream" });
-        if (validationError && validationError !== "Esse tipo de arquivo ainda não é aceito no chat.") {
+        const validationError = validateChatFileName(fileName);
+        if (validationError) {
           throw new Error(validationError);
         }
 
         return {
-          allowedContentTypes: [
-            "image/*", "audio/*", "video/*", "application/pdf", "application/json", "application/vnd.ms-excel",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/msword", "text/csv", "text/plain", "application/x-ofx", "application/ofx",
-          ],
+          allowedContentTypes: CHAT_ALLOWED_UPLOAD_CONTENT_TYPES,
           maximumSizeInBytes: CHAT_MAX_FILE_SIZE,
           addRandomSuffix: true,
           tokenPayload: JSON.stringify({ conversationId: conversation.id, userId: user.id }),

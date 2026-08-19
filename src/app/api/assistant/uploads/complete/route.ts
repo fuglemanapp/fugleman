@@ -2,7 +2,7 @@ import { head } from "@vercel/blob";
 import { NextResponse } from "next/server";
 
 import { ensureAssistantConversation } from "@/lib/assistant-conversation";
-import { isBlobConfigured, validateChatFile } from "@/lib/chat";
+import { isBlobConfigured, isExpectedChatUploadPath, validateChatFile, validateChatFileName } from "@/lib/chat";
 import { getCurrentUser } from "@/lib/current-user";
 import prisma from "@/lib/prisma";
 
@@ -21,9 +21,12 @@ export async function POST(request: Request) {
   const pathname = typeof payload?.pathname === "string" ? payload.pathname : "";
   const fileName = typeof payload?.fileName === "string" ? payload.fileName.trim() : "";
 
-  if (conversationId !== conversation.id || !pathname.startsWith(`assistant/${conversation.id}/`) || !fileName) {
+  if (conversationId !== conversation.id || !isExpectedChatUploadPath(pathname, `assistant/${conversation.id}/`) || !fileName) {
     return NextResponse.json({ error: "Anexo inválido." }, { status: 400 });
   }
+
+  const fileNameError = validateChatFileName(fileName);
+  if (fileNameError) return NextResponse.json({ error: fileNameError }, { status: 400 });
 
   try {
     const blob = await head(pathname);

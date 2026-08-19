@@ -1,7 +1,7 @@
 import { get } from "@vercel/blob";
 import { NextResponse } from "next/server";
 
-import { isBlobConfigured } from "@/lib/chat";
+import { isBlobConfigured, shouldRenderAttachmentInline } from "@/lib/chat";
 import { getCurrentUser } from "@/lib/current-user";
 import prisma from "@/lib/prisma";
 
@@ -26,8 +26,10 @@ export async function GET(_: Request, { params }: RouteContext) {
   return new NextResponse(file.stream, {
     headers: {
       "Content-Type": attachment.contentType,
-      "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(attachment.fileName)}`,
+      "Content-Disposition": `${shouldRenderAttachmentInline(attachment.contentType) ? "inline" : "attachment"}; filename*=UTF-8''${encodeURIComponent(attachment.fileName)}`,
       "Cache-Control": "private, no-store",
+      "X-Content-Type-Options": "nosniff",
+      "Content-Security-Policy": "sandbox",
     },
   });
 }
