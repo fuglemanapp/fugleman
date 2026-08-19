@@ -161,4 +161,24 @@ describe("card purchases API", () => {
     expect(mocks.transactionDelete).toHaveBeenCalledWith({ where: { id: "transaction-1" } });
     expect(mocks.creditCardFindFirst).not.toHaveBeenCalled();
   });
+
+  it("does not delete a purchase when its card is outside the requested context", async () => {
+    mocks.cardPurchaseFindFirst.mockResolvedValue(null);
+
+    const response = await route.DELETE(request("DELETE"));
+
+    expect(response.status).toBe(404);
+    expect(mocks.resolveFinancialContext).toHaveBeenCalledWith("user-1", "team:family-1");
+    expect(mocks.cardPurchaseFindFirst).toHaveBeenCalledWith({
+      where: {
+        id: "purchase-1",
+        userId: "user-1",
+        card: { teamId: "family-1", userId: "user-1", isActive: true },
+      },
+      select: { id: true, transactionId: true },
+    });
+    expect(mocks.cardPurchaseDelete).not.toHaveBeenCalled();
+    expect(mocks.transactionDelete).not.toHaveBeenCalled();
+    expect(mocks.creditCardFindFirst).not.toHaveBeenCalled();
+  });
 });

@@ -109,8 +109,12 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Faça login para remover uma compra." }, { status: 401 });
-  const id = new URL(request.url).searchParams.get("id") || "";
-  const purchase = await prisma.cardPurchase.findFirst({ where: { id, userId: user.id }, select: { id: true, transactionId: true } });
+  const params = new URL(request.url).searchParams;
+  const context = await resolveFinancialContext(user.id, params.get("context"));
+  const id = params.get("id") || "";
+  if (!context) return NextResponse.json({ error: "Espaço financeiro inválido ou sem acesso." }, { status: 403 });
+  const cardWhere = context.type === "FAMILY" ? { teamId: context.teamId, userId: user.id, isActive: true } : { userId: user.id, isActive: true };
+  const purchase = await prisma.cardPurchase.findFirst({ where: { id, userId: user.id, card: cardWhere }, select: { id: true, transactionId: true } });
   if (!purchase) return NextResponse.json({ error: "Compra não encontrada ou sem permissão para remover." }, { status: 404 });
   await prisma.$transaction([prisma.cardPurchase.delete({ where: { id: purchase.id } }), prisma.transaction.delete({ where: { id: purchase.transactionId } })]);
   return NextResponse.json({ success: true, purchaseId: purchase.id });
