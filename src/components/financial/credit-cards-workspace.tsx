@@ -8,7 +8,6 @@ import {
   LoaderCircle,
   Plus,
   ReceiptText,
-  Trash2,
   X,
 } from "lucide-react";
 
@@ -468,6 +467,12 @@ export function CreditCardsWorkspace() {
   }
 
   async function archiveCard(card: Card) {
+    const confirmed = window.confirm(
+      `Arquivar o cartão “${card.name}”? Esta ação arquiva o cartão inteiro, não uma compra individual.`,
+    );
+    if (!confirmed) return;
+
+    setError("");
     const response = await fetch(
       `/api/financial/cards?id=${encodeURIComponent(card.id)}`,
       { method: "DELETE" },
@@ -478,6 +483,36 @@ export function CreditCardsWorkspace() {
     }
     setSelectedCard(null);
     await load();
+  }
+
+  async function deletePurchase(purchase: Purchase) {
+    const confirmed = window.confirm(
+      `Excluir a compra “${purchase.description}”? Esta ação remove apenas esta compra e suas parcelas; o cartão permanecerá ativo.`,
+    );
+    if (!confirmed) return;
+
+    setIsSaving(true);
+    setError("");
+    try {
+      const response = await fetch(
+        `/api/financial/card-purchases?id=${encodeURIComponent(purchase.id)}&context=${encodeURIComponent(context)}`,
+        { method: "DELETE" },
+      );
+      const data = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        throw new Error(data.error || "Não foi possível excluir a compra.");
+      }
+      setMessage(`Compra “${purchase.description}” excluída. O cartão permanece ativo.`);
+      await load();
+    } catch (reason) {
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : "Não foi possível excluir a compra.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   const canManageSelected = selectedCard?.canManage === true;
@@ -707,44 +742,79 @@ export function CreditCardsWorkspace() {
                   <button
                     type="button"
                     onClick={() => void archiveCard(selectedCard)}
-                    className="rounded-xl p-2 text-[#8ba096] hover:bg-[#fff1f1] hover:text-[#b44747]"
-                    aria-label="Arquivar cartão"
+                    className="rounded-xl px-3 py-2 text-sm font-bold text-[#a14a4a] hover:bg-[#fff1f1] hover:text-[#863535]"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    Arquivar cartão
                   </button>
                 )}
               </div>
               {purchases.length ? (
                 <div className="mt-5 divide-y divide-[#edf3ef]">
-                  {purchases.map((purchase) => (
-                    <div className="py-4 first:pt-0" key={purchase.id}>
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-bold">
-                            {purchase.description}
-                          </p>
-                          <p className="mt-1 text-xs text-[#789083]">
-                            {purchase.category} ·{" "}
-                            {new Date(purchase.purchaseDate).toLocaleDateString(
-                              "pt-BR",
-                            )}{" "}
-                            · {purchase.installments}x
-                          </p>
+                  {purchases.map((purchase) => {
+                    const currentNumber =
+                      purchase.currentInstallment ??
+                      purchase.installmentsList[0]?.number ??
+                      1;
+                    const installmentAmount =
+                      purchase.installmentAmount ??
+                      Number(
+                        (
+                          purchase.totalAmount / purchase.installments
+                        ).toFixed(2),
+                      );
+                    const remaining = Math.max(
+                      purchase.installments - currentNumber + 1,
+                      0,
+                    );
+                    const progress =
+                      purchase.installments === 1
+                        ? "À vista · 1/1"
+                        : `${currentNumber}/${purchase.installments} · ${currency.format(installmentAmount)} por parcela · ${remaining} ${remaining === 1 ? "restante" : "restantes"}`;
+
+                    return (
+                      <div className="py-4 first:pt-0" key={purchase.id}>
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-bold">
+                              {purchase.description}
+                            </p>
+                            <p className="mt-1 text-xs text-[#789083]">
+                              {purchase.category} ·{" "}
+                              {new Date(
+                                purchase.purchaseDate,
+                              ).toLocaleDateString("pt-BR")}
+                            </p>
+                            <p className="mt-2 text-xs font-semibold text-[#5d786a]">
+                              {progress}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <p className="text-sm font-bold">
+                              {currency.format(purchase.totalAmount)}
+                            </p>
+                            {canManageSelected && (
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => openPurchaseForm(purchase)}
+                                  className="rounded-lg px-2 py-1 text-xs font-bold text-[#087d3c] hover:bg-[#edf9f1]"
+                                >
+                                  Editar
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => void deletePurchase(purchase)}
+                                  className="rounded-lg px-2 py-1 text-xs font-bold text-[#a14a4a] hover:bg-[#fff1f1]"
+                                >
+                                  Excluir compra
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-sm font-bold">
-                          {currency.format(purchase.totalAmount)}
-                        </p>
                       </div>
-                      <p className="mt-2 text-xs text-[#5d786a]">
-                        {purchase.installmentsList
-                          .map(
-                            (item) =>
-                              `${item.number}/${purchase.installments} · ${new Date(item.dueMonth).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })} · ${currency.format(item.amount)}`,
-                          )
-                          .join("  •  ")}
-                      </p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="mt-6 rounded-2xl bg-[#f3f8f5] p-5 text-sm text-[#678176]">
