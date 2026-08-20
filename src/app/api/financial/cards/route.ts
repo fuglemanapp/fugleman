@@ -32,7 +32,7 @@ export async function GET(request: Request) {
   if (!user) return NextResponse.json({ error: "Faça login para acessar seus cartões." }, { status: 401 });
   const context = await resolveFinancialContext(user.id, new URL(request.url).searchParams.get("context"));
   if (!context) return NextResponse.json({ error: "Espaço financeiro inválido ou sem acesso." }, { status: 403 });
-  const where = context.type === "FAMILY" ? { teamId: context.teamId } : { userId: user.id };
+  const where = context.type === "FAMILY" ? { teamId: context.teamId } : { userId: user.id, teamId: null };
   const cards = await prisma.creditCard.findMany({ where, include: { user: { select: { id: true, name: true, email: true } } }, orderBy: [{ isActive: "desc" }, { createdAt: "asc" }] });
   return NextResponse.json({ context: { key: context.key, type: context.type }, cards: cards.map((card) => ({ ...card, canManage: card.userId === user.id })), canCreate: true });
 }
@@ -60,7 +60,9 @@ export async function PATCH(request: Request) {
   if (!user) return NextResponse.json({ error: "Faça login para alterar um cartão." }, { status: 401 });
   const body = await request.json().catch(() => null) as Record<string, unknown> | null;
   const id = typeof body?.id === "string" ? body.id : "";
-  const card = await prisma.creditCard.findFirst({ where: { id, userId: user.id } });
+  const context = await resolveFinancialContext(user.id, typeof body?.context === "string" ? body.context : null);
+  if (!context) return NextResponse.json({ error: "Espaço financeiro inválido ou sem acesso." }, { status: 403 });
+  const card = await prisma.creditCard.findFirst({ where: context.type === "FAMILY" ? { id, userId: user.id, teamId: context.teamId } : { id, userId: user.id, teamId: null } });
   if (!card) return NextResponse.json({ error: "Cartão não encontrado ou sem permissão para alterar." }, { status: 404 });
   const name = body?.name === undefined ? card.name : validText(body.name, 80);
   const issuer = body?.issuer === undefined ? card.issuer : body.issuer === "" ? null : validText(body.issuer, 80);
@@ -77,8 +79,11 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Faça login para remover um cartão." }, { status: 401 });
-  const id = new URL(request.url).searchParams.get("id") || "";
-  const card = await prisma.creditCard.findFirst({ where: { id, userId: user.id }, select: { id: true } });
+  const params = new URL(request.url).searchParams;
+  const id = params.get("id") || "";
+  const context = await resolveFinancialContext(user.id, params.get("context"));
+  if (!context) return NextResponse.json({ error: "Espaço financeiro inválido ou sem acesso." }, { status: 403 });
+  const card = await prisma.creditCard.findFirst({ where: context.type === "FAMILY" ? { id, userId: user.id, teamId: context.teamId } : { id, userId: user.id, teamId: null }, select: { id: true } });
   if (!card) return NextResponse.json({ error: "Cartão não encontrado ou sem permissão para remover." }, { status: 404 });
   await prisma.creditCard.update({ where: { id: card.id }, data: { isActive: false } });
   return new NextResponse(null, { status: 204 });

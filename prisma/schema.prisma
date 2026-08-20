@@ -297,6 +297,8 @@ model CardPurchase {
   totalAmount  Float
   purchaseDate DateTime
   installments Int      @default(1)
+  installmentAmount Float?
+  currentInstallment Int?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
