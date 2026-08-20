@@ -62,6 +62,23 @@ describe("credit card calculation helpers", () => {
     expect(schedule.map((item) => monthKey(item.dueMonth))).toEqual(["2026-09", "2026-10"]);
   });
 
+  it("anchors the full schedule to the original purchase date", () => {
+    const schedule = buildPendingInstallments({
+      installmentAmount: 272.4,
+      installments: 21,
+      currentInstallment: 1,
+      purchaseDate: new Date("2025-01-22T12:00:00.000Z"),
+      closingDay: 13,
+      referenceDate: new Date("2026-08-20T12:00:00.000Z"),
+    });
+
+    expect(schedule).toHaveLength(21);
+    expect(schedule[0]).toMatchObject({ number: 1, amount: 272.4 });
+    expect(monthKey(schedule[0].dueMonth)).toBe("2025-02");
+    expect(monthKey(schedule[19].dueMonth)).toBe("2026-09");
+    expect(monthKey(schedule[20].dueMonth)).toBe("2026-10");
+  });
+
   it("keeps a constant amount and clamps the current installment", () => {
     const schedule = buildPendingInstallments({
       installmentAmount: 10.01,
@@ -75,7 +92,7 @@ describe("credit card calculation helpers", () => {
     expect(schedule).toHaveLength(48);
     expect(schedule[0]).toMatchObject({ number: 1, amount: 10.01 });
     expect(schedule.at(-1)).toMatchObject({ number: 48, amount: 10.01 });
-    expect(monthKey(schedule[0].dueMonth)).toBe("2026-09");
-    expect(monthKey(schedule.at(-1)!.dueMonth)).toBe("2030-08");
+    expect(monthKey(schedule[0].dueMonth)).toBe("2026-08");
+    expect(monthKey(schedule.at(-1)!.dueMonth)).toBe("2030-07");
   });
 });

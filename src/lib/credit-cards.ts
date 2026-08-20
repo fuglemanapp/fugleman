@@ -62,13 +62,17 @@ export function buildPendingInstallments({
   installmentAmount,
   installments,
   currentInstallment,
+  purchaseDate,
   closingDay,
-  referenceDate = new Date(),
 }: PendingInstallmentInput): InstallmentPlan[] {
   const count = clampInstallmentCount(installments);
   const firstInstallment = clampInstallmentNumber(currentInstallment, count);
   const amount = moneyFromCents(installmentAmount * 100);
-  const firstDueMonth = statementMonthForPurchase(referenceDate, closingDay);
+  const purchaseStatementMonth = statementMonthForPurchase(purchaseDate, closingDay);
+  const firstDueMonth = utcMonth(
+    purchaseStatementMonth.getUTCFullYear(),
+    purchaseStatementMonth.getUTCMonth() + firstInstallment - 1,
+  );
 
   return Array.from({ length: count - firstInstallment + 1 }, (_, index) => ({
     number: firstInstallment + index,
