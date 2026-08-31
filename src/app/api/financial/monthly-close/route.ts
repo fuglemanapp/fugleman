@@ -4,6 +4,7 @@ import { dateFromMonthKey, monthKey, statementDueDate } from "@/lib/credit-cards
 import { getCurrentUser } from "@/lib/current-user";
 import { resolveFinancialContext, transactionContextWhere } from "@/lib/financial-context";
 import { contextOwner, monthStart } from "@/lib/financial-input";
+import { buildMonthlyActivities } from "@/lib/monthly-activities";
 import prisma from "@/lib/prisma";
 
 function percentageChange(current: number, previous: number) {
@@ -22,7 +23,9 @@ export async function GET(request: Request) {
   const previousStart = new Date(month); previousStart.setUTCMonth(previousStart.getUTCMonth() - 1);
   const today = new Date();
   const nextThirtyDays = new Date(today); nextThirtyDays.setUTCDate(nextThirtyDays.getUTCDate() + 30);
-  const cardWhere = context.type === "FAMILY" ? { teamId: context.teamId } : { userId: user.id };
+  const cardWhere = context.type === "FAMILY"
+    ? { teamId: context.teamId, isActive: true }
+    : { userId: user.id, teamId: null, isActive: true };
   const [transactions, budgets, cards, recurrences] = await Promise.all([
     prisma.transaction.findMany({ where: { ...transactionContextWhere(context), date: { gte: previousStart, lt: monthEnd } }, include: { user: { select: { id: true, name: true, email: true } } } }),
     prisma.budget.findMany({ where: { ...contextOwner(context), month } }),
@@ -31,19 +34,23 @@ export async function GET(request: Request) {
   ]);
   const cardIds = cards.map((card) => card.id);
   const [installments, payments] = await Promise.all([
-    prisma.cardInstallment.findMany({ where: { purchase: { cardId: { in: cardIds } }, dueMonth: { gte: month, lt: nextThirtyDays } }, include: { purchase: { select: { cardId: true, description: true, user: { select: { id: true, name: true, email: true } } } } } }),
+    prisma.cardInstallment.findMany({ where: { purchase: { cardId: { in: cardIds } }, dueMonth: { gte: previousStart, lt: nextThirtyDays } }, include: { purchase: { select: { cardId: true, description: true, category: true, installments: true, user: { select: { id: true, name: true, email: true } }, card: { select: { id: true, name: true, lastFour: true, isActive: true } } } } } }),
     prisma.cardStatementPayment.findMany({ where: { cardId: { in: cardIds }, dueMonth: { gte: month, lt: nextThirtyDays } } }),
   ]);
   const totals = new Map<string, { income: number; expense: number }>();
   const spending = new Map<string, number>();
   const contributors = new Map<string, { name: string; income: number; expense: number }>();
-  for (const transaction of transactions) {
-    const key = monthKey(transaction.date);
+  const activities = buildMonthlyActivities({ transactions, installments });
+  for (const activity of activities) {
+    const key = monthKey(activity.date);
+    if (key !== monthKey(month) && key !== monthKey(previousStart)) continue;
     const total = totals.get(key) || { income: 0, expense: 0 };
-    if (transaction.type === "INCOME") total.income += transaction.amount;
-    else total.expense += transaction.amount;
+    if (activity.type === "INCOME") total.income += activity.amount;
+    else total.expense += activity.amount;
     totals.set(key, total);
-    if (key === monthKey(month) && transaction.type === "EXPENSE") spending.set(transaction.category, (spending.get(transaction.category) || 0) + transaction.amount);
+    if (key === monthKey(month) && activity.type === "EXPENSE") spending.set(activity.category, (spending.get(activity.category) || 0) + activity.amount);
+  }
+  for (const transaction of transactions.filter((item) => item.source !== "CREDIT_CARD")) {
     const person = contributors.get(transaction.userId) || { name: transaction.user.name || transaction.user.email || "Membro", income: 0, expense: 0 };
     if (transaction.type === "INCOME") person.income += transaction.amount; else person.expense += transaction.amount;
     contributors.set(transaction.userId, person);

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/current-user";
 import { resolveFinancialContext, transactionContextWhere } from "@/lib/financial-context";
+import { buildMonthlyActivities } from "@/lib/monthly-activities";
 import prisma from "@/lib/prisma";
 import { applyTransactionRule } from "@/lib/transaction-rules";
 
@@ -27,14 +28,48 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Período financeiro inválido." }, { status: 400 });
   }
 
-  const transactions = await prisma.transaction.findMany({
-    where: { ...transactionContextWhere(context), ...(from || to ? { date: { ...(from ? { gte: from } : {}), ...(to ? { lt: to } : {}) } } : {}) },
-    include: { user: { select: { id: true, name: true, email: true } },
-    },
-    orderBy: [{ date: "desc" }, { createdAt: "desc" }],
-  });
+  const range = from || to
+    ? { dueMonth: { ...(from ? { gte: from } : {}), ...(to ? { lt: to } : {}) } }
+    : {};
+  const transactionRange = from || to
+    ? { date: { ...(from ? { gte: from } : {}), ...(to ? { lt: to } : {}) } }
+    : {};
+  const cardWhere = context.type === "FAMILY"
+    ? { teamId: context.teamId, isActive: true }
+    : { userId: user.id, teamId: null, isActive: true };
 
-  return NextResponse.json({ transactions });
+  const [transactions, installments] = await Promise.all([
+    prisma.transaction.findMany({
+      where: {
+        AND: [
+          transactionContextWhere(context),
+          { OR: [{ source: null }, { source: { not: "CREDIT_CARD" } }] },
+          transactionRange,
+        ],
+      },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+    }),
+    prisma.cardInstallment.findMany({
+      where: { ...range, purchase: { card: cardWhere } },
+      include: {
+        purchase: {
+          select: {
+            description: true,
+            category: true,
+            installments: true,
+            card: { select: { id: true, name: true, lastFour: true, isActive: true } },
+          },
+        },
+      },
+    }),
+  ]);
+
+  const activities = buildMonthlyActivities({ transactions, installments });
+
+  return NextResponse.json(
+    { transactions: activities },
+    { headers: { "Cache-Control": "no-store" } },
+  );
 }
 
 export async function POST(request: Request) {
@@ -80,8 +115,14 @@ export async function DELETE(request: Request) {
   if (!context) return NextResponse.json({ error: "Espaço financeiro inválido ou sem acesso." }, { status: 403 });
   if (!id) return NextResponse.json({ error: "Transação inválida." }, { status: 400 });
 
-  const transaction = await prisma.transaction.findFirst({ where: { id, ...transactionContextWhere(context) }, select: { id: true } });
+  const transaction = await prisma.transaction.findFirst({ where: { id, ...transactionContextWhere(context) }, select: { id: true, source: true } });
   if (!transaction) return NextResponse.json({ error: "Transação não encontrada." }, { status: 404 });
+  if (transaction.source === "CREDIT_CARD") {
+    return NextResponse.json(
+      { error: "Compras no cartão devem ser alteradas na área de cartões." },
+      { status: 409 },
+    );
+  }
 
   await prisma.transaction.delete({ where: { id: transaction.id } });
   return new NextResponse(null, { status: 204 });
