@@ -1,7 +1,9 @@
 import prisma from "@/lib/prisma";
 
 export const GOOGLE_CALENDAR_EVENT_SCOPE = "https://www.googleapis.com/auth/calendar.events";
-export const GOOGLE_CALENDAR_ACL_SCOPE = "https://www.googleapis.com/auth/calendar.acl";
+// Google uses the plural `acls` scope for access-control rules. The singular
+// `calendar.acl` URL is rejected during OAuth with `invalid_scope`.
+export const GOOGLE_CALENDAR_ACL_SCOPE = "https://www.googleapis.com/auth/calendar.acls";
 export const GOOGLE_CALENDAR_SCOPE = GOOGLE_CALENDAR_EVENT_SCOPE;
 export const GOOGLE_CALENDAR_SCOPES = [GOOGLE_CALENDAR_EVENT_SCOPE, GOOGLE_CALENDAR_ACL_SCOPE];
 
@@ -45,7 +47,10 @@ function hasCalendarSharingScope(scope: string | null) {
 }
 
 async function getGoogleAccount(userId: string) {
-  return prisma.account.findFirst({ where: { userId, provider: "google" }, orderBy: { id: "desc" } });
+  return prisma.account.findFirst({
+    where: { userId, provider: "google" },
+    orderBy: { id: "desc" },
+  });
 }
 
 async function getAccessToken(userId: string, requirement: "events" | "sharing" = "events") {
@@ -97,7 +102,9 @@ export async function getGoogleCalendarStatus(userId: string) {
   return {
     connected: Boolean(account && hasCalendarScope(account.scope)),
     sharingConnected: Boolean(account && hasCalendarSharingScope(account.scope)),
-    email: account?.providerAccountId ?? null,
+    // A conta Google pode ser diferente do e-mail usado para entrar no WhatSpent.
+    // Não exibimos o e-mail do perfil WhatSpent como se ele fosse o e-mail do Google.
+    email: null,
   };
 }
 

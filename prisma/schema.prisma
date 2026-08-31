@@ -44,6 +44,8 @@ model User {
   chatParticipants ChatParticipant[]
   sentChatMessages ChatMessage[] @relation("ChatMessageSender")
   chatAttachments ChatAttachment[] @relation("ChatAttachmentOwner")
+  assistantConversation AssistantConversation?
+  zernioWebhookEvents ZernioWebhookEvent[]
 }
 
 model Account {
@@ -459,4 +461,62 @@ model ChatAttachment {
 
   @@index([messageId])
   @@index([ownerId, createdAt])
+}
+
+model AssistantConversation {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages    AssistantMessage[]
+  attachments AssistantAttachment[]
+}
+
+model AssistantMessage {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String
+  text           String?
+  action         Json?
+  createdAt      DateTime @default(now())
+
+  conversation AssistantConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  attachments  AssistantAttachment[]
+
+  @@index([conversationId, createdAt])
+}
+
+model AssistantAttachment {
+  id             String   @id @default(cuid())
+  conversationId String
+  messageId      String?
+  pathname       String   @unique
+  fileName       String
+  contentType    String
+  size           Int
+  createdAt      DateTime @default(now())
+
+  conversation AssistantConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  message      AssistantMessage?     @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([messageId])
+}
+
+model ZernioWebhookEvent {
+  id             String   @id
+  event          String
+  accountId      String?
+  conversationId String?
+  responseText   String?
+  deliveredAt    DateTime?
+  userId         String?
+  createdAt      DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([userId])
 }

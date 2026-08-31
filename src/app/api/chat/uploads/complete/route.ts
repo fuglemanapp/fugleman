@@ -1,7 +1,7 @@
 import { head } from "@vercel/blob";
 import { NextResponse } from "next/server";
 
-import { isBlobConfigured, requireChatParticipant, validateChatFile } from "@/lib/chat";
+import { isBlobConfigured, isExpectedChatUploadPath, requireChatParticipant, validateChatFile, validateChatFileName } from "@/lib/chat";
 import { getCurrentUser } from "@/lib/current-user";
 import prisma from "@/lib/prisma";
 
@@ -15,8 +15,11 @@ export async function POST(request: Request) {
   const conversationId = typeof payload?.conversationId === "string" ? payload.conversationId : "";
   const pathname = typeof payload?.pathname === "string" ? payload.pathname : "";
   const fileName = typeof payload?.fileName === "string" ? payload.fileName.trim() : "";
-  if (!conversationId || !pathname.startsWith(`chat/${conversationId}/`) || !fileName) return NextResponse.json({ error: "Anexo inválido." }, { status: 400 });
+  if (!conversationId || !isExpectedChatUploadPath(pathname, `chat/${conversationId}/`) || !fileName) return NextResponse.json({ error: "Anexo inválido." }, { status: 400 });
   if (!await requireChatParticipant(user.id, conversationId)) return NextResponse.json({ error: "Você não pode anexar arquivos nesta conversa." }, { status: 403 });
+
+  const fileNameError = validateChatFileName(fileName);
+  if (fileNameError) return NextResponse.json({ error: fileNameError }, { status: 400 });
 
   try {
     const blob = await head(pathname);
