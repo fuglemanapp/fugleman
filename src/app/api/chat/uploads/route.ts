@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { CHAT_ALLOWED_UPLOAD_CONTENT_TYPES, CHAT_MAX_FILE_SIZE, isBlobConfigured, isExpectedChatUploadPath, requireChatParticipant, validateChatFileName } from "@/lib/chat";
 import { getCurrentUser } from "@/lib/current-user";
 import { consumeRateLimit } from "@/lib/rate-limit";
+import { reportSecurityEvent } from "@/lib/security-events";
 
 export const dynamic = "force-dynamic";
 
@@ -36,8 +37,11 @@ export async function POST(request: Request) {
         if (!conversationId || !isExpectedChatUploadPath(pathname, prefix)) throw new Error("Destino do anexo inválido.");
         if (!await requireChatParticipant(user.id, conversationId)) throw new Error("Você não pode anexar arquivos nesta conversa.");
 
-        const limit = consumeRateLimit(`chat-upload:${user.id}`, { limit: 10, windowMs: 60 * 1_000 });
-        if (!limit.allowed) throw new Error("Muitos uploads em pouco tempo. Aguarde um minuto e tente novamente.");
+        const limit = await consumeRateLimit(`chat-upload:${user.id}`, { limit: 10, windowMs: 60 * 1_000 });
+        if (!limit.allowed) {
+          reportSecurityEvent("rate_limit_reached", { route: "/api/chat/uploads", scope: "chat_upload" });
+          throw new Error("Muitos uploads em pouco tempo. Aguarde um minuto e tente novamente.");
+        }
 
         const fileName = pathname.split("/").pop() || "";
         const validationError = validateChatFileName(fileName);

@@ -5,6 +5,7 @@ import { ensureAssistantConversation } from "@/lib/assistant-conversation";
 import { CHAT_ALLOWED_UPLOAD_CONTENT_TYPES, CHAT_MAX_FILE_SIZE, isBlobConfigured, isExpectedChatUploadPath, validateChatFileName } from "@/lib/chat";
 import { getCurrentUser } from "@/lib/current-user";
 import { consumeRateLimit } from "@/lib/rate-limit";
+import { reportSecurityEvent } from "@/lib/security-events";
 
 export const dynamic = "force-dynamic";
 
@@ -43,8 +44,11 @@ export async function POST(request: Request) {
           throw new Error("Faça login para anexar arquivos.");
         }
 
-        const limit = consumeRateLimit(`assistant-upload:${user.id}`, { limit: 10, windowMs: 60 * 1_000 });
-        if (!limit.allowed) throw new Error("Muitos uploads em pouco tempo. Aguarde um minuto e tente novamente.");
+        const limit = await consumeRateLimit(`assistant-upload:${user.id}`, { limit: 10, windowMs: 60 * 1_000 });
+        if (!limit.allowed) {
+          reportSecurityEvent("rate_limit_reached", { route: "/api/assistant/uploads", scope: "assistant_upload" });
+          throw new Error("Muitos uploads em pouco tempo. Aguarde um minuto e tente novamente.");
+        }
 
         const conversation = await ensureAssistantConversation(user.id);
         const conversationId = parsePayload(clientPayload);
