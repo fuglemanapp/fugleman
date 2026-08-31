@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Calendar, FolderOpen, Shield, Link2, CheckCircle2, Wallet, ChevronDown, Check } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -33,9 +34,9 @@ export default function Home() {
           </nav>
 
           <div className="flex items-center">
-            <Button variant="ghost" className="text-white hover:bg-white/5 hover:text-white rounded-full px-5 py-4 font-normal transition-all text-[15px] border border-white/10 hover:border-white/20 h-10">
+            <Link href="/cadastro" className="inline-flex h-10 items-center rounded-full border border-white/10 px-5 py-4 text-[15px] font-normal text-white transition-all hover:border-white/20 hover:bg-white/5 hover:text-white">
               Começar agora <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
+            </Link>
           </div>
         </header>
       </div>
@@ -66,9 +67,9 @@ export default function Home() {
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center gap-6 mb-10">
-                  <Button className="bg-transparent border border-white/20 hover:bg-white/10 text-white rounded-2xl px-12 py-7 text-lg font-normal w-full sm:w-auto transition-all backdrop-blur-sm">
+                  <Link href="/cadastro" className="inline-flex w-full items-center justify-center rounded-2xl border border-white/20 bg-transparent px-12 py-7 text-lg font-normal text-white transition-all backdrop-blur-sm hover:bg-white/10 sm:w-auto">
                     Começar agora
-                  </Button>
+                  </Link>
                 </div>
 
                 <div className="flex flex-col gap-4 text-[15px] text-slate-300 font-light">
