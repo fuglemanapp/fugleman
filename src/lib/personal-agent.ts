@@ -81,8 +81,8 @@ function eventTimeInSaoPaulo(date: string, hour: number, minute: number) {
 }
 
 export function parseExplicitEventCommand(text: string, now: Date = new Date()): EventAction | null {
-  const command = text.replace(/\bpara\s+mim\b/giu, " ").replace(/\s+/gu, " ").trim();
-  const match = command.match(/^\s*(?:crie|criar|agende|agendar|marque|marcar)(?:\s+(?:um|uma))?\s+(?:compromisso|evento)(?:\s+para)?\s+(?:(hoje|amanhã|amanha)|(?:(?:o\s+)?dia\s+)?(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?)\s+(?:às|as)\s+(\d{1,2})(?:h|:(\d{2}))?\s*[:\-]\s*(.+)\s*$/i);
+  const command = text.replace(/\b(?:para|pra)\s+mim\b/giu, " ").replace(/\s+/gu, " ").trim();
+  const match = command.match(/^\s*(?:crie|cria|criar|agende|agendar|marque|marcar)(?:\s+(?:um|uma))?\s+(?:compromisso|evento)(?:\s+para)?\s+(?:(hoje|amanhã|amanha)|(?:(?:o\s+)?dia\s+)?(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?)\s+(?:às|as)\s+(\d{1,2})(?:h|:(\d{2}))?\s*[:\-]\s*(.+)\s*$/i);
   if (!match) return null;
 
   const relativeDay = match[1]?.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
@@ -100,6 +100,11 @@ export function parseExplicitEventCommand(text: string, now: Date = new Date()):
   const startTime = eventTimeInSaoPaulo(date, hour, minute);
   const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
   return { kind: "EVENT", title, description: null, startTime: startTime.toISOString(), endTime: endTime.toISOString() };
+}
+
+function isAppointmentMissingTime(text: string) {
+  const command = text.replace(/\b(?:para|pra)\s+mim\b/giu, " ").replace(/\s+/gu, " ").trim();
+  return /^\s*(?:crie|cria|criar|agende|agendar|marque|marcar)(?:\s+(?:um|uma))?\s+(?:compromisso|evento)(?:\s+para)?\s+(?:(?:hoje|amanhã|amanha)|(?:(?:o\s+)?dia\s+)?\d{1,2}\/\d{1,2}(?:\/\d{4})?)\s*[:\-]\s*.+\s*$/i.test(command);
 }
 
 function isActionRequest(text: string) {
@@ -200,6 +205,13 @@ export async function runPersonalAgent(input: { userId: string; text: string; no
   const explicitEvent = parseExplicitEventCommand(input.text, now);
   if (explicitEvent) {
     return { reply: "Vou salvar esse compromisso agora.", action: explicitEvent };
+  }
+
+  if (isAppointmentMissingTime(input.text)) {
+    return {
+      reply: "Para criar esse compromisso, me informe o horário. Ex.: “Crie um compromisso dia 26/09/2026 às 12:00: Prova de Engenharia”.",
+      action: { kind: "NONE" } as const,
+    };
   }
 
   const apiKey = process.env.GROQ_API_KEY;

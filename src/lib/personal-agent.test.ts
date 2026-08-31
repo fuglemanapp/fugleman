@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { actionConfirmation, parseAgentAction, parseExplicitEventCommand, replyAfterActionValidation } from "./personal-agent";
+import { actionConfirmation, parseAgentAction, parseExplicitEventCommand, replyAfterActionValidation, runPersonalAgent } from "./personal-agent";
 
 describe("parseAgentAction", () => {
   it("accepts a valid expense action", () => {
@@ -55,6 +55,29 @@ describe("parseAgentAction", () => {
       startTime: "2026-08-21T15:00:00.000Z",
       endTime: "2026-08-21T16:00:00.000Z",
     });
+  });
+
+  it("accepts the WhatsApp phrasing used for a timed appointment", () => {
+    expect(
+      parseExplicitEventCommand("Cria um compromisso pra mim dia 26/09/2026 às 12:00: Prova Engenharia, ciência e Tecnologia", new Date("2026-08-31T07:00:00.000Z")),
+    ).toEqual({
+      kind: "EVENT",
+      title: "Prova Engenharia, ciência e Tecnologia",
+      description: null,
+      startTime: "2026-09-26T15:00:00.000Z",
+      endTime: "2026-09-26T16:00:00.000Z",
+    });
+  });
+
+  it("asks for a time instead of sending an incomplete appointment to the AI", async () => {
+    const result = await runPersonalAgent({
+      userId: "user-1",
+      text: "Cria um compromisso pra mim dia 26/09/2026: Prova Engenharia, ciência e Tecnologia",
+      now: new Date("2026-08-31T07:00:00.000Z"),
+    });
+
+    expect(result.action).toEqual({ kind: "NONE" });
+    expect(result.reply).toContain("horário");
   });
 
   it("only uses a created confirmation for persisted event actions", () => {
