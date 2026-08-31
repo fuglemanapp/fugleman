@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { ArrowRight, Calendar, FolderOpen, Shield, Link2, CheckCircle2, Wallet, ChevronDown, Check } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,17 +19,16 @@ export default function Home() {
                 </div>
                 <div className="absolute -bottom-0.5 -left-0.5 w-2 h-2 bg-white rotate-45 transform skew-x-12"></div>
               </div>
-              <span className="text-xl font-medium tracking-tight text-white leading-none mt-0.5">Fugleman</span>
+              <span className="text-xl font-medium tracking-tight text-white leading-none mt-0.5">WhatSpent</span>
             </div>
           </div>
 
           <nav className="hidden md:flex items-center gap-8 text-[15px] font-normal text-slate-300">
             <a href="#funcionalidades" className="hover:text-white transition-colors">Finanças</a>
             <a href="#agenda" className="hover:text-white transition-colors">Agenda</a>
-            <a href="#open-finance" className="hover:text-white transition-colors">Open Finance</a>
             <a href="#projetos" className="hover:text-white transition-colors">Projetos</a>
             <a href="#drive" className="hover:text-white transition-colors">Drive</a>
-            <a href="#precos" className="hover:text-white transition-colors">Planos</a>
+            <Link href="/entrar" className="hover:text-white transition-colors">Entrar</Link>
           </nav>
 
           <div className="flex items-center">
@@ -137,7 +135,7 @@ export default function Home() {
                           </div>
                         </div>
                         <div className="text-slate-900 flex-1">
-                          <div className="font-semibold text-base leading-tight flex items-center gap-1">Fugleman <span className="text-blue-500 text-xs">✓</span></div>
+                          <div className="font-semibold text-base leading-tight flex items-center gap-1">WhatSpent <span className="text-blue-500 text-xs">✓</span></div>
                           <div className="text-[11px] text-slate-500">digitando...</div>
                         </div>
                         <div className="flex items-center gap-4 text-blue-500">
@@ -151,7 +149,7 @@ export default function Home() {
                           <div className="text-[10px] text-green-800/60 text-right mt-1">20:06 ✓✓</div>
                         </div>
                         <div className="bg-white rounded-2xl rounded-tl-none p-4 max-w-[95%] self-start shadow-sm border border-slate-100 mt-2">
-                          <div className="font-semibold text-sm mb-1 text-slate-800 flex items-center gap-1">Fugleman <span className="text-blue-500 text-xs">✓</span></div>
+                          <div className="font-semibold text-sm mb-1 text-slate-800 flex items-center gap-1">WhatSpent <span className="text-blue-500 text-xs">✓</span></div>
                           <p className="text-[14px] text-slate-800 leading-relaxed">
                             Anotado! 📝 <span className="font-bold">R$ 82,00</span> no iFood registrado em <span className="font-bold">Alimentação</span>.<br/><br/>
                             Você já gastou <span className="font-bold">R$ 340,00</span> nessa categoria este mês. Quer ver o resumo? 📊
@@ -167,7 +165,7 @@ export default function Home() {
                           <div className="text-[10px] text-green-800/60 text-right mt-1">20:06 ✓✓</div>
                         </div>
                         <div className="bg-white rounded-2xl rounded-tl-none p-3 max-w-[85%] self-start shadow-sm border border-slate-100 mt-2">
-                          <div className="font-semibold text-sm mb-1 text-slate-800 flex items-center gap-1">Fugleman <span className="text-blue-500 text-xs">✓</span></div>
+                          <div className="font-semibold text-sm mb-1 text-slate-800 flex items-center gap-1">WhatSpent <span className="text-blue-500 text-xs">✓</span></div>
                           <p className="text-[14px] text-slate-400 font-bold tracking-widest leading-none">. . .</p>
                         </div>
                       </div>
@@ -196,7 +194,7 @@ export default function Home() {
             <div className="flex items-center gap-3"><span className="text-white font-semibold text-lg">$</span><span className="text-white font-semibold">+R$ 160 milhões</span> gerenciados</div>
             <div className="flex items-center gap-3"><Shield className="w-5 h-5 text-slate-400"/> Segurança nível bancário</div>
             <div className="flex items-center gap-3"><span className="text-white font-semibold">99,9%</span> de precisão na IA</div>
-            <div className="flex items-center gap-3"><Link2 className="w-5 h-5 text-slate-400"/> Integrado <span className="text-white font-semibold">Open Finance</span></div>
+            <div className="flex items-center gap-3"><Link2 className="w-5 h-5 text-slate-400"/> Painel e <span className="text-white font-semibold">WhatsApp</span></div>
           </div>
           <div className="animate-marquee whitespace-nowrap flex items-center gap-16 shrink-0 pr-16 text-[15px] text-slate-500" aria-hidden="true">
             <div className="flex items-center gap-3"><span className="text-white font-semibold">150 mil</span> usuários ativos</div>
@@ -204,7 +202,7 @@ export default function Home() {
             <div className="flex items-center gap-3"><span className="text-white font-semibold text-lg">$</span><span className="text-white font-semibold">+R$ 160 milhões</span> gerenciados</div>
             <div className="flex items-center gap-3"><Shield className="w-5 h-5 text-slate-400"/> Segurança nível bancário</div>
             <div className="flex items-center gap-3"><span className="text-white font-semibold">99,9%</span> de precisão na IA</div>
-            <div className="flex items-center gap-3"><Link2 className="w-5 h-5 text-slate-400"/> Integrado <span className="text-white font-semibold">Open Finance</span></div>
+            <div className="flex items-center gap-3"><Link2 className="w-5 h-5 text-slate-400"/> Painel e <span className="text-white font-semibold">WhatsApp</span></div>
           </div>
         </div>
 
@@ -220,7 +218,7 @@ export default function Home() {
                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100/80 text-purple-700 text-xs font-extrabold tracking-wider uppercase mb-6">Controle Financeiro</div>
                    <h3 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-5 leading-tight tracking-tight">Anote seus gastos por áudio ou texto.</h3>
                    <p className="text-slate-500 mb-8 leading-relaxed text-lg">
-                     Esqueça as planilhas complexas. Mande um áudio no trânsito informando o que gastou e o Fugleman entende, categoriza e salva tudo para você.
+                     Esqueça as planilhas complexas. Mande um áudio no trânsito informando o que gastou e o WhatSpent entende, categoriza e salva tudo para você.
                    </p>
                    <ul className="space-y-4">
                       <li className="flex items-center gap-3 font-medium text-slate-700">
@@ -297,7 +295,7 @@ export default function Home() {
                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100/80 text-emerald-700 text-xs font-extrabold tracking-wider uppercase mb-6">Agenda Conectada</div>
                    <h3 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-5 leading-tight tracking-tight">Nunca mais esqueça um compromisso.</h3>
                    <p className="text-slate-500 mb-8 leading-relaxed text-lg">
-                     "Marca dentista amanhã as 9h". Simples assim. O Fugleman se conecta ao seu Google Calendar e cria o evento.
+                     "Marca dentista amanhã as 9h". Simples assim. O WhatSpent cria o evento para você acompanhar no painel.
                    </p>
                    <ul className="space-y-4">
                       <li className="flex items-center gap-3 font-medium text-slate-700">
@@ -366,7 +364,7 @@ export default function Home() {
               Fale tudo que está na sua cabeça. <br/>A IA anota, organiza e não esquece de nada.
             </h2>
             <p className="text-lg text-white/80 max-w-2xl mx-auto mb-16">
-              Mande um áudio de 2 minutos misturando ideias, reuniões e gastos. O Fugleman quebra tudo em tarefas e lançamentos corretos.
+              Mande um áudio de 2 minutos misturando ideias, reuniões e gastos. O WhatSpent quebra tudo em tarefas e lançamentos corretos.
             </p>
 
             <div className="bg-white text-slate-900 rounded-[2rem] p-8 shadow-2xl text-left transform rotate-1">
@@ -428,81 +426,52 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 6. OPEN FINANCE (Tema Escuro) */}
-        <section id="open-finance" className="py-32 px-6 bg-[#020617] text-white relative">
+        {/* 6. CARTÕES E LANÇAMENTOS */}
+        <section id="cartoes" className="py-32 px-6 bg-[#020617] text-white relative">
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-900/30 rounded-full blur-[150px] pointer-events-none"></div>
           <div className="container mx-auto max-w-5xl relative z-10 text-center">
             <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">Controle absoluto sobre seus cartões.</h2>
             <p className="text-xl text-slate-400 max-w-2xl mx-auto mb-16 font-light tracking-wide">
-              Nossa tecnologia de Open Finance conecta com segurança os seus bancos. Consulte saldo, limites e faturas sem abrir o app do banco.
+              Registre suas compras, organize as parcelas e acompanhe as próximas faturas em um só lugar.
             </p>
 
             <div className="glass-card-dark p-10 max-w-3xl mx-auto hover:-translate-y-2 transition-transform duration-500 group">
                <div className="flex flex-col md:flex-row items-center justify-between mb-8 border-b border-white/10 pb-8 gap-6">
                  <div className="flex items-center gap-5">
-                   <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center font-bold text-xl shadow-[0_0_20px_rgba(139,92,246,0.3)] group-hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] transition-shadow">N</div>
+                   <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center font-bold text-xl shadow-[0_0_20px_rgba(16,185,129,0.3)] group-hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transition-shadow">W</div>
                    <div className="text-left">
-                     <h4 className="font-bold text-xl tracking-tight">Nubank</h4>
-                     <p className="text-sm text-slate-400 font-medium">Cartão de Crédito</p>
+                     <h4 className="font-bold text-xl tracking-tight">Seu cartão</h4>
+                     <p className="text-sm text-slate-400 font-medium">Compras e parcelas organizadas</p>
                    </div>
                  </div>
                  <div className="text-center md:text-right">
-                   <p className="text-sm text-slate-400 font-medium mb-1">Fatura atual</p>
-                   <h4 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-500">R$ 2.450,00</h4>
+                   <p className="text-sm text-slate-400 font-medium mb-1">Próxima fatura</p>
+                   <h4 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">Acompanhe pelo painel</h4>
                  </div>
                </div>
                <div className="flex items-center justify-center gap-16 text-slate-300">
                  <div className="text-center group-hover:-translate-y-1 transition-transform delay-75">
                    <Shield className="w-10 h-10 mx-auto mb-3 text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.4)]"/>
-                   <span className="text-sm font-semibold tracking-wide">Criptografado</span>
+                   <span className="text-sm font-semibold tracking-wide">Dados sob seu controle</span>
                  </div>
                  <div className="text-center group-hover:-translate-y-1 transition-transform delay-150">
                    <Link2 className="w-10 h-10 mx-auto mb-3 text-blue-400 drop-shadow-[0_0_15px_rgba(96,165,250,0.4)]"/>
-                   <span className="text-sm font-semibold tracking-wide">+110 Instituições</span>
+                   <span className="text-sm font-semibold tracking-wide">Lançamentos manuais</span>
                  </div>
                </div>
             </div>
           </div>
         </section>
 
-        {/* 8. PREÇOS (OFERTA) */}
-        <section id="precos" className="py-32 px-6 bg-[#F8FAFC] text-slate-900 relative">
+        {/* 8. VALIDAÇÃO PÚBLICA */}
+        <section className="py-28 px-6 bg-[#F8FAFC] text-slate-900 relative">
           <div className="container mx-auto max-w-4xl text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100/80 text-[#0A1A44] text-xs font-extrabold tracking-wider uppercase mb-6">Assine Agora</div>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold tracking-wider uppercase mb-6">Acesso gratuito</div>
             <h2 className="text-4xl md:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight">
-              Um plano completo. <br/>Sem letras miúdas.
+              Valide o WhatSpent <br/>com a gente.
             </h2>
-
-            <div className="bg-white rounded-[2.5rem] shadow-[0_30px_100px_-15px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden max-w-md mx-auto mt-16 transform transition-all hover:scale-105 duration-500 relative">
-              <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-transparent pointer-events-none"></div>
-              <div className="bg-gradient-to-br from-[#0A1A44] to-blue-900 p-8 text-center text-white relative">
-                <div className="absolute top-0 right-0 bg-green-400 text-slate-900 text-xs font-bold px-4 py-1.5 rounded-bl-xl tracking-wide uppercase">
-                  50% OFF NO LANÇAMENTO
-                </div>
-                <h3 className="text-2xl font-bold mb-2">Plano Único Pro</h3>
-                <div className="flex items-baseline justify-center gap-1 mt-4">
-                  <span className="text-5xl font-black">R$49</span>
-                  <span className="text-blue-200 font-medium">/mês</span>
-                </div>
-              </div>
-
-              <div className="p-10">
-                <ul className="space-y-5 text-left mb-10">
-                  <li className="flex items-start gap-3"><Check className="text-blue-600 w-5 h-5 flex-shrink-0" /><span className="text-slate-700 font-medium">Fugleman no WhatsApp Ilimitado</span></li>
-                  <li className="flex items-start gap-3"><Check className="text-blue-600 w-5 h-5 flex-shrink-0" /><span className="text-slate-700 font-medium">Painel Web Completo de Gestão</span></li>
-                  <li className="flex items-start gap-3"><Check className="text-blue-600 w-5 h-5 flex-shrink-0" /><span className="text-slate-700 font-medium">Integração Google Agenda</span></li>
-                  <li className="flex items-start gap-3"><Check className="text-green-600 w-5 h-5 flex-shrink-0" /><span className="text-slate-700 font-medium">Open Finance Conectado</span></li>
-                  <li className="flex items-start gap-3"><Check className="text-blue-600 w-5 h-5 flex-shrink-0" /><span className="text-slate-700 font-medium">Contas compartilhadas (Família/Equipe)</span></li>
-                </ul>
-
-                <Button className="w-full bg-[#0A1A44] hover:bg-blue-900 text-white rounded-2xl h-16 text-xl font-bold shadow-lg shadow-blue-900/20">
-                  Assinar Agora
-                </Button>
-                <p className="text-center text-sm text-slate-500 mt-6 flex items-center justify-center gap-2">
-                  <Shield className="w-4 h-4 text-green-500" /> 7 dias de garantia incondicional
-                </p>
-              </div>
-            </div>
+            <p className="mx-auto max-w-2xl text-lg leading-8 text-slate-600">Durante esta fase, você pode criar sua conta, organizar sua rotina e nos ajudar a melhorar o produto. Não há cobrança nem assinatura.</p>
+            <Link href="/cadastro" className="mt-10 inline-flex items-center gap-2 rounded-2xl bg-emerald-700 px-7 py-4 font-semibold text-white shadow-lg shadow-emerald-700/20 transition hover:bg-emerald-800">Criar conta gratuita <ArrowRight className="h-4 w-4" /></Link>
           </div>
         </section>
 
@@ -514,9 +483,9 @@ export default function Home() {
             <div className="space-y-4">
               {[
                 {q: "Preciso baixar algum aplicativo?", a: "Não. Todo o funcionamento de inserção de dados ocorre direto pelo seu WhatsApp pessoal, interagindo com o nosso contato inteligente."},
-                {q: "Meus dados bancários estão seguros?", a: "Sim. Utilizamos o padrão Open Finance regulado pelo Banco Central, com criptografia de ponta a ponta. Nós não temos acesso a fazer transferências, apenas leitura para gerar seus gráficos."},
-                {q: "Posso adicionar minha esposa(o) na conta?", a: "Com certeza. No painel web você adiciona o número do WhatsApp de quem você quiser. Tudo o que eles lançarem cai no painel consolidado da família."},
-                {q: "Como funciona a garantia de 7 dias?", a: "Se você assinar e achar que o Fugleman não ajudou a organizar sua vida em 7 dias, basta um clique no painel para cancelar e o estorno é feito automaticamente na sua fatura."},
+                {q: "Meus dados estão seguros?", a: "A conta usa confirmação de e-mail, vinculação do número pelo próprio WhatsApp e controles contra uso abusivo. Consulte nossa Política de Privacidade para entender como os dados são tratados."},
+                {q: "Posso adicionar outra pessoa na conta?", a: "Os recursos compartilhados estão em evolução. Cada pessoa deve usar sua própria conta e confirmar o próprio número de WhatsApp."},
+                {q: "O WhatSpent é pago?", a: "Não durante esta fase de validação. O acesso está gratuito e não há assinatura ativa."},
                 {q: "A IA entende áudios também?", a: "Sim! Você pode mandar um áudio no carro falando 'gastei 50 no posto de gasolina' e a IA transcreve e cadastra automaticamente na categoria Transporte."}
               ].map((faq, i) => (
                 <div key={i} className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl">
@@ -537,15 +506,15 @@ export default function Home() {
             {/* Primeira faixa */}
             <div className="animate-marquee flex items-center gap-16 px-8">
               <div className="flex items-center gap-3 shrink-0">
-                <span className="text-white font-semibold">150 mil</span> usuários ativos
+                <span className="text-white font-semibold">Acesso gratuito</span> durante a validação
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <svg className="w-5 h-5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
-                Grupo <span className="text-white font-semibold">Tittanium INC</span>
+                Seu agente <span className="text-white font-semibold">no WhatsApp</span>
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <span className="text-white font-semibold text-lg">$</span>
-                <span className="text-white font-semibold">+R$ 160 milhões</span> gerenciados
+                <span className="text-white font-semibold">Sua rotina</span> organizada
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <Shield className="w-5 h-5 text-slate-400"/>
@@ -553,26 +522,26 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <svg className="w-5 h-5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                <span className="text-white font-semibold">99,9%</span> de precisão na IA
+                <span className="text-white font-semibold">Você no controle</span> dos seus dados
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <Link2 className="w-5 h-5 text-slate-400"/>
-                Integrado <span className="text-white font-semibold">Open Finance</span>
+                Painel e <span className="text-white font-semibold">WhatsApp</span> conectados
               </div>
             </div>
 
             {/* Segunda faixa idêntica, colada logo atrás, também animada */}
             <div className="animate-marquee flex items-center gap-16 px-8" aria-hidden="true">
               <div className="flex items-center gap-3 shrink-0">
-                <span className="text-white font-semibold">150 mil</span> usuários ativos
+                <span className="text-white font-semibold">Acesso gratuito</span> durante a validação
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <svg className="w-5 h-5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
-                Grupo <span className="text-white font-semibold">Tittanium INC</span>
+                Seu agente <span className="text-white font-semibold">no WhatsApp</span>
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <span className="text-white font-semibold text-lg">$</span>
-                <span className="text-white font-semibold">+R$ 160 milhões</span> gerenciados
+                <span className="text-white font-semibold">Sua rotina</span> organizada
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <Shield className="w-5 h-5 text-slate-400"/>
@@ -580,11 +549,11 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <svg className="w-5 h-5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                <span className="text-white font-semibold">99,9%</span> de precisão na IA
+                <span className="text-white font-semibold">Você no controle</span> dos seus dados
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <Link2 className="w-5 h-5 text-slate-400"/>
-                Integrado <span className="text-white font-semibold">Open Finance</span>
+                Painel e <span className="text-white font-semibold">WhatsApp</span> conectados
               </div>
             </div>
           </div>
@@ -600,7 +569,7 @@ export default function Home() {
               <div className="relative w-12 h-12 flex items-center justify-center">
                 <div className="absolute inset-0 bg-white rounded-full flex items-center justify-center">
                   <div className="w-[85%] h-[85%] bg-[#050B14] rounded-full flex items-center justify-center translate-x-[2px] -translate-y-[2px]">
-                    <span className="text-white font-black text-3xl italic -translate-x-[2px] translate-y-[1px]">F</span>
+                    <span className="text-white font-black text-3xl italic -translate-x-[2px] translate-y-[1px]">W</span>
                   </div>
                 </div>
                 <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-white rotate-45 transform skew-x-12"></div>
@@ -611,32 +580,32 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-black tracking-tight text-white leading-none">Fugleman</span>
+                <span className="text-2xl font-black tracking-tight text-white leading-none">WhatSpent</span>
               </div>
             </div>
             <p className="text-sm max-w-xs leading-relaxed text-slate-400">
-              A evolução da gestão pessoal. Seu dinheiro, sua rotina e seus projetos organizados por Inteligência Artificial no WhatsApp.
+              Sua rotina, seus lançamentos e seus projetos organizados no painel e pelo seu agente no WhatsApp.
             </p>
           </div>
           <div className="md:col-span-2 md:col-start-8">
             <h4 className="text-white font-semibold mb-6">Produto</h4>
             <ul className="space-y-3 text-sm">
               <li><a href="#funcionalidades" className="hover:text-white transition-colors">Funcionalidades</a></li>
-              <li><a href="#open-finance" className="hover:text-white transition-colors">Open Finance</a></li>
-              <li><a href="#precos" className="hover:text-white transition-colors">Preços</a></li>
+              <li><a href="#cartoes" className="hover:text-white transition-colors">Cartões</a></li>
+              <li><Link href="/cadastro" className="hover:text-white transition-colors">Criar conta</Link></li>
             </ul>
           </div>
           <div className="md:col-span-2">
             <h4 className="text-white font-semibold mb-6">Empresa</h4>
             <ul className="space-y-3 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">Login</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Política de Privacidade</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Termos de Uso</a></li>
+              <li><Link href="/entrar" className="hover:text-white transition-colors">Entrar</Link></li>
+              <li><Link href="/privacidade" className="hover:text-white transition-colors">Política de Privacidade</Link></li>
+              <li><Link href="/termos" className="hover:text-white transition-colors">Termos de Uso</Link></li>
             </ul>
           </div>
         </div>
         <div className="container mx-auto max-w-6xl mt-16 pt-8 border-t border-white/10 text-xs flex flex-col md:flex-row justify-between items-center gap-4">
-          <p>© 2026 Fugleman Tecnologia. Todos os direitos reservados.</p>
+          <p>© 2026 WhatSpent. Todos os direitos reservados.</p>
           <div className="flex items-center gap-2 text-slate-500">
              <Shield className="w-4 h-4"/> Protegido com LGPD e Criptografia.
           </div>

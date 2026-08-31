@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { ChevronDown, HelpCircle, Bell, ArrowUpRight, ArrowDownRight, Folder, CreditCard, ListTodo, Calendar, Plus, Wallet, CheckCircle2, Tags, Building2, Link2, PieChart, Receipt, FileText, Users, Mail, Zap, Send, Briefcase, ShieldCheck, MessageSquare, UserPlus, FileSearch, DownloadCloud, AlertTriangle, Copy, ExternalLink, Trash2, ArrowRightLeft, Search, Filter, Check, Info, BarChart3, RotateCw, Edit2, Lock, X, Landmark, Keyboard, Layers, RefreshCw, ArrowRight, MessageCircle, Clock, CircleDollarSign, Percent, Calendar as CalendarIcon, Tag, Edit, Maximize2, MoreHorizontal, FileText as FileTextIcon, History, Grid3X3, List, Share2, Upload, FolderOpen, Home, ThumbsUp, ThumbsDown, BookOpen, HeadphonesIcon, ArrowLeft, TrendingUp, Bot, Shield } from "lucide-react"
 
 
@@ -9,8 +8,6 @@ import { ChevronDown, HelpCircle, Bell, ArrowUpRight, ArrowDownRight, Folder, Cr
     }
 
 export default function PlanoPage() {
-  const [isAnnual, setIsAnnual] = useState(true)
-
   return (
     <div className="flex flex-col min-h-screen bg-transparent transition-colors duration-300 dark:bg-[#0B0F19] font-sans text-slate-900">
 
@@ -175,7 +172,7 @@ export default function PlanoPage() {
         {/* Cabeçalho da Página */}
         <div className="w-full max-w-5xl bg-white rounded-2xl shadow-sm border border-slate-100 p-8 mb-8">
           <h1 className="text-2xl font-extrabold text-slate-900 mb-2">Minha Conta</h1>
-          <p className="text-sm text-slate-500">Gerencie suas informações, preferências e assinatura.</p>
+          <p className="text-sm text-slate-500">Gerencie suas informações e preferências de conta.</p>
         </div>
 
         {/* Abas de Navegação */}
@@ -195,88 +192,60 @@ export default function PlanoPage() {
         <div className="w-full max-w-5xl bg-white rounded-2xl shadow-sm border border-slate-100 p-8 md:p-10 mb-8">
           
           <div className="mb-8">
-            <h2 className="text-xl font-extrabold text-slate-900 mb-2">Gerenciar Assinatura</h2>
-            <p className="text-sm text-slate-500">Escolha o plano ideal para suas necessidades.</p>
-          </div>
-
-          {/* Toggle Switch */}
-          <div className="flex items-center gap-3 mb-10">
-            <span className={`text-sm font-medium transition-colors ${!isAnnual ? 'text-slate-900' : 'text-slate-500'}`}>Mensal</span>
-            <button 
-              onClick={() => setIsAnnual(!isAnnual)}
-              className={`relative w-14 h-7 rounded-full transition-colors duration-300 ease-in-out flex items-center px-1 border ${isAnnual ? 'bg-[#00E676] border-[#00C853]' : 'bg-slate-200 border-slate-300'}`}
-            >
-              <div className={`w-5 h-5 bg-white rounded-full shadow-sm transform transition-transform duration-300 ease-in-out ${isAnnual ? 'translate-x-7' : 'translate-x-0'}`}></div>
-            </button>
-            <span className={`text-sm font-medium transition-colors ${isAnnual ? 'text-slate-900' : 'text-slate-500'}`}>Anual</span>
-            <span className="text-[10px] font-bold text-[#00E676] ml-1 uppercase tracking-wider">-20% OFF</span>
+            <h2 className="text-xl font-extrabold text-slate-900 mb-2">Acesso ao WhatSpent</h2>
+            <p className="text-sm text-slate-500">O produto está em validação pública e seu acesso é gratuito.</p>
           </div>
 
           {/* Pricing Card */}
           <div className="border-2 border-blue-100 rounded-2xl p-8 relative overflow-hidden flex flex-col md:flex-row justify-between gap-8">
-            <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-lg uppercase tracking-wider">
-              Recomendado
+            <div className="absolute top-0 right-0 bg-emerald-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-lg uppercase tracking-wider">
+              Gratuito
             </div>
 
             <div className="flex-1">
               <h3 className="text-lg font-bold text-slate-900 mb-2">
-                {isAnnual ? 'Fugleman Pro Anual' : 'Fugleman Pro mensal'}
+                WhatSpent em validação
               </h3>
-              <p className="text-sm text-slate-500 mb-8">Acesso completo a todas as funcionalidades de IA e gestão financeira.</p>
+              <p className="text-sm text-slate-500 mb-8">Use os recursos disponíveis e compartilhe sua experiência para evoluirmos o produto.</p>
 
               <ul className="space-y-3">
                 <li className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
                     <Check className="w-3 h-3" />
                   </div>
-                  <span className="text-sm text-slate-600">Perguntas ilimitadas para o Assessor IA</span>
+                  <span className="text-sm text-slate-600">Painel financeiro e lançamentos</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
                     <Check className="w-3 h-3" />
                   </div>
-                  <span className="text-sm text-slate-600">Dashboard financeiro completo</span>
+                  <span className="text-sm text-slate-600">Agenda, tarefas e projetos</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
                     <Check className="w-3 h-3" />
                   </div>
-                  <span className="text-sm text-slate-600">Controle de transações e fluxo de caixa</span>
+                  <span className="text-sm text-slate-600">Agente pessoal no WhatsApp após confirmação do número</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
                     <Check className="w-3 h-3" />
                   </div>
-                  <span className="text-sm text-slate-600">Integração com Google Agenda</span>
+                  <span className="text-sm text-slate-600">Exportação e controles de privacidade</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
                     <Check className="w-3 h-3" />
                   </div>
-                  <span className="text-sm text-slate-600">Lembretes diários personalizados</span>
+                  <span className="text-sm text-slate-600">Sem cobrança durante a validação</span>
                 </li>
               </ul>
             </div>
 
             <div className="flex flex-col items-end justify-center shrink-0 pt-4 md:pt-0">
-              <div className="text-right mb-6">
-                <div className="text-4xl font-extrabold text-slate-900 mb-1">
-                  R$ {isAnnual ? '358,80' : '59,90'}
-                </div>
-                <div className="text-xs text-slate-500">
-                  {isAnnual ? '12x de R$ 29,90' : 'mensal'}
-                </div>
+              <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-6 py-4 text-center text-sm font-semibold text-emerald-800">
+                Acesso gratuito durante a validação
               </div>
-
-              {isAnnual ? (
-                <div className="px-8 py-3 bg-[#F8F1FF] text-[#9333EA] font-semibold text-sm rounded-xl border border-[#F3E8FF]">
-                  Seu plano atual
-                </div>
-              ) : (
-                <button className="px-8 py-3 bg-[#F8F1FF] hover:bg-[#F3E8FF] text-[#9333EA] font-semibold text-sm rounded-xl transition-colors cursor-pointer">
-                  Assinar Plano
-                </button>
-              )}
             </div>
           </div>
 
