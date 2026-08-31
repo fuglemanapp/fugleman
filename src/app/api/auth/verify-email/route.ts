@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { hashOpaqueToken } from "@/lib/account-tokens";
-import prisma from "@/lib/prisma";
+import { servicePrisma } from "@/lib/prisma-service";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import { getClientKey } from "@/lib/request-client";
 
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   const attempt = await consumeRateLimit(`email-verification:ip:${getClientKey(request)}`, { limit: 20, windowMs: 60 * 60 * 1_000 });
   if (!attempt.allowed) return NextResponse.json({ error: "Aguarde alguns minutos antes de tentar novamente." }, { status: 429 });
 
-  const verified = await prisma.$transaction(async (transaction) => {
+  const verified = await servicePrisma.$transaction(async (transaction) => {
     const record = await transaction.emailVerificationToken.findUnique({
       where: { tokenHash: hashOpaqueToken(token) },
       select: { id: true, userId: true, expiresAt: true, usedAt: true },

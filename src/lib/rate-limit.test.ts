@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({ queryRaw: vi.fn() }));
 
-vi.mock("@/lib/prisma", () => ({ default: { $queryRaw: mocks.queryRaw } }));
+vi.mock("@/lib/prisma-service", () => ({ servicePrisma: { $queryRaw: mocks.queryRaw } }));
 
 import { consumeRateLimit } from "./rate-limit";
 

@@ -1,6 +1,6 @@
 import { NextAuthOptions } from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import prisma from "@/lib/prisma"
+import { servicePrisma } from "@/lib/prisma-service"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { getServerSession } from "next-auth"
@@ -17,7 +17,7 @@ const authSecret = process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET
 
 export const authOptions: NextAuthOptions = {
   secret: authSecret,
-  adapter: PrismaAdapter(prisma) as Adapter,
+  adapter: PrismaAdapter(servicePrisma) as Adapter,
   providers: [
     CredentialsProvider({
       name: "E-mail e senha",
@@ -39,7 +39,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const user = await prisma.user.findUnique({
+        const user = await servicePrisma.user.findUnique({
           where: { email },
           select: { id: true, name: true, email: true, image: true, passwordHash: true, emailVerified: true },
         });
@@ -81,7 +81,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google" && user.id) {
-        await prisma.account.updateMany({
+        await servicePrisma.account.updateMany({
           where: { userId: user.id, provider: "google", providerAccountId: account.providerAccountId },
           data: {
             access_token: account.access_token,

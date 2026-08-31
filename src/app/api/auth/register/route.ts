@@ -4,7 +4,7 @@ import { buildAccountUrl, sendAccountEmail } from "@/lib/account-email";
 import { validateRegistrationInput } from "@/lib/account-input";
 import { createOpaqueToken } from "@/lib/account-tokens";
 import { hashPassword } from "@/lib/password";
-import prisma from "@/lib/prisma";
+import { servicePrisma } from "@/lib/prisma-service";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import { getClientKey } from "@/lib/request-client";
 
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Aguarde alguns minutos antes de tentar novamente." }, { status: 429 });
   }
 
-  const existing = await prisma.user.findUnique({ where: { email: input.value.email }, select: { id: true } });
+  const existing = await servicePrisma.user.findUnique({ where: { email: input.value.email }, select: { id: true } });
   if (existing) {
     return NextResponse.json({ error: "Já existe uma conta com este e-mail. Entre ou recupere sua senha." }, { status: 409 });
   }
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   const passwordHash = await hashPassword(input.value.password);
 
   try {
-    const user = await prisma.$transaction(async (transaction) => {
+    const user = await servicePrisma.$transaction(async (transaction) => {
       const created = await transaction.user.create({
         data: { name: input.value.name, email: input.value.email, passwordHash, emailVerified: null },
         select: { id: true, name: true, email: true },

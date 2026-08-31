@@ -5,7 +5,7 @@ type RateLimitOptions = {
 
 import { createHash } from "node:crypto";
 
-import prisma from "@/lib/prisma";
+import { servicePrisma } from "@/lib/prisma-service";
 
 type RateLimitBucket = {
   count: number;
@@ -28,7 +28,7 @@ function bucketKey(key: string) {
  */
 export async function consumeRateLimit(key: string, options: RateLimitOptions): Promise<RateLimitResult> {
   const resetAt = new Date(Date.now() + options.windowMs);
-  const [bucket] = await prisma.$queryRaw<RateLimitBucket[]>`
+  const [bucket] = await servicePrisma.$queryRaw<RateLimitBucket[]>`
     INSERT INTO "RateLimitBucket" ("key", "count", "resetAt", "updatedAt")
     VALUES (${bucketKey(key)}, 1, ${resetAt}, NOW())
     ON CONFLICT ("key") DO UPDATE

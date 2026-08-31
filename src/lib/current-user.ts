@@ -1,5 +1,5 @@
 import { getAuthSession } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { servicePrisma } from "@/lib/prisma-service";
 
 export async function getCurrentUser() {
   const session = await getAuthSession();
@@ -9,7 +9,7 @@ export async function getCurrentUser() {
     return null;
   }
 
-  return prisma.user.findUnique({
+  return servicePrisma.user.findUnique({
     where: { email },
     select: { id: true, name: true, email: true, image: true, phone: true, createdAt: true },
   });

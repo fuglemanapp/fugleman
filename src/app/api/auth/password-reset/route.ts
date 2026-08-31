@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { buildAccountUrl, sendAccountEmail } from "@/lib/account-email";
 import { createOpaqueToken } from "@/lib/account-tokens";
 import { normalizeAccountEmail } from "@/lib/credential-access";
-import prisma from "@/lib/prisma";
+import { servicePrisma } from "@/lib/prisma-service";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import { getClientKey } from "@/lib/request-client";
 
@@ -24,11 +24,11 @@ export async function POST(request: Request) {
   const emailAttempt = await consumeRateLimit(`password-reset:email:${email}`, { limit: 3, windowMs: 60 * 60 * 1_000 });
   if (!emailAttempt.allowed) return genericResponse();
 
-  const user = await prisma.user.findUnique({ where: { email }, select: { id: true, name: true, email: true } });
+  const user = await servicePrisma.user.findUnique({ where: { email }, select: { id: true, name: true, email: true } });
   if (!user?.email) return genericResponse();
 
   const token = createOpaqueToken();
-  await prisma.$transaction(async (transaction) => {
+  await servicePrisma.$transaction(async (transaction) => {
     await transaction.passwordResetToken.deleteMany({ where: { userId: user.id, usedAt: null } });
     await transaction.passwordResetToken.create({
       data: { userId: user.id, tokenHash: token.hash, expiresAt: new Date(Date.now() + resetLifetimeMs) },

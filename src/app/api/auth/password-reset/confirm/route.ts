@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { hashOpaqueToken } from "@/lib/account-tokens";
 import { hasSecurePassword } from "@/lib/credential-access";
 import { hashPassword } from "@/lib/password";
-import prisma from "@/lib/prisma";
+import { servicePrisma } from "@/lib/prisma-service";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import { getClientKey } from "@/lib/request-client";
 
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
   if (!attempt.allowed) return NextResponse.json({ error: "Aguarde alguns minutos antes de tentar novamente." }, { status: 429 });
 
   const passwordHash = await hashPassword(password);
-  const reset = await prisma.$transaction(async (transaction) => {
+  const reset = await servicePrisma.$transaction(async (transaction) => {
     const record = await transaction.passwordResetToken.findUnique({
       where: { tokenHash: hashOpaqueToken(token) },
       select: { id: true, userId: true, expiresAt: true, usedAt: true },

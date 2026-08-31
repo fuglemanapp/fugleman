@@ -22,8 +22,8 @@ vi.mock("@/lib/account-email", () => ({
   buildAccountUrl: (path: string, token: string) => new URL(`${path}?token=${token}`, "https://whatspent.com"),
   sendAccountEmail: mocks.sendAccountEmail,
 }));
-vi.mock("@/lib/prisma", () => ({
-  default: {
+vi.mock("@/lib/prisma-service", () => ({
+  servicePrisma: {
     user: { findUnique: mocks.userFindUnique, create: mocks.userCreate },
     emailVerificationToken: { deleteMany: mocks.emailTokenDeleteMany, create: mocks.emailTokenCreate },
     $transaction: async (work: (transaction: unknown) => Promise<unknown>) => work({
