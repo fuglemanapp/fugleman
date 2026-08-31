@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/current-user";
-import prisma from "@/lib/prisma";
+import { withUserDb } from "@/lib/db-context";
 
 export const dynamic = "force-dynamic";
 
@@ -9,33 +9,34 @@ export async function GET() {
   const currentUser = await getCurrentUser();
   if (!currentUser) return NextResponse.json({ error: "Faça login para exportar seus dados." }, { status: 401 });
 
-  const userId = currentUser.id;
-  const [user, transactions, cards, cardPurchases, events, projects, notes, recurringTransactions, budgets, goals, preferences, assistantConversation] = await Promise.all([
-    prisma.user.findUnique({
+  return withUserDb(currentUser.id, async (database) => {
+    const userId = currentUser.id;
+    const [user, transactions, cards, cardPurchases, events, projects, notes, recurringTransactions, budgets, goals, preferences, assistantConversation] = await Promise.all([
+    database.user.findUnique({
       where: { id: userId },
       select: { id: true, name: true, email: true, image: true, phone: true, createdAt: true, updatedAt: true },
     }),
-    prisma.transaction.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
-    prisma.creditCard.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
-    prisma.cardPurchase.findMany({
+    database.transaction.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
+    database.creditCard.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
+    database.cardPurchase.findMany({
       where: { userId },
       include: { installmentsList: { orderBy: { number: "asc" } } },
       orderBy: { purchaseDate: "asc" },
     }),
-    prisma.event.findMany({ where: { userId }, orderBy: { startTime: "asc" } }),
-    prisma.project.findMany({ where: { userId }, include: { tasks: { orderBy: { createdAt: "asc" } } }, orderBy: { createdAt: "asc" } }),
-    prisma.note.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
-    prisma.recurringTransaction.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
-    prisma.budget.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
-    prisma.financialGoal.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
-    prisma.financialPreferences.findUnique({ where: { userId } }),
-    prisma.assistantConversation.findUnique({
+    database.event.findMany({ where: { userId }, orderBy: { startTime: "asc" } }),
+    database.project.findMany({ where: { userId }, include: { tasks: { orderBy: { createdAt: "asc" } } }, orderBy: { createdAt: "asc" } }),
+    database.note.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
+    database.recurringTransaction.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
+    database.budget.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
+    database.financialGoal.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
+    database.financialPreferences.findUnique({ where: { userId } }),
+    database.assistantConversation.findUnique({
       where: { userId },
       include: { messages: { orderBy: { createdAt: "asc" } } },
     }),
-  ]);
+    ]);
 
-  return NextResponse.json(
+    return NextResponse.json(
     {
       exportedAt: new Date().toISOString(),
       user,
@@ -58,5 +59,6 @@ export async function GET() {
         "Content-Disposition": 'attachment; filename="whatspent-dados.json"',
       },
     },
-  );
+    );
+  });
 }

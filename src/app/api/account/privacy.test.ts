@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   getCurrentUser: vi.fn(),
   sendAccountEmail: vi.fn(),
   consumeRateLimit: vi.fn(),
+  withUserDb: vi.fn(),
   userFindUnique: vi.fn(),
   transactionFindMany: vi.fn(),
   creditCardFindMany: vi.fn(),
@@ -23,6 +24,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/current-user", () => ({ getCurrentUser: mocks.getCurrentUser }));
 vi.mock("@/lib/account-email", () => ({ sendAccountEmail: mocks.sendAccountEmail }));
 vi.mock("@/lib/rate-limit", () => ({ consumeRateLimit: mocks.consumeRateLimit }));
+vi.mock("@/lib/db-context", () => ({ withUserDb: mocks.withUserDb }));
 vi.mock("@/lib/prisma", () => ({
   default: {
     user: { findUnique: mocks.userFindUnique, delete: mocks.userDelete },
@@ -63,6 +65,20 @@ describe("account privacy routes", () => {
     mocks.consumeRateLimit.mockResolvedValue({ allowed: true, remaining: 2, retryAfterSeconds: 3600 });
     mocks.accountDeletionRequestUpsert.mockResolvedValue({ id: "request-a" });
     mocks.sendAccountEmail.mockResolvedValue(undefined);
+    mocks.withUserDb.mockImplementation(async (_userId: string, work: (database: unknown) => Promise<unknown>) => work({
+      user: { findUnique: mocks.userFindUnique },
+      transaction: { findMany: mocks.transactionFindMany },
+      creditCard: { findMany: mocks.creditCardFindMany },
+      cardPurchase: { findMany: mocks.cardPurchaseFindMany },
+      event: { findMany: mocks.eventFindMany },
+      project: { findMany: mocks.projectFindMany },
+      note: { findMany: mocks.noteFindMany },
+      recurringTransaction: { findMany: mocks.recurringTransactionFindMany },
+      budget: { findMany: mocks.budgetFindMany },
+      financialGoal: { findMany: mocks.financialGoalFindMany },
+      financialPreferences: { findUnique: mocks.financialPreferencesFindUnique },
+      assistantConversation: { findUnique: mocks.assistantConversationFindUnique },
+    }));
   });
 
   it("exports only the authenticated user's records", async () => {
@@ -73,6 +89,7 @@ describe("account privacy routes", () => {
     expect(body.user.id).toBe("user-a");
     expect(body.transactions.every((row: { userId: string }) => row.userId === "user-a")).toBe(true);
     expect(mocks.transactionFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: { userId: "user-a" } }));
+    expect(mocks.withUserDb).toHaveBeenCalledWith("user-a", expect.any(Function));
     expect(response.headers.get("Content-Disposition")).toContain("whatspent-dados.json");
   });
 
