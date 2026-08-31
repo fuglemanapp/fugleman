@@ -44,11 +44,51 @@ describe("card statements API context isolation", () => {
     mocks.cardStatementPaymentFindMany.mockResolvedValue([]);
   });
 
+  it("opens the statement list at the following calendar month by default", async () => {
+    const now = new Date();
+    const expectedMonth = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1),
+    );
+    mocks.monthKey.mockImplementation((date: Date) =>
+      date.toISOString().slice(0, 7),
+    );
+
+    const response = await route.GET(
+      new Request("http://localhost/api/financial/card-statements?context=personal"),
+    );
+
+    expect(response.status).toBe(200);
+    expect(mocks.dateFromMonthKey).toHaveBeenCalledWith(
+      expectedMonth.toISOString().slice(0, 7),
+    );
+  });
+
   it("does not list family-card statements in the personal context", async () => {
     const response = await route.GET(new Request("http://localhost/api/financial/card-statements?context=personal&from=2026-08&months=1"));
 
     expect(response.status).toBe(200);
     expect(mocks.creditCardFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: { userId: "user-1", teamId: null } }));
+  });
+
+  it("includes installments stored at the start of the statement month", async () => {
+    await route.GET(new Request("http://localhost/api/financial/card-statements?context=personal&from=2026-08&months=1"));
+
+    expect(mocks.cardInstallmentFindMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({
+        dueMonth: {
+          gte: new Date("2026-08-01T00:00:00.000Z"),
+          lt: new Date("2026-09-01T00:00:00.000Z"),
+        },
+      }),
+    }));
+  });
+
+  it("returns statement data without cache", async () => {
+    const response = await route.GET(
+      new Request("http://localhost/api/financial/card-statements?context=personal&from=2026-08&months=1"),
+    );
+
+    expect(response.headers.get("cache-control")).toBe("no-store");
   });
 
   it("does not mark a family-card statement through the personal context", async () => {

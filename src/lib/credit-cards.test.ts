@@ -4,6 +4,7 @@ import {
   buildPendingInstallments,
   calculatePurchaseTotal,
   monthKey,
+  statementMonthForPurchase,
   suggestCurrentInstallment,
 } from "./credit-cards";
 
@@ -14,6 +15,17 @@ describe("credit card calculation helpers", () => {
 
   it("uses the entered installment value instead of dividing it again", () => {
     expect(calculatePurchaseTotal(272.4, 21)).toBe(5720.4);
+  });
+
+  it("always places purchases in the following calendar-month invoice", () => {
+    expect(
+      monthKey(
+        statementMonthForPurchase(
+          new Date("2026-08-08T12:00:00.000Z"),
+          10,
+        ),
+      ),
+    ).toBe("2026-09");
   });
 
   it("preserves cents while clamping the installment count", () => {
@@ -62,6 +74,20 @@ describe("credit card calculation helpers", () => {
     expect(schedule.map((item) => monthKey(item.dueMonth))).toEqual(["2026-09", "2026-10"]);
   });
 
+  it("places July's second installment on September's invoice", () => {
+    const schedule = buildPendingInstallments({
+      installmentAmount: 33.57,
+      installments: 10,
+      currentInstallment: 2,
+      purchaseDate: new Date("2026-07-09T12:00:00.000Z"),
+      closingDay: 10,
+      referenceDate: new Date("2026-08-21T12:00:00.000Z"),
+    });
+
+    expect(schedule[0]).toMatchObject({ number: 2, amount: 33.57 });
+    expect(monthKey(schedule[0].dueMonth)).toBe("2026-09");
+  });
+
   it("anchors the full schedule to the original purchase date", () => {
     const schedule = buildPendingInstallments({
       installmentAmount: 272.4,
@@ -92,7 +118,7 @@ describe("credit card calculation helpers", () => {
     expect(schedule).toHaveLength(48);
     expect(schedule[0]).toMatchObject({ number: 1, amount: 10.01 });
     expect(schedule.at(-1)).toMatchObject({ number: 48, amount: 10.01 });
-    expect(monthKey(schedule[0].dueMonth)).toBe("2026-08");
-    expect(monthKey(schedule.at(-1)!.dueMonth)).toBe("2030-07");
+    expect(monthKey(schedule[0].dueMonth)).toBe("2026-09");
+    expect(monthKey(schedule.at(-1)!.dueMonth)).toBe("2030-08");
   });
 });

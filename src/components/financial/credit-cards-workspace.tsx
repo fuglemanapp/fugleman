@@ -16,6 +16,7 @@ import {
   FinancialContextSwitcher,
   type FinancialWorkspace,
 } from "@/components/financial/financial-context-switcher";
+import { CARD_COLORS } from "@/lib/card-colors";
 import { suggestCurrentInstallment } from "@/lib/credit-cards";
 
 type Card = {
@@ -57,6 +58,15 @@ type PurchaseForm = {
   installments: string;
   currentInstallment: string;
 };
+type CardForm = {
+  name: string;
+  issuer: string;
+  lastFour: string;
+  limit: string;
+  closingDay: string;
+  dueDay: string;
+  color: string;
+};
 type Statement = {
   card: Card;
   dueMonth: string;
@@ -90,17 +100,11 @@ const categories = [
   "Investimentos",
   "Outros",
 ];
-const palette = [
-  "#0B9D4E",
-  "#1D5D9B",
-  "#8A4FFF",
-  "#C25378",
-  "#C56A27",
-  "#2E7B7E",
-];
-
-function currentMonth() {
-  return new Date().toISOString().slice(0, 7);
+function nextStatementMonth() {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 12))
+    .toISOString()
+    .slice(0, 7);
 }
 function personName(card: Card) {
   return card.user.name || card.user.email || "Membro";
@@ -141,14 +145,14 @@ export function CreditCardsWorkspace() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [cardForm, setCardForm] = useState({
+  const [cardForm, setCardForm] = useState<CardForm>({
     name: "",
     issuer: "",
     lastFour: "",
     limit: "",
     closingDay: "10",
     dueDay: "17",
-    color: palette[0],
+    color: CARD_COLORS[0],
   });
   const [purchaseForm, setPurchaseForm] =
     useState<PurchaseForm>(defaultPurchaseForm);
@@ -158,9 +162,12 @@ export function CreditCardsWorkspace() {
     setError("");
     try {
       const [cardsResponse, statementsResponse] = await Promise.all([
-        fetch(`/api/financial/cards?context=${encodeURIComponent(context)}`),
+        fetch(`/api/financial/cards?context=${encodeURIComponent(context)}`, {
+          cache: "no-store",
+        }),
         fetch(
-          `/api/financial/card-statements?context=${encodeURIComponent(context)}&from=${currentMonth()}&months=7`,
+          `/api/financial/card-statements?context=${encodeURIComponent(context)}&from=${nextStatementMonth()}&months=7`,
+          { cache: "no-store" },
         ),
       ]);
       const cardsData = (await cardsResponse.json()) as {
@@ -264,7 +271,7 @@ export function CreditCardsWorkspace() {
         limit: "",
         closingDay: "10",
         dueDay: "17",
-        color: palette[0],
+        color: CARD_COLORS[0],
       });
       await load();
       setSelectedCard(data.card);
@@ -992,8 +999,8 @@ export function CreditCardsWorkspace() {
             </div>
             <div>
               <p className="mb-2 text-sm font-semibold text-[#315f48]">Cor</p>
-              <div className="flex gap-2">
-                {palette.map((color) => (
+              <div className="grid grid-cols-6 gap-2">
+                {CARD_COLORS.map((color) => (
                   <button
                     key={color}
                     type="button"
