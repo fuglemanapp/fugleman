@@ -1,4 +1,5 @@
 import prisma from "./prisma";
+import type { PendingAction, PendingActionUpdate } from "./assistant-pending-action";
 
 const MAX_AMOUNT = 1_000_000_000;
 const SAO_PAULO_TIME_ZONE = "America/Sao_Paulo";
@@ -7,10 +8,14 @@ const RETIRED_GROQ_MODELS = new Set(["llama-3.1-8b-instant", "llama-3.3-70b-vers
 
 export type AgentAction =
   | { kind: "EXPENSE" | "INCOME"; amount: number; description: string; category: string; date: string }
+  | { kind: "CARD_PURCHASE"; amount: number; description: string; category: string; date: string; cardReference: string; installments?: number }
   | { kind: "EVENT"; title: string; startTime: string; endTime: string; description: string | null }
   | { kind: "NONE" };
 
-type AgentResponse = { reply?: unknown; action?: unknown };
+export type PendingActionDraft = PendingActionUpdate & { kind: PendingAction["kind"] };
+type AgentRunResult = { reply: string; action: AgentAction; pendingAction?: PendingActionDraft | null };
+
+type AgentResponse = { reply?: unknown; action?: unknown; pendingAction?: unknown };
 
 type EventAction = Extract<AgentAction, { kind: "EVENT" }>;
 
@@ -144,6 +149,9 @@ export function actionConfirmation(action: AgentAction) {
   }
 
   const amount = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(action.amount);
+  if (action.kind === "CARD_PURCHASE") {
+    return `Compra de ${amount} no cartão ${action.cardReference} registrada com sucesso.`;
+  }
   return action.kind === "EXPENSE" ? `Despesa de ${amount} registrada com sucesso.` : `Entrada de ${amount} registrada com sucesso.`;
 }
 
@@ -163,6 +171,28 @@ export function parseAgentAction(value: unknown): AgentAction {
     }
   }
 
+  if (value.kind === "CARD_PURCHASE") {
+    const amount = typeof value.amount === "number" ? value.amount : Number(value.amount);
+    const description = normalizedText(value.description, 140);
+    const category = normalizedText(value.category, 80);
+    const date = parseIsoDate(value.date);
+    const cardReference = normalizedText(value.cardReference, 120);
+    const installments = value.installments === undefined ? undefined : Number(value.installments);
+
+    if (
+      Number.isFinite(amount) &&
+      amount > 0 &&
+      amount <= MAX_AMOUNT &&
+      description &&
+      category &&
+      date &&
+      cardReference &&
+      (installments === undefined || (Number.isInteger(installments) && installments > 0 && installments <= 48))
+    ) {
+      return { kind: "CARD_PURCHASE", amount, description, category, date, cardReference, ...(installments ? { installments } : {}) };
+    }
+  }
+
   if (value.kind === "EVENT") {
     const title = normalizedText(value.title, 120);
     const description = typeof value.description === "string" ? value.description.trim().slice(0, 1000) || null : null;
@@ -175,6 +205,33 @@ export function parseAgentAction(value: unknown): AgentAction {
   }
 
   return { kind: "NONE" };
+}
+
+export function parseAgentPendingAction(value: unknown): PendingActionDraft | null {
+  if (!isRecord(value) || !["EXPENSE", "INCOME", "CARD_PURCHASE", "EVENT"].includes(String(value.kind))) {
+    return null;
+  }
+
+  const amount = typeof value.amount === "number" ? value.amount : Number(value.amount);
+  const installments = value.installments === undefined ? undefined : Number(value.installments);
+  const currentInstallment = value.currentInstallment === undefined ? undefined : Number(value.currentInstallment);
+  const startTime = parseTimestamp(value.startTime);
+  const endTime = parseTimestamp(value.endTime);
+  const draft: PendingActionDraft = { kind: value.kind as PendingAction["kind"] };
+
+  if (Number.isFinite(amount) && amount > 0 && amount <= MAX_AMOUNT) draft.amount = amount;
+  if (normalizedText(value.description, 140)) draft.description = normalizedText(value.description, 140) || undefined;
+  if (normalizedText(value.category, 80)) draft.category = normalizedText(value.category, 80) || undefined;
+  if (parseIsoDate(value.date)) draft.date = parseIsoDate(value.date) || undefined;
+  if (normalizedText(value.cardReference, 120)) draft.cardReference = normalizedText(value.cardReference, 120) || undefined;
+  if (normalizedText(value.cardId, 120)) draft.cardId = normalizedText(value.cardId, 120) || undefined;
+  if (typeof installments === "number" && Number.isInteger(installments) && installments > 0 && installments <= 48) draft.installments = installments;
+  if (typeof currentInstallment === "number" && Number.isInteger(currentInstallment) && currentInstallment > 0 && currentInstallment <= 48) draft.currentInstallment = currentInstallment;
+  if (normalizedText(value.title, 120)) draft.title = normalizedText(value.title, 120) || undefined;
+  if (startTime) draft.startTime = startTime.toISOString();
+  if (endTime) draft.endTime = endTime.toISOString();
+
+  return Object.keys(draft).length > 1 ? draft : null;
 }
 
 function monthBounds(now: Date) {
@@ -214,7 +271,7 @@ function unavailableAssistantResponse() {
   };
 }
 
-export async function runPersonalAgent(input: { userId: string; text: string; now?: Date }) {
+export async function runPersonalAgent(input: { userId: string; text: string; now?: Date; pendingAction?: PendingAction | null }): Promise<AgentRunResult> {
   const now = input.now || new Date();
   const explicitEvent = parseExplicitEventCommand(input.text, now);
   if (explicitEvent) {
@@ -249,9 +306,11 @@ export async function runPersonalAgent(input: { userId: string; text: string; no
             role: "system",
             content: [
               "Você é WhatSpent, um assistente financeiro pessoal brasileiro. Responda sempre em português.",
-              "Retorne exclusivamente JSON válido com as chaves reply e action.",
-              "action deve ser EXPENSE, INCOME, EVENT ou NONE. Para EXPENSE/INCOME use amount, description, category e date YYYY-MM-DD. Para EVENT use title, startTime ISO, endTime ISO e description.",
-              "Nunca invente valores, datas ou confirmações. Quando faltar informação, use NONE e peça o dado faltante.",
+              "Retorne exclusivamente JSON válido com as chaves reply, action e pendingAction.",
+              "action deve ser EXPENSE, INCOME, CARD_PURCHASE, EVENT ou NONE. Para EXPENSE/INCOME use amount, description, category e date YYYY-MM-DD. Para CARD_PURCHASE use os mesmos campos e cardReference. Para EVENT use title, startTime ISO, endTime ISO e description.",
+              "pendingAction deve conter um rascunho parcial com kind e somente os campos informados quando ainda faltar algo. Caso não haja pendência, use null.",
+              "Nunca invente valores, datas ou confirmações. Quando faltar informação, use action NONE, pendingAction e peça somente o próximo dado necessário.",
+              input.pendingAction ? `Pendência atual (não descarte os dados já confirmados): ${JSON.stringify(input.pendingAction)}.` : "Não há pendência atual.",
               `Data atual: ${now.toISOString()}. Resumo pessoal do mês: entradas R$ ${summary.income.toFixed(2)}, saídas R$ ${summary.expense.toFixed(2)}, saldo R$ ${summary.balance.toFixed(2)}.`,
             ].join("\n"),
           },
@@ -289,7 +348,8 @@ export async function runPersonalAgent(input: { userId: string; text: string; no
     const result = JSON.parse(content) as AgentResponse;
     const reply = normalizedText(result.reply, 2000) || "Não consegui interpretar sua mensagem com segurança. Pode reformular?";
     const action = parseAgentAction(result.action);
-    return { reply: replyAfterActionValidation(input.text, reply, action), action };
+    const pendingAction = parseAgentPendingAction(result.pendingAction);
+    return { reply: replyAfterActionValidation(input.text, reply, action), action, pendingAction };
   } catch {
     return { reply: "Não consegui interpretar sua mensagem com segurança. Pode reformular?", action: { kind: "NONE" } as const };
   }

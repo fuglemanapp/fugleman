@@ -47,13 +47,13 @@ export function mergePendingAction(
 }
 
 export function missingPendingFields(action: PendingAction): string[] {
-  const required =
+  const required: string[] =
     action.kind === "EVENT"
-      ? ["title", "startTime", "endTime"] as const
-      : ["amount", "description", "category", "date"] as const;
+      ? ["title", "startTime", "endTime"]
+      : ["amount", "description", "category", "date"];
 
   if (action.kind === "CARD_PURCHASE") {
-    required.push("cardReference" as never);
+    required.push("cardReference");
   }
 
   return required.filter((field) => {

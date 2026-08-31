@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { ensureAssistantConversation } from "@/lib/assistant-conversation";
-import { persistAgentAction } from "@/lib/personal-agent-effects";
-import { runPersonalAgent, type AgentAction } from "@/lib/personal-agent";
+import { ensureAssistantConversation, processAssistantMessage } from "@/lib/assistant-conversation";
+import type { AgentAction } from "@/lib/personal-agent";
 import prisma from "@/lib/prisma";
 import { normalizePhone, parseZernioInboundMessage, sendZernioInboxMessage, verifyZernioSignature } from "@/lib/zernio";
 
@@ -14,7 +13,7 @@ async function findUserByPhone(phone: string) {
   return users.find((user) => normalizePhone(user.phone) === phone) || null;
 }
 
-async function createAssistantReply(userId: string, text: string, hasAttachments: boolean) {
+async function createAssistantReply(userId: string, text: string, hasAttachments: boolean, idempotencyKey: string) {
   const conversation = await ensureAssistantConversation(userId);
   await prisma.assistantMessage.create({ data: { conversationId: conversation.id, role: "USER", text } });
 
@@ -24,18 +23,9 @@ async function createAssistantReply(userId: string, text: string, hasAttachments
   let action: AgentAction = { kind: "NONE" };
 
   if (text) {
-    const result = await runPersonalAgent({ userId, text });
+    const result = await processAssistantMessage({ userId, conversationId: conversation.id, idempotencyKey, text });
     reply = result.reply;
     action = result.action;
-
-    try {
-      const persistence = await persistAgentAction(userId, action);
-      if (persistence.confirmation) reply = persistence.confirmation;
-      if (persistence.warning) reply = `${reply}\n\n${persistence.warning}`;
-    } catch {
-      action = { kind: "NONE" };
-      reply = "Não consegui salvar essa ação com segurança. Tente novamente; nenhum lançamento foi criado.";
-    }
   }
 
   await prisma.assistantMessage.create({ data: { conversationId: conversation.id, role: "ASSISTANT", text: reply, action } });
@@ -102,7 +92,7 @@ export async function POST(request: Request) {
     const user = await findUserByPhone(inbound.senderPhone);
     if (!user) return NextResponse.json({ status: "unlinked_sender" });
 
-    const reply = await createAssistantReply(user.id, inbound.text || "", inbound.hasAttachments);
+    const reply = await createAssistantReply(user.id, inbound.text || "", inbound.hasAttachments, event.id);
     event = await prisma.zernioWebhookEvent.update({ where: { id: event.id }, data: { userId: user.id, responseText: reply } });
   }
 

@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { ensureAssistantConversation } from "@/lib/assistant-conversation";
+import { ensureAssistantConversation, processAssistantMessage } from "@/lib/assistant-conversation";
+import type { AgentAction } from "@/lib/personal-agent";
 import { normalizeChatText } from "@/lib/chat";
 import { getCurrentUser } from "@/lib/current-user";
-import { persistAgentAction } from "@/lib/personal-agent-effects";
-import { runPersonalAgent, type AgentAction } from "@/lib/personal-agent";
 import prisma from "@/lib/prisma";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import { reportSecurityEvent } from "@/lib/security-events";
@@ -73,22 +72,14 @@ export async function POST(request: Request) {
   let action: AgentAction = { kind: "NONE" };
 
   if (text) {
-    const result = await runPersonalAgent({ userId: user.id, text });
+    const result = await processAssistantMessage({
+      userId: user.id,
+      conversationId: conversation.id,
+      idempotencyKey: userMessage.id,
+      text,
+    });
     reply = result.reply;
     action = result.action;
-
-    try {
-      const persistence = await persistAgentAction(user.id, action);
-      if (persistence.confirmation) {
-        reply = persistence.confirmation;
-      }
-      if (persistence.warning) {
-        reply = `${reply}\n\n${persistence.warning}`;
-      }
-    } catch {
-      action = { kind: "NONE" };
-      reply = "Não consegui salvar essa ação com segurança. Tente novamente; nenhum lançamento foi criado.";
-    }
   }
 
   const assistantMessage = await prisma.assistantMessage.create({
