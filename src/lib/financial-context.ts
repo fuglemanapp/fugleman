@@ -1,4 +1,7 @@
 import prisma from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
+
+type FinancialDatabase = Pick<Prisma.TransactionClient, "teamMember">;
 
 export type FinancialContext =
   | {
@@ -31,6 +34,7 @@ export function parseFinancialContext(value: string | null) {
 export async function resolveFinancialContext(
   userId: string,
   value: string | null,
+  database: FinancialDatabase = prisma,
 ): Promise<FinancialContext | null> {
   const parsed = parseFinancialContext(value);
   if (!parsed) {
@@ -48,7 +52,7 @@ export async function resolveFinancialContext(
     };
   }
 
-  const membership = await prisma.teamMember.findUnique({
+  const membership = await database.teamMember.findUnique({
     where: { teamId_userId: { teamId: parsed.teamId, userId } },
     include: { team: { include: { members: { select: { userId: true } } } } },
   });

@@ -6,10 +6,12 @@ const mocks = vi.hoisted(() => ({
   creditCardFindMany: vi.fn(),
   creditCardFindFirst: vi.fn(),
   creditCardUpdate: vi.fn(),
+  withUserDb: vi.fn(),
 }));
 
 vi.mock("@/lib/current-user", () => ({ getCurrentUser: mocks.getCurrentUser }));
 vi.mock("@/lib/financial-context", () => ({ resolveFinancialContext: mocks.resolveFinancialContext }));
+vi.mock("@/lib/db-context", () => ({ withUserDb: mocks.withUserDb }));
 vi.mock("@/lib/prisma", () => ({
   default: {
     creditCard: {
@@ -32,6 +34,14 @@ describe("cards API context isolation", () => {
     mocks.resolveFinancialContext.mockResolvedValue(personalContext);
     mocks.creditCardFindMany.mockResolvedValue([]);
     mocks.creditCardFindFirst.mockResolvedValue(null);
+    mocks.withUserDb.mockImplementation(async (_userId: string, work: (database: unknown) => Promise<unknown>) => work({
+      creditCard: {
+        findMany: mocks.creditCardFindMany,
+        findFirst: mocks.creditCardFindFirst,
+        create: vi.fn(),
+        update: mocks.creditCardUpdate,
+      },
+    }));
   });
 
   it("does not list a family card in the personal context", async () => {
@@ -39,6 +49,12 @@ describe("cards API context isolation", () => {
 
     expect(response.status).toBe(200);
     expect(mocks.creditCardFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: { userId: "user-1", teamId: null } }));
+  });
+
+  it("uses the current user context for card data", async () => {
+    await route.GET(new Request("http://localhost/api/financial/cards?context=personal"));
+
+    expect(mocks.withUserDb).toHaveBeenCalledWith("user-1", expect.any(Function));
   });
 
   it("does not update a family card through the personal context", async () => {
