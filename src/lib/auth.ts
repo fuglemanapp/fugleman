@@ -6,6 +6,7 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { getServerSession } from "next-auth"
 import { Adapter } from "next-auth/adapters"
 import { verifyPassword } from "@/lib/password"
+import { canAuthenticateWithPassword } from "@/lib/credential-access"
 import { GOOGLE_CALENDAR_SCOPES } from "@/lib/google-calendar"
 import { consumeRateLimit } from "@/lib/rate-limit"
 import { reportSecurityEvent } from "@/lib/security-events"
@@ -40,10 +41,14 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findUnique({
           where: { email },
-          select: { id: true, name: true, email: true, image: true, passwordHash: true },
+          select: { id: true, name: true, email: true, image: true, passwordHash: true, emailVerified: true },
         });
 
-        if (!user?.passwordHash || !(await verifyPassword(password, user.passwordHash))) {
+        if (!user || !canAuthenticateWithPassword(user) || !user.passwordHash) {
+          return null;
+        }
+
+        if (!(await verifyPassword(password, user.passwordHash))) {
           return null;
         }
 
