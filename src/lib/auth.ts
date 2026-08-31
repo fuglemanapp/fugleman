@@ -8,6 +8,7 @@ import { Adapter } from "next-auth/adapters"
 import { verifyPassword } from "@/lib/password"
 import { GOOGLE_CALENDAR_SCOPES } from "@/lib/google-calendar"
 import { consumeRateLimit } from "@/lib/rate-limit"
+import { reportSecurityEvent } from "@/lib/security-events"
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET
@@ -31,8 +32,11 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const attempt = consumeRateLimit(`credentials:${email}`, { limit: 5, windowMs: 15 * 60 * 1_000 });
-        if (!attempt.allowed) return null;
+        const attempt = await consumeRateLimit(`credentials:${email}`, { limit: 5, windowMs: 15 * 60 * 1_000 });
+        if (!attempt.allowed) {
+          reportSecurityEvent("rate_limit_reached", { route: "/api/auth/callback/credentials", scope: "credentials" });
+          return null;
+        }
 
         const user = await prisma.user.findUnique({
           where: { email },

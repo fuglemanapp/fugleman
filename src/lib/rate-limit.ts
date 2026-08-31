@@ -3,9 +3,13 @@ type RateLimitOptions = {
   windowMs: number;
 };
 
-type RateLimitEntry = {
+import { createHash } from "node:crypto";
+
+import prisma from "@/lib/prisma";
+
+type RateLimitBucket = {
   count: number;
-  resetAt: number;
+  resetAt: Date;
 };
 
 export type RateLimitResult = {
@@ -14,31 +18,38 @@ export type RateLimitResult = {
   retryAfterSeconds: number;
 };
 
-const buckets = new Map<string, RateLimitEntry>();
+function bucketKey(key: string) {
+  return createHash("sha256").update(key).digest("hex");
+}
 
 /**
- * A small per-instance guard for expensive authenticated operations. This is
- * deliberately additive: Vercel's edge/runtime limits remain the outer layer.
+ * Consumes an atomic bucket shared by every server instance. The hashed key
+ * avoids retaining email addresses or user IDs in the rate-limit table.
  */
-export function consumeRateLimit(key: string, options: RateLimitOptions): RateLimitResult {
-  const now = Date.now();
-  const existing = buckets.get(key);
+export async function consumeRateLimit(key: string, options: RateLimitOptions): Promise<RateLimitResult> {
+  const resetAt = new Date(Date.now() + options.windowMs);
+  const [bucket] = await prisma.$queryRaw<RateLimitBucket[]>`
+    INSERT INTO "RateLimitBucket" ("key", "count", "resetAt", "updatedAt")
+    VALUES (${bucketKey(key)}, 1, ${resetAt}, NOW())
+    ON CONFLICT ("key") DO UPDATE
+    SET
+      "count" = CASE
+        WHEN "RateLimitBucket"."resetAt" <= NOW() THEN 1
+        ELSE "RateLimitBucket"."count" + 1
+      END,
+      "resetAt" = CASE
+        WHEN "RateLimitBucket"."resetAt" <= NOW() THEN ${resetAt}
+        ELSE "RateLimitBucket"."resetAt"
+      END,
+      "updatedAt" = NOW()
+    RETURNING "count", "resetAt"
+  `;
 
-  if (!existing || existing.resetAt <= now) {
-    buckets.set(key, { count: 1, resetAt: now + options.windowMs });
-    return {
-      allowed: true,
-      remaining: options.limit - 1,
-      retryAfterSeconds: Math.ceil(options.windowMs / 1_000),
-    };
-  }
-
-  existing.count += 1;
-  const retryAfterSeconds = Math.max(1, Math.ceil((existing.resetAt - now) / 1_000));
+  const retryAfterSeconds = Math.max(1, Math.ceil((bucket.resetAt.getTime() - Date.now()) / 1_000));
 
   return {
-    allowed: existing.count <= options.limit,
-    remaining: Math.max(0, options.limit - existing.count),
+    allowed: bucket.count <= options.limit,
+    remaining: Math.max(0, options.limit - bucket.count),
     retryAfterSeconds,
   };
 }

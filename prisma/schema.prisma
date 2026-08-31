@@ -48,6 +48,15 @@ model User {
   zernioWebhookEvents ZernioWebhookEvent[]
 }
 
+model RateLimitBucket {
+  key       String   @id
+  count     Int
+  resetAt   DateTime
+  updatedAt DateTime @updatedAt
+
+  @@index([resetAt])
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String

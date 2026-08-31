@@ -4,6 +4,7 @@ import { normalizeChatText, requireChatParticipant } from "@/lib/chat";
 import { getCurrentUser } from "@/lib/current-user";
 import prisma from "@/lib/prisma";
 import { consumeRateLimit } from "@/lib/rate-limit";
+import { reportSecurityEvent } from "@/lib/security-events";
 
 export const dynamic = "force-dynamic";
 
@@ -30,8 +31,9 @@ export async function GET(_: Request, { params }: RouteContext) {
 export async function POST(request: Request, { params }: RouteContext) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Faça login para enviar mensagens." }, { status: 401 });
-  const limit = consumeRateLimit(`chat-message:${user.id}`, { limit: 30, windowMs: 60 * 1_000 });
+  const limit = await consumeRateLimit(`chat-message:${user.id}`, { limit: 30, windowMs: 60 * 1_000 });
   if (!limit.allowed) {
+    reportSecurityEvent("rate_limit_reached", { route: "/api/chat/conversations/messages", scope: "chat_message" });
     return NextResponse.json(
       { error: "Muitas mensagens em pouco tempo. Aguarde um minuto e tente novamente." },
       { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },

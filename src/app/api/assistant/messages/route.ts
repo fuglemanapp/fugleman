@@ -7,6 +7,7 @@ import { persistAgentAction } from "@/lib/personal-agent-effects";
 import { runPersonalAgent, type AgentAction } from "@/lib/personal-agent";
 import prisma from "@/lib/prisma";
 import { consumeRateLimit } from "@/lib/rate-limit";
+import { reportSecurityEvent } from "@/lib/security-events";
 
 export const dynamic = "force-dynamic";
 
@@ -27,8 +28,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Faça login para enviar uma mensagem." }, { status: 401 });
   }
 
-  const limit = consumeRateLimit(`assistant-message:${user.id}`, { limit: 15, windowMs: 60 * 1_000 });
+  const limit = await consumeRateLimit(`assistant-message:${user.id}`, { limit: 15, windowMs: 60 * 1_000 });
   if (!limit.allowed) {
+    reportSecurityEvent("rate_limit_reached", { route: "/api/assistant/messages", scope: "assistant_message" });
     return NextResponse.json(
       { error: "Muitas mensagens em pouco tempo. Aguarde um minuto e tente novamente." },
       { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
