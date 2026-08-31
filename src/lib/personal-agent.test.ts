@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { actionConfirmation, getGroqModel, parseAgentAction, parseExplicitEventCommand, replyAfterActionValidation, runPersonalAgent } from "./personal-agent";
+import { actionConfirmation, getGroqModel, parseAgentAction, parseAgentPendingAction, parseExplicitEventCommand, replyAfterActionValidation, runPersonalAgent } from "./personal-agent";
 
 describe("parseAgentAction", () => {
   it("uses a Groq model that remains available to developer accounts by default", () => {
@@ -17,6 +17,35 @@ describe("parseAgentAction", () => {
         date: "2026-08-16",
       }),
     ).toMatchObject({ kind: "EXPENSE", amount: 42.5 });
+  });
+
+  it("keeps partial card details in a pending action instead of treating them as a failed command", () => {
+    expect(
+      parseAgentPendingAction({
+        kind: "CARD_PURCHASE",
+        amount: 95,
+        description: "Veterinário",
+        cardReference: "Itaú 2860",
+      }),
+    ).toEqual({
+      kind: "CARD_PURCHASE",
+      amount: 95,
+      description: "Veterinário",
+      cardReference: "Itaú 2860",
+    });
+  });
+
+  it("accepts a complete card purchase action", () => {
+    expect(
+      parseAgentAction({
+        kind: "CARD_PURCHASE",
+        amount: 95,
+        description: "Veterinário",
+        category: "Saúde",
+        date: "2026-08-31",
+        cardReference: "Itaú 2860",
+      }),
+    ).toMatchObject({ kind: "CARD_PURCHASE", amount: 95, cardReference: "Itaú 2860" });
   });
 
   it("turns malformed actions into NONE", () => {
