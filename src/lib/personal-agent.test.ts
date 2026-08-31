@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { actionConfirmation, parseAgentAction, parseExplicitEventCommand, replyAfterActionValidation, runPersonalAgent } from "./personal-agent";
+import { actionConfirmation, getGroqModel, parseAgentAction, parseExplicitEventCommand, replyAfterActionValidation, runPersonalAgent } from "./personal-agent";
 
 describe("parseAgentAction", () => {
+  it("uses a Groq model that remains available to developer accounts by default", () => {
+    expect(getGroqModel(undefined)).toBe("openai/gpt-oss-20b");
+  });
+
   it("accepts a valid expense action", () => {
     expect(
       parseAgentAction({

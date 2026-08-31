@@ -2,6 +2,8 @@ import prisma from "./prisma";
 
 const MAX_AMOUNT = 1_000_000_000;
 const SAO_PAULO_TIME_ZONE = "America/Sao_Paulo";
+const DEFAULT_GROQ_MODEL = "openai/gpt-oss-20b";
+const RETIRED_GROQ_MODELS = new Set(["llama-3.1-8b-instant", "llama-3.3-70b-versatile"]);
 
 export type AgentAction =
   | { kind: "EXPENSE" | "INCOME"; amount: number; description: string; category: string; date: string }
@@ -200,6 +202,18 @@ function noKeyResponse() {
   };
 }
 
+export function getGroqModel(configuredModel: string | undefined) {
+  const model = configuredModel?.trim();
+  return model && !RETIRED_GROQ_MODELS.has(model) ? model : DEFAULT_GROQ_MODEL;
+}
+
+function unavailableAssistantResponse() {
+  return {
+    reply: "Não consegui acessar o assistente agora. Tente novamente em alguns instantes; nenhum lançamento foi criado.",
+    action: { kind: "NONE" } as const,
+  };
+}
+
 export async function runPersonalAgent(input: { userId: string; text: string; now?: Date }) {
   const now = input.now || new Date();
   const explicitEvent = parseExplicitEventCommand(input.text, now);
@@ -220,30 +234,48 @@ export async function runPersonalAgent(input: { userId: string; text: string; no
   }
 
   const summary = await currentMonthSummary(input.userId, now);
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
-      response_format: { type: "json_object" },
-      messages: [
-        {
-          role: "system",
-          content: [
-            "Você é WhatSpent, um assistente financeiro pessoal brasileiro. Responda sempre em português.",
-            "Retorne exclusivamente JSON válido com as chaves reply e action.",
-            "action deve ser EXPENSE, INCOME, EVENT ou NONE. Para EXPENSE/INCOME use amount, description, category e date YYYY-MM-DD. Para EVENT use title, startTime ISO, endTime ISO e description.",
-            "Nunca invente valores, datas ou confirmações. Quando faltar informação, use NONE e peça o dado faltante.",
-            `Data atual: ${now.toISOString()}. Resumo pessoal do mês: entradas R$ ${summary.income.toFixed(2)}, saídas R$ ${summary.expense.toFixed(2)}, saldo R$ ${summary.balance.toFixed(2)}.`,
-          ].join("\n"),
-        },
-        { role: "user", content: input.text },
-      ],
-    }),
-  });
+  const model = getGroqModel(process.env.GROQ_MODEL);
+  let response: Response;
+
+  try {
+    response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content: [
+              "Você é WhatSpent, um assistente financeiro pessoal brasileiro. Responda sempre em português.",
+              "Retorne exclusivamente JSON válido com as chaves reply e action.",
+              "action deve ser EXPENSE, INCOME, EVENT ou NONE. Para EXPENSE/INCOME use amount, description, category e date YYYY-MM-DD. Para EVENT use title, startTime ISO, endTime ISO e description.",
+              "Nunca invente valores, datas ou confirmações. Quando faltar informação, use NONE e peça o dado faltante.",
+              `Data atual: ${now.toISOString()}. Resumo pessoal do mês: entradas R$ ${summary.income.toFixed(2)}, saídas R$ ${summary.expense.toFixed(2)}, saldo R$ ${summary.balance.toFixed(2)}.`,
+            ].join("\n"),
+          },
+          { role: "user", content: input.text },
+        ],
+      }),
+    });
+  } catch (error) {
+    console.error("Groq assistant request failed", {
+      errorName: error instanceof Error ? error.name : "unknown",
+      model,
+    });
+    return unavailableAssistantResponse();
+  }
 
   if (!response.ok) {
-    return { reply: "Não consegui acessar o assistente agora. Tente novamente em alguns instantes; nenhum lançamento foi criado.", action: { kind: "NONE" } as const };
+    const payload = (await response.json().catch(() => null)) as { error?: { code?: unknown; type?: unknown } } | null;
+    console.error("Groq assistant request rejected", {
+      errorCode: typeof payload?.error?.code === "string" ? payload.error.code : null,
+      errorType: typeof payload?.error?.type === "string" ? payload.error.type : null,
+      model,
+      status: response.status,
+    });
+    return unavailableAssistantResponse();
   }
 
   const payload = (await response.json().catch(() => null)) as { choices?: Array<{ message?: { content?: string } }> } | null;
