@@ -244,6 +244,7 @@ model Transaction {
   type        String   // EXPENSE, INCOME
   date        DateTime @default(now())
   externalId  String?  @unique
+  assistantMessageId String? @unique
   source      String?
   
   userId      String
@@ -389,6 +390,7 @@ model Event {
   startTime   DateTime
   endTime     DateTime
   googleEventId String? @unique
+  assistantMessageId String? @unique
   googleSyncedAt DateTime?
   
   userId      String
@@ -477,6 +479,9 @@ model AssistantConversation {
   userId    String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  pendingAction Json?
+  pendingActionExpiresAt DateTime?
+  pendingActionVersion Int @default(0)
 
   user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages    AssistantMessage[]
