@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 
 export type TransactionRuleSuggestion = { category: string; type?: "INCOME" | "EXPENSE"; matchedBy?: string };
 type ActiveRule = { matchText: string; category: string; type: string | null; createdAt: Date };
@@ -15,7 +16,9 @@ export function applyRules(rules: ActiveRule[], description: string, fallback: T
   return { category: matching.category, type: matching.type === "INCOME" || matching.type === "EXPENSE" ? matching.type : fallback.type, matchedBy: matching.matchText };
 }
 
-export async function applyTransactionRule(userId: string, description: string, fallback: TransactionRuleSuggestion): Promise<TransactionRuleSuggestion> {
-  const rules = await prisma.transactionRule.findMany({ where: { userId, isActive: true }, orderBy: { createdAt: "asc" } });
+type RuleDatabase = Pick<Prisma.TransactionClient, "transactionRule">;
+
+export async function applyTransactionRule(userId: string, description: string, fallback: TransactionRuleSuggestion, database: RuleDatabase = prisma): Promise<TransactionRuleSuggestion> {
+  const rules = await database.transactionRule.findMany({ where: { userId, isActive: true }, orderBy: { createdAt: "asc" } });
   return applyRules(rules, description, fallback);
 }
