@@ -100,6 +100,7 @@ const categories = [
   "Investimentos",
   "Outros",
 ];
+const hexColorPattern = /^#[0-9A-F]{6}$/;
 function nextStatementMonth() {
   const now = new Date();
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 12))
@@ -154,6 +155,7 @@ export function CreditCardsWorkspace() {
     dueDay: "17",
     color: CARD_COLORS[0],
   });
+  const [colorDraft, setColorDraft] = useState<string>(CARD_COLORS[0]);
   const [purchaseForm, setPurchaseForm] =
     useState<PurchaseForm>(defaultPurchaseForm);
 
@@ -273,6 +275,7 @@ export function CreditCardsWorkspace() {
         dueDay: "17",
         color: CARD_COLORS[0],
       });
+      setColorDraft(CARD_COLORS[0]);
       await load();
       setSelectedCard(data.card);
     } catch (reason) {
@@ -1004,12 +1007,46 @@ export function CreditCardsWorkspace() {
                   <button
                     key={color}
                     type="button"
-                    onClick={() => setCardForm({ ...cardForm, color })}
+                    onClick={() => {
+                      setCardForm({ ...cardForm, color });
+                      setColorDraft(color);
+                    }}
                     className={`h-8 w-8 rounded-full border-2 ${cardForm.color === color ? "border-[#17372b]" : "border-transparent"}`}
                     style={{ backgroundColor: color }}
                     aria-label={`Escolher cor ${color}`}
                   />
                 ))}
+              </div>
+              <div className="mt-3 flex items-center gap-3 rounded-xl border border-[#dbe9df] bg-[#f7faf8] p-2">
+                <input
+                  type="color"
+                  value={cardForm.color}
+                  onChange={(event) => {
+                    const color = event.target.value.toUpperCase();
+                    setCardForm({ ...cardForm, color });
+                    setColorDraft(color);
+                  }}
+                  className="h-10 w-12 cursor-pointer rounded-lg border-0 bg-transparent p-0"
+                  aria-label="Escolher qualquer cor"
+                />
+                <label className="min-w-0 flex-1">
+                  <span className="sr-only">Código hexadecimal da cor</span>
+                  <input
+                    value={colorDraft}
+                    onChange={(event) => {
+                      const value = event.target.value.toUpperCase();
+                      setColorDraft(value);
+                      if (hexColorPattern.test(value)) {
+                        setCardForm({ ...cardForm, color: value });
+                      }
+                    }}
+                    onBlur={() => setColorDraft(cardForm.color)}
+                    maxLength={7}
+                    placeholder="#0B9D4E"
+                    className="w-full bg-transparent font-mono text-sm font-semibold uppercase text-[#315f48] outline-none placeholder:text-[#9ab0a3]"
+                  />
+                </label>
+                <span className="text-xs font-medium text-[#678176]">Qualquer cor</span>
               </div>
             </div>
             <ModalActions isSaving={isSaving} label="Criar cartão" />

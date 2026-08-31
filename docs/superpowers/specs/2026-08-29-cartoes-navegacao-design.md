@@ -16,7 +16,7 @@ O cabeçalho deixará de depender de uma imagem PNG não rastreada, que foi omit
 
 ### Paleta de cartões
 
-A seleção passará de seis para doze cores, preservando as seis atuais e adicionando variações azul-marinho, vinho, dourado, coral, lavanda e grafite. A API continuará aceitando qualquer cor hexadecimal válida.
+A seleção passará de seis para doze cores, preservando as seis atuais e adicionando variações azul-marinho, vinho, dourado, coral, lavanda e grafite. Abaixo dos atalhos haverá um seletor de cor nativo, com campo hexadecimal editável. Assim, o usuário pode escolher qualquer cor — inclusive pelo conta-gotas quando o navegador/sistema o oferece — sem uma dependência adicional. A API continuará aceitando qualquer cor hexadecimal válida.
 
 ### Menus
 

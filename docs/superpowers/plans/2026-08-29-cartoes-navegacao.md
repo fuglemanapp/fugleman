@@ -114,7 +114,7 @@ export const CARD_COLORS = [
 ] as const;
 ```
 
-Crie `public/whatspent-logo.svg` como wordmark verde com marca simples, e troque a imagem em `DashboardNav` para `/whatspent-logo.svg`. Substitua a constante local `palette` por `CARD_COLORS`; apresente os botões em uma grade de seis colunas para comportar as doze escolhas.
+Crie `public/whatspent-logo.svg` como wordmark verde com marca simples, e troque a imagem em `DashboardNav` para `/whatspent-logo.svg`. Substitua a constante local `palette` por `CARD_COLORS`; apresente os botões em uma grade de seis colunas para comportar as doze escolhas. Abaixo deles, acrescente um `input[type=color]` e um campo hexadecimal controlado: qualquer hexadecimal válido atualiza a cor salva; valores parciais retornam à última cor válida ao perder o foco.
 
 - [ ] **Step 4: Executar o teste e a compilação**
 
