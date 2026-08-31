@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { ensureAssistantConversation } from "@/lib/assistant-conversation";
 import { persistAgentAction } from "@/lib/personal-agent-effects";
 import { runPersonalAgent, type AgentAction } from "@/lib/personal-agent";
+import { completePhoneVerification, parsePhoneVerificationMessage } from "@/lib/phone-verification";
 import prisma from "@/lib/prisma";
 import { normalizePhone, parseZernioInboundMessage, sendZernioInboxMessage, verifyZernioSignature } from "@/lib/zernio";
 
@@ -99,11 +100,23 @@ export async function POST(request: Request) {
   if (!event) return NextResponse.json({ error: "Não foi possível processar esta mensagem." }, { status: 500 });
 
   if (!event.responseText) {
-    const user = await findUserByPhone(inbound.senderPhone);
-    if (!user) return NextResponse.json({ status: "unlinked_sender" });
+    const verificationCode = parsePhoneVerificationMessage(inbound.text);
+    if (verificationCode) {
+      const verified = await completePhoneVerification(inbound.senderPhone, verificationCode);
+      const reply = verified
+        ? "WhatsApp confirmado. Agora este número fala apenas com o seu agente pessoal."
+        : "Não encontrei uma confirmação válida para este código. Gere um novo código no painel e tente novamente em até 10 minutos.";
+      event = await prisma.zernioWebhookEvent.update({
+        where: { id: event.id },
+        data: { userId: verified?.userId || null, responseText: reply },
+      });
+    } else {
+      const user = await findUserByPhone(inbound.senderPhone);
+      if (!user) return NextResponse.json({ status: "unlinked_sender" });
 
-    const reply = await createAssistantReply(user.id, inbound.text || "", inbound.hasAttachments);
-    event = await prisma.zernioWebhookEvent.update({ where: { id: event.id }, data: { userId: user.id, responseText: reply } });
+      const reply = await createAssistantReply(user.id, inbound.text || "", inbound.hasAttachments);
+      event = await prisma.zernioWebhookEvent.update({ where: { id: event.id }, data: { userId: user.id, responseText: reply } });
+    }
   }
 
   if (!event.deliveredAt && event.responseText) {
