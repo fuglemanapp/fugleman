@@ -27,11 +27,8 @@ function moneyFromCents(value: number) {
   return Math.round(value) / 100;
 }
 
-export function statementMonthForPurchase(purchaseDate: Date, closingDay: number) {
-  const closing = Math.min(Math.max(closingDay, 1), 28);
-  const year = purchaseDate.getUTCFullYear();
-  const month = purchaseDate.getUTCMonth();
-  return utcMonth(year, purchaseDate.getUTCDate() > closing ? month + 1 : month);
+export function statementMonthForPurchase(purchaseDate: Date, _closingDay: number) {
+  return utcMonth(purchaseDate.getUTCFullYear(), purchaseDate.getUTCMonth() + 1);
 }
 
 export function buildInstallments(totalAmount: number, purchaseDate: Date, closingDay: number, installments: number): InstallmentPlan[] {

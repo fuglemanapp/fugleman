@@ -5,8 +5,19 @@ import { getCurrentUser } from "@/lib/current-user";
 import { resolveFinancialContext } from "@/lib/financial-context";
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 function statementRange(start: Date, months: number) {
   return Array.from({ length: months }, (_, index) => new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + index, 1, 12)));
+}
+
+function statementQueryStart(month: Date) {
+  return new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth(), 1));
+}
+
+function nextStatementMonth() {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 12));
 }
 
 export async function GET(request: Request) {
@@ -15,15 +26,17 @@ export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const context = await resolveFinancialContext(user.id, params.get("context"));
   if (!context) return NextResponse.json({ error: "Espaço financeiro inválido ou sem acesso." }, { status: 403 });
-  const from = dateFromMonthKey(params.get("from") || new Date().toISOString().slice(0, 7));
+  const from = dateFromMonthKey(params.get("from") || monthKey(nextStatementMonth()));
   const months = Math.min(Math.max(Number(params.get("months") || 6), 1), 24);
   if (!from) return NextResponse.json({ error: "Período de fatura inválido." }, { status: 400 });
   const cardWhere = context.type === "FAMILY" ? { teamId: context.teamId } : { userId: user.id, teamId: null };
   const cards = await prisma.creditCard.findMany({ where: cardWhere, include: { user: { select: { id: true, name: true, email: true } } }, orderBy: { createdAt: "asc" } });
   const monthsList = statementRange(from, months);
-  const end = new Date(monthsList[monthsList.length - 1]); end.setUTCMonth(end.getUTCMonth() + 1);
-  const installments = await prisma.cardInstallment.findMany({ where: { dueMonth: { gte: from, lt: end }, purchase: { cardId: { in: cards.map((card) => card.id) } } }, include: { purchase: { select: { cardId: true, description: true, category: true, installments: true, user: { select: { id: true, name: true, email: true } } } } } });
-  const payments = await prisma.cardStatementPayment.findMany({ where: { cardId: { in: cards.map((card) => card.id) }, dueMonth: { gte: from, lt: end } } });
+  const queryStart = statementQueryStart(from);
+  const queryEnd = statementQueryStart(monthsList[monthsList.length - 1]);
+  queryEnd.setUTCMonth(queryEnd.getUTCMonth() + 1);
+  const installments = await prisma.cardInstallment.findMany({ where: { dueMonth: { gte: queryStart, lt: queryEnd }, purchase: { cardId: { in: cards.map((card) => card.id) } } }, include: { purchase: { select: { cardId: true, description: true, category: true, installments: true, user: { select: { id: true, name: true, email: true } } } } } });
+  const payments = await prisma.cardStatementPayment.findMany({ where: { cardId: { in: cards.map((card) => card.id) }, dueMonth: { gte: queryStart, lt: queryEnd } } });
   const paymentByKey = new Map(payments.map((payment) => [`${payment.cardId}:${monthKey(payment.dueMonth)}`, payment]));
   const statements = cards.flatMap((card) => monthsList.map((dueMonth) => {
     const key = monthKey(dueMonth);
@@ -31,7 +44,10 @@ export async function GET(request: Request) {
     const payment = paymentByKey.get(`${card.id}:${key}`);
     return { card: { id: card.id, name: card.name, issuer: card.issuer, lastFour: card.lastFour, color: card.color, limit: card.limit, closingDay: card.closingDay, dueDay: card.dueDay, user: card.user }, dueMonth, dueDate: statementDueDate(dueMonth, card.dueDay), amount: items.reduce((total, item) => total + item.amount, 0), items, paidAt: payment?.paidAt || null, paidById: payment?.paidById || null };
   }));
-  return NextResponse.json({ statements });
+  return NextResponse.json(
+    { statements },
+    { headers: { "Cache-Control": "no-store" } },
+  );
 }
 
 export async function POST(request: Request) {
