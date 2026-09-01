@@ -13,6 +13,10 @@
   --border-strong: #d6e8dc;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 html.dark {
   --bg-main: #0d2017;
   --bg-header: #12261c;
@@ -28,6 +32,7 @@ body {
   background-color: var(--bg-main);
   color: var(--text-primary);
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 /* Force elements to use our strict variables */
