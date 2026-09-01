@@ -1,5 +1,6 @@
 import prisma from "./prisma";
 import type { PendingAction, PendingActionUpdate } from "./assistant-pending-action";
+import { monthBoundsInSaoPaulo, saoPauloCalendarDate } from "./financial-time";
 
 const MAX_AMOUNT = 1_000_000_000;
 const SAO_PAULO_TIME_ZONE = "America/Sao_Paulo";
@@ -234,14 +235,8 @@ export function parseAgentPendingAction(value: unknown): PendingActionDraft | nu
   return Object.keys(draft).length > 1 ? draft : null;
 }
 
-function monthBounds(now: Date) {
-  const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
-  return { from, to };
-}
-
 async function currentMonthSummary(userId: string, now: Date) {
-  const { from, to } = monthBounds(now);
+  const { from, to } = monthBoundsInSaoPaulo(now);
   const entries = await prisma.transaction.groupBy({
     by: ["type"],
     where: { userId, date: { gte: from, lt: to } },
@@ -311,7 +306,7 @@ export async function runPersonalAgent(input: { userId: string; text: string; no
               "pendingAction deve conter um rascunho parcial com kind e somente os campos informados quando ainda faltar algo. Caso não haja pendência, use null.",
               "Nunca invente valores, datas ou confirmações. Quando faltar informação, use action NONE, pendingAction e peça somente o próximo dado necessário.",
               input.pendingAction ? `Pendência atual (não descarte os dados já confirmados): ${JSON.stringify(input.pendingAction)}.` : "Não há pendência atual.",
-              `Data atual: ${now.toISOString()}. Resumo pessoal do mês: entradas R$ ${summary.income.toFixed(2)}, saídas R$ ${summary.expense.toFixed(2)}, saldo R$ ${summary.balance.toFixed(2)}.`,
+              `Data atual no Brasil: ${saoPauloCalendarDate(now)}. Resumo pessoal do mês: entradas R$ ${summary.income.toFixed(2)}, saídas R$ ${summary.expense.toFixed(2)}, saldo R$ ${summary.balance.toFixed(2)}.`,
             ].join("\n"),
           },
           { role: "user", content: input.text },

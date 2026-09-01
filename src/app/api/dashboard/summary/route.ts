@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/current-user";
 import { summarizeDashboardExpenses } from "@/lib/dashboard-expenses";
 import { resolveFinancialContext, transactionContextWhere } from "@/lib/financial-context";
 import { statementDueDate } from "@/lib/credit-cards";
+import { monthBoundsInSaoPaulo } from "@/lib/financial-time";
 import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -15,8 +16,7 @@ export async function GET(request: Request) {
   if (!context) return NextResponse.json({ error: "Contexto financeiro inválido." }, { status: 403 });
 
   const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const { from: monthStart, to: monthEnd } = monthBoundsInSaoPaulo(now);
   const nextWeek = new Date(now);
   nextWeek.setDate(now.getDate() + 7);
   const cardWhere = context.type === "FAMILY"

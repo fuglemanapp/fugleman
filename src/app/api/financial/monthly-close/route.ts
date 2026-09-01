@@ -4,6 +4,7 @@ import { dateFromMonthKey, monthKey, statementDueDate } from "@/lib/credit-cards
 import { getCurrentUser } from "@/lib/current-user";
 import { resolveFinancialContext, transactionContextWhere } from "@/lib/financial-context";
 import { contextOwner, monthStart } from "@/lib/financial-input";
+import { monthKeyInSaoPaulo } from "@/lib/financial-time";
 import { buildMonthlyActivities } from "@/lib/monthly-activities";
 import prisma from "@/lib/prisma";
 
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
   if (!user) return NextResponse.json({ error: "Faça login para acessar o fechamento mensal." }, { status: 401 });
   const params = new URL(request.url).searchParams;
   const context = await resolveFinancialContext(user.id, params.get("context"));
-  const month = monthStart(params.get("month") || new Date().toISOString().slice(0, 7));
+  const month = monthStart(params.get("month") || monthKeyInSaoPaulo());
   if (!context || !month) return NextResponse.json({ error: "Contexto ou mês inválido." }, { status: 400 });
   const monthEnd = new Date(month); monthEnd.setUTCMonth(monthEnd.getUTCMonth() + 1);
   const previousStart = new Date(month); previousStart.setUTCMonth(previousStart.getUTCMonth() - 1);

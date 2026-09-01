@@ -31,6 +31,16 @@ type Activity = {
   cardLastFour?: string | null;
   installmentLabel?: string;
 };
+type CardPurchase = {
+  id: string;
+  description: string;
+  category: string;
+  totalAmount: number;
+  purchaseDate: string;
+  installments: number;
+  cardName: string;
+  cardLastFour: string | null;
+};
 
 type TransactionForm = {
   description: string;
@@ -89,6 +99,7 @@ export function TransactionWorkspace() {
   const [workspaces, setWorkspaces] = useState<FinancialWorkspace[]>([]);
   const [month, setMonth] = useState(() => monthStart(new Date()));
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [cardPurchases, setCardPurchases] = useState<CardPurchase[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -111,12 +122,14 @@ export function TransactionWorkspace() {
         to: range.end.toISOString(),
       });
       const response = await fetch(`/api/transactions?${params}`, { cache: "no-store" });
-      const data = (await response.json()) as { transactions?: Activity[]; error?: string };
+      const data = (await response.json()) as { transactions?: Activity[]; cardPurchases?: CardPurchase[]; error?: string };
       if (!response.ok) throw new Error(data.error || "Não foi possível carregar suas transações.");
       setActivities(data.transactions || []);
+      setCardPurchases(data.cardPurchases || []);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Não foi possível carregar suas transações.");
       setActivities([]);
+      setCardPurchases([]);
     } finally {
       setIsLoading(false);
     }
@@ -143,6 +156,10 @@ export function TransactionWorkspace() {
       { income: 0, expense: 0 },
     ),
     [activities],
+  );
+  const cardPurchaseTotal = useMemo(
+    () => cardPurchases.reduce((total, purchase) => total + purchase.totalAmount, 0),
+    [cardPurchases],
   );
 
   const changeMonth = (offset: number) => {
@@ -215,14 +232,20 @@ export function TransactionWorkspace() {
             <div className="text-center"><p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7b9688]">Período selecionado</p><h2 className="mt-1 text-lg font-bold capitalize">{label}</h2></div>
             <button type="button" onClick={() => changeMonth(1)} className="grid h-10 w-10 place-items-center rounded-xl border border-[#dcebe2] text-[#315f48] hover:bg-[#f0f8f3]" aria-label="Próximo mês"><ChevronRight className="h-5 w-5" /></button>
           </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <SummaryCard label="Entradas" value={totals.income} tone="green" />
             <SummaryCard label="Saídas" value={totals.expense} tone="red" />
             <SummaryCard label="Saldo do mês" value={totals.income - totals.expense} tone={totals.income - totals.expense >= 0 ? "green" : "red"} />
+            <SummaryCard label="Compras no cartão" value={cardPurchaseTotal} tone="blue" />
           </div>
         </section>
 
         {error && <p role="alert" className="mt-5 rounded-2xl border border-[#f2c7c2] bg-[#fff3f1] px-4 py-3 text-sm font-semibold text-[#bd3c31]">{error}</p>}
+
+        {cardPurchases.length > 0 && <section className="mt-6 overflow-hidden rounded-[1.7rem] border border-[#d7e5f6] bg-white shadow-[0_18px_48px_-34px_rgba(12,100,53,0.32)]">
+          <div className="border-b border-[#e5eef7] px-6 py-5"><h2 className="text-lg font-bold">Compras realizadas no cartão</h2><p className="mt-1 text-sm text-[#67839a]">Elas aparecem na fatura projetada do cartão e ficam separadas das saídas para não duplicar seus gastos.</p></div>
+          <ul className="divide-y divide-[#e8f0f8]">{cardPurchases.map((purchase) => <li key={purchase.id} className="flex items-center gap-4 px-6 py-4"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[#edf4ff] text-[#2865ad]"><CreditCard className="h-5 w-5" /></span><div className="min-w-0 flex-1"><p className="truncate font-bold">{purchase.description}</p><p className="mt-0.5 text-sm text-[#67839a]">{purchase.cardName}{purchase.cardLastFour ? ` •••• ${purchase.cardLastFour}` : ""} · {purchase.category} · {new Date(purchase.purchaseDate).toLocaleDateString("pt-BR", { timeZone: "UTC" })}{purchase.installments > 1 ? ` · ${purchase.installments} parcelas` : ""}</p></div><strong className="shrink-0 text-[#17372b]">{currency.format(purchase.totalAmount)}</strong></li>)}</ul>
+        </section>}
 
         <section className="mt-6 overflow-hidden rounded-[1.7rem] border border-[#dcebe2] bg-white shadow-[0_18px_48px_-34px_rgba(12,100,53,0.32)]">
           <div className="border-b border-[#e5efe9] px-6 py-5"><h2 className="text-lg font-bold">Lançamentos de {label}</h2></div>
@@ -235,7 +258,13 @@ export function TransactionWorkspace() {
   );
 }
 
-function SummaryCard({ label, value, tone }: { label: string; value: number; tone: "green" | "red" }) {
+function SummaryCard({ label, value, tone }: { label: string; value: number; tone: "green" | "red" | "blue" }) {
   const negative = value < 0;
-  return <article className={`rounded-2xl border p-4 ${tone === "green" ? "border-[#ccebd8] bg-[#f0fbf4]" : "border-[#f2d6d1] bg-[#fff6f4]"}`}><p className="text-xs font-bold uppercase tracking-[0.12em] text-[#789083]">{label}</p><p className={`mt-2 text-xl font-bold ${tone === "green" && !negative ? "text-[#087d3c]" : "text-[#c95445]"}`}>{currency.format(value)}</p></article>;
+  const styles = tone === "green"
+    ? "border-[#ccebd8] bg-[#f0fbf4]"
+    : tone === "blue"
+      ? "border-[#d4e3f4] bg-[#f2f7ff]"
+      : "border-[#f2d6d1] bg-[#fff6f4]";
+  const valueTone = tone === "green" && !negative ? "text-[#087d3c]" : tone === "blue" ? "text-[#2865ad]" : "text-[#c95445]";
+  return <article className={`rounded-2xl border p-4 ${styles}`}><p className="text-xs font-bold uppercase tracking-[0.12em] text-[#789083]">{label}</p><p className={`mt-2 text-xl font-bold ${valueTone}`}>{currency.format(value)}</p></article>;
 }
