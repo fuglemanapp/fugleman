@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { ensureAssistantConversation, processAssistantMessage } from "@/lib/assistant-conversation";
+import { retryDatabaseOperation } from "@/lib/database-retry";
 import type { AgentAction } from "@/lib/personal-agent";
 import prisma from "@/lib/prisma";
 import { normalizePhone, parseZernioInboundMessage, sendZernioInboxMessage, verifyZernioSignature } from "@/lib/zernio";
@@ -31,6 +32,10 @@ async function createAssistantReply(userId: string, text: string, hasAttachments
   await prisma.assistantMessage.create({ data: { conversationId: conversation.id, role: "ASSISTANT", text: reply, action } });
   await prisma.assistantConversation.update({ where: { id: conversation.id }, data: { updatedAt: new Date() } });
   return reply;
+}
+
+function isDatabaseUnavailable(error: unknown) {
+  return error instanceof Error && error.name === "PrismaClientInitializationError";
 }
 
 export async function POST(request: Request) {
@@ -75,42 +80,67 @@ export async function POST(request: Request) {
     return NextResponse.json({ status: "ignored" });
   }
 
-  let event = await prisma.zernioWebhookEvent.findUnique({ where: { id: inbound.eventId } });
-  if (!event) {
-    try {
-      event = await prisma.zernioWebhookEvent.create({
-        data: { id: inbound.eventId, event: "message.received", accountId: inbound.accountId, conversationId: inbound.conversationId },
-      });
-    } catch {
-      event = await prisma.zernioWebhookEvent.findUnique({ where: { id: inbound.eventId } });
-    }
-  }
+  const accountId = inbound.accountId;
+  const conversationId = inbound.conversationId;
+  const senderPhone = inbound.senderPhone;
 
-  if (!event) return NextResponse.json({ error: "Não foi possível processar esta mensagem." }, { status: 500 });
+  try {
+    return await retryDatabaseOperation(async () => {
+      let event = await prisma.zernioWebhookEvent.findUnique({ where: { id: inbound.eventId } });
+      if (!event) {
+        try {
+          event = await prisma.zernioWebhookEvent.create({
+            data: { id: inbound.eventId, event: "message.received", accountId, conversationId },
+          });
+        } catch {
+          event = await prisma.zernioWebhookEvent.findUnique({ where: { id: inbound.eventId } });
+        }
+      }
 
-  if (!event.responseText) {
-    const user = await findUserByPhone(inbound.senderPhone);
-    if (!user) return NextResponse.json({ status: "unlinked_sender" });
+      if (!event) return NextResponse.json({ error: "Não foi possível processar esta mensagem." }, { status: 500 });
 
-    const reply = await createAssistantReply(user.id, inbound.text || "", inbound.hasAttachments, event.id);
-    event = await prisma.zernioWebhookEvent.update({ where: { id: event.id }, data: { userId: user.id, responseText: reply } });
-  }
+      if (!event.responseText) {
+        const user = await findUserByPhone(senderPhone);
+        if (!user) return NextResponse.json({ status: "unlinked_sender" });
 
-  if (!event.deliveredAt && event.responseText) {
+        const reply = await createAssistantReply(user.id, inbound.text || "", inbound.hasAttachments, event.id);
+        event = await prisma.zernioWebhookEvent.update({ where: { id: event.id }, data: { userId: user.id, responseText: reply } });
+      }
+
+      if (!event.deliveredAt && event.responseText) {
+        try {
+          await sendZernioInboxMessage({
+            accountId,
+            conversationId,
+            message: event.responseText,
+            replyTo: inbound.platformMessageId,
+            idempotencyKey: `whatspent:${event.id}:reply`,
+          });
+          await prisma.zernioWebhookEvent.update({ where: { id: event.id }, data: { deliveredAt: new Date() } });
+        } catch (error) {
+          console.error("Zernio reply failed", error);
+          return NextResponse.json({ error: "Não foi possível responder agora." }, { status: 503 });
+        }
+      }
+
+      return NextResponse.json({ status: "processed" });
+    });
+  } catch (error) {
+    if (!isDatabaseUnavailable(error)) throw error;
+
+    console.error("WhatsApp webhook database temporarily unavailable", { eventId: inbound.eventId });
     try {
       await sendZernioInboxMessage({
-        accountId: inbound.accountId,
-        conversationId: inbound.conversationId,
-        message: event.responseText,
+        accountId,
+        conversationId,
+        message: "O WhatSpent está com uma instabilidade temporária e não salvou esta mensagem. Tente novamente em alguns instantes.",
         replyTo: inbound.platformMessageId,
-        idempotencyKey: `whatspent:${event.id}:reply`,
+        idempotencyKey: `whatspent:${inbound.eventId}:database-unavailable`,
       });
-      await prisma.zernioWebhookEvent.update({ where: { id: event.id }, data: { deliveredAt: new Date() } });
-    } catch (error) {
-      console.error("Zernio reply failed", error);
-      return NextResponse.json({ error: "Não foi possível responder agora." }, { status: 503 });
+    } catch (replyError) {
+      console.error("WhatsApp fallback reply failed", replyError);
     }
-  }
 
-  return NextResponse.json({ status: "processed" });
+    return NextResponse.json({ error: "Banco temporariamente indisponível." }, { status: 503 });
+  }
 }
