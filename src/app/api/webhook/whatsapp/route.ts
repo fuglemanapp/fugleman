@@ -4,6 +4,7 @@ import { ensureAssistantConversation, processAssistantMessage } from "@/lib/assi
 import { retryDatabaseOperation } from "@/lib/database-retry";
 import type { AgentAction } from "@/lib/personal-agent";
 import prisma from "@/lib/prisma";
+import { publicWhatsAppOnboardingReply } from "@/lib/whatsapp-onboarding";
 import { normalizePhone, parseZernioInboundMessage, sendZernioInboxMessage, verifyZernioSignature } from "@/lib/zernio";
 
 export const dynamic = "force-dynamic";
@@ -101,10 +102,15 @@ export async function POST(request: Request) {
 
       if (!event.responseText) {
         const user = await findUserByPhone(senderPhone);
-        if (!user) return NextResponse.json({ status: "unlinked_sender" });
-
-        const reply = await createAssistantReply(user.id, inbound.text || "", inbound.hasAttachments, event.id);
-        event = await prisma.zernioWebhookEvent.update({ where: { id: event.id }, data: { userId: user.id, responseText: reply } });
+        if (!user) {
+          event = await prisma.zernioWebhookEvent.update({
+            where: { id: event.id },
+            data: { responseText: publicWhatsAppOnboardingReply() },
+          });
+        } else {
+          const reply = await createAssistantReply(user.id, inbound.text || "", inbound.hasAttachments, event.id);
+          event = await prisma.zernioWebhookEvent.update({ where: { id: event.id }, data: { userId: user.id, responseText: reply } });
+        }
       }
 
       if (!event.deliveredAt && event.responseText) {
