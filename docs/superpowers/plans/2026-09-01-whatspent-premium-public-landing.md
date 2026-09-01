@@ -38,21 +38,12 @@
 - Create: src/components/landing/landing-data.ts
 - Modify: src/components/landing/landing-header.tsx
 - Modify: src/components/landing/landing-header.test.tsx
-- Modify: src/app/page.test.tsx
 
 **Interfaces:**
 - Produces readonly productCapabilities, journeySteps and faqItems.
 - Header exposes #como-funciona, #financas, #cartoes, #agenda, #organizacao, /login and /cadastro.
 
 - [ ] **Step 1: Write failing content/navigation tests**
-
-    it("renders every public product area", () => {
-      const html = renderToStaticMarkup(<Home />);
-      expect(html).toContain("Finanças que você consegue enxergar");
-      expect(html).toContain("Cartões sem surpresa no fechamento");
-      expect(html).toContain("Agenda e organização no mesmo ritmo");
-      expect(html).toContain("Como funciona o WhatSpent");
-    });
 
     it("links the header to public sections and account paths", () => {
       const html = renderToStaticMarkup(<LandingHeader />);
@@ -64,8 +55,8 @@
 
 - [ ] **Step 2: Run focused tests**
 
-Run: npm test -- src/app/page.test.tsx src/components/landing/landing-header.test.tsx
-Expected: FAIL because the new claims, anchors and login link are absent.
+Run: npm test -- src/components/landing/landing-header.test.tsx
+Expected: FAIL because the new anchors and login link are absent.
 
 - [ ] **Step 3: Implement the data module and header**
 
@@ -95,10 +86,10 @@ Update the header to use all five section anchors and show an Entrar link before
 
 - [ ] **Step 4: Verify and commit**
 
-Run: npm test -- src/app/page.test.tsx src/components/landing/landing-header.test.tsx
+Run: npm test -- src/components/landing/landing-header.test.tsx
 Expected: PASS.
 
-    git add src/components/landing/landing-data.ts src/components/landing/landing-header.tsx src/components/landing/landing-header.test.tsx src/app/page.test.tsx
+    git add src/components/landing/landing-data.ts src/components/landing/landing-header.tsx src/components/landing/landing-header.test.tsx
     git commit -m "feat: add WhatSpent landing product foundation"
 
 ### Task 2: Build official WhatsApp phone and hero
@@ -161,6 +152,7 @@ Expected: PASS with no lint warnings.
 - Create: src/components/landing/landing-product-showcases.tsx
 - Create: src/components/landing/landing-product-showcases.test.tsx
 - Modify: src/app/page.tsx
+- Modify: src/app/page.test.tsx
 
 **Interfaces:**
 - LandingProductOverview consumes productCapabilities and journeySteps.
@@ -175,6 +167,14 @@ Expected: PASS with no lint warnings.
       expect(html).toContain("Fatura projetada");
       expect(html).toContain("Próximos compromissos");
       expect(html).toContain("Projetos, tarefas, notas e arquivos");
+    });
+
+    it("renders every public product area from the page root", () => {
+      const html = renderToStaticMarkup(<Home />);
+      expect(html).toContain("Finanças que você consegue enxergar");
+      expect(html).toContain("Cartões sem surpresa no fechamento");
+      expect(html).toContain("Agenda e organização no mesmo ritmo");
+      expect(html).toContain("Como funciona o WhatSpent");
     });
 
 - [ ] **Step 2: Run focused test**
