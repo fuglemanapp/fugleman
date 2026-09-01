@@ -8,6 +8,10 @@ describe("Home", () => {
     const html = renderToStaticMarkup(<Home />);
 
     expect(html).toContain("Dinheiro e rotina");
+    expect(html).toContain("Finanças que você consegue enxergar");
+    expect(html).toContain("Cartões sem surpresa no fechamento");
+    expect(html).toContain("Agenda e organização no mesmo ritmo");
+    expect(html).toContain("Como funciona o WhatSpent");
     expect(html).toContain("Criar conta grátis");
     expect(html).toContain('alt="WhatSpent"');
   });

@@ -3,6 +3,8 @@ import { LandingFeatureGrid } from "../components/landing/landing-feature-grid";
 import { LandingFooter } from "../components/landing/landing-footer";
 import { LandingHeader } from "../components/landing/landing-header";
 import { LandingHero } from "../components/landing/landing-hero";
+import { LandingProductOverview } from "../components/landing/landing-product-overview";
+import { LandingProductShowcases } from "../components/landing/landing-product-showcases";
 import { ArrowRight, Calendar, FolderOpen, Shield, Link2, CheckCircle2, Wallet, ChevronDown, Check } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,7 +15,8 @@ export default function Home() {
       <LandingHeader />
       <main>
         <LandingHero />
-        <LandingFeatureGrid />
+        <LandingProductOverview />
+        <LandingProductShowcases />
       </main>
       <LandingFooter />
     </div>

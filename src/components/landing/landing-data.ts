@@ -16,7 +16,7 @@ export const productCapabilities = [
   {
     id: "agenda",
     eyebrow: "Agenda",
-    title: "Compromissos que não se perdem",
+    title: "Agenda e organização no mesmo ritmo",
     text: "Registre compromissos e acompanhe sua rotina no mesmo espaço.",
     icon: "calendar",
   },
