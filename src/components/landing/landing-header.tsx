@@ -4,10 +4,11 @@ import { ArrowRight } from "lucide-react";
 import { LandingLogo } from "./landing-logo";
 
 const navigation = [
-  ["Finanças", "#funcionalidades"],
-  ["Agenda", "#agenda"],
+  ["Como funciona", "#como-funciona"],
+  ["Finanças", "#financas"],
   ["Cartões", "#cartoes"],
-  ["Como funciona", "#como-comecar"],
+  ["Agenda", "#agenda"],
+  ["Organização", "#organizacao"],
 ] as const;
 
 export function LandingHeader() {
@@ -24,9 +25,14 @@ export function LandingHeader() {
             </a>
           ))}
         </nav>
-        <Link className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#087d3c] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_12px_30px_-14px_rgba(8,125,60,.7)] transition hover:-translate-y-0.5 hover:bg-[#063d24] sm:px-5" href="/cadastro">
-          Criar conta <ArrowRight className="size-4" />
-        </Link>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link className="inline-flex min-h-11 items-center px-2 text-sm font-semibold text-[#47705a] transition hover:text-[#087d3c] sm:px-3" href="/login">
+            Entrar
+          </Link>
+          <Link className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#087d3c] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_12px_30px_-14px_rgba(8,125,60,.7)] transition hover:-translate-y-0.5 hover:bg-[#063d24] sm:px-5" href="/cadastro">
+            <span className="hidden sm:inline">Criar conta grátis</span><span className="sm:hidden">Criar conta</span><ArrowRight className="size-4" />
+          </Link>
+        </div>
       </div>
     </header>
   );
