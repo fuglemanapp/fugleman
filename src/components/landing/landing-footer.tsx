@@ -24,19 +24,19 @@ export function LandingFooter() {
             <p className="mt-3 max-w-xs text-sm leading-6 text-[#bad8c4]">Organização financeira e rotina, direto no seu WhatsApp.</p>
           </div>
           <nav aria-label="Navegação do produto" className="grid grid-cols-2 gap-x-10 gap-y-1 text-sm font-medium text-[#d7f4e2] sm:flex sm:flex-wrap sm:gap-x-7">
-            <a className="inline-flex min-h-[40px] items-center transition hover:text-white" href="#financas">Finanças</a>
-            <a className="inline-flex min-h-[40px] items-center transition hover:text-white" href="#cartoes">Cartões</a>
-            <a className="inline-flex min-h-[40px] items-center transition hover:text-white" href="#agenda">Agenda</a>
-            <a className="inline-flex min-h-[40px] items-center transition hover:text-white" href="#organizacao">Organização</a>
-            <Link className="inline-flex min-h-[40px] items-center transition hover:text-white" href="/login">Entrar</Link>
+            <a className="inline-flex min-h-11 items-center transition hover:text-white" href="#financas">Finanças</a>
+            <a className="inline-flex min-h-11 items-center transition hover:text-white" href="#cartoes">Cartões</a>
+            <a className="inline-flex min-h-11 items-center transition hover:text-white" href="#agenda">Agenda</a>
+            <a className="inline-flex min-h-11 items-center transition hover:text-white" href="#organizacao">Organização</a>
+            <Link className="inline-flex min-h-11 items-center transition hover:text-white" href="/login">Entrar</Link>
           </nav>
         </div>
         <div className="flex flex-col gap-4 py-7 text-xs text-[#a6c9b2] sm:flex-row sm:items-center sm:justify-between">
           <p>WhatSpent · gratuito durante a fase de validação.</p>
           <nav aria-label="Links institucionais" className="flex flex-wrap gap-x-5 gap-y-2">
-            <Link className="hover:text-white" href="/termos">Termos</Link>
-            <Link className="hover:text-white" href="/privacidade">Privacidade</Link>
-            <a className="hover:text-white" href="mailto:suporte@whatspent.com">suporte@whatspent.com</a>
+            <Link className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-white" href="/termos">Termos</Link>
+            <Link className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-white" href="/privacidade">Privacidade</Link>
+            <a className="inline-flex min-h-11 min-w-11 items-center hover:text-white" href="mailto:suporte@whatspent.com">suporte@whatspent.com</a>
           </nav>
         </div>
       </div>
