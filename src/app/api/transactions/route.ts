@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     ? { teamId: context.teamId, isActive: true }
     : { userId: user.id, teamId: null, isActive: true };
 
-  const [transactions, installments] = await Promise.all([
+  const [transactions, installments, cardPurchases] = await Promise.all([
     prisma.transaction.findMany({
       where: {
         AND: [
@@ -62,12 +62,37 @@ export async function GET(request: Request) {
         },
       },
     }),
+    prisma.cardPurchase.findMany({
+      where: {
+        ...(from || to
+          ? { purchaseDate: { ...(from ? { gte: from } : {}), ...(to ? { lt: to } : {}) } }
+          : {}),
+        card: cardWhere,
+      },
+      select: {
+        id: true,
+        description: true,
+        category: true,
+        totalAmount: true,
+        purchaseDate: true,
+        installments: true,
+        card: { select: { name: true, lastFour: true } },
+      },
+      orderBy: [{ purchaseDate: "desc" }, { createdAt: "desc" }],
+    }),
   ]);
 
   const activities = buildMonthlyActivities({ transactions, installments });
 
   return NextResponse.json(
-    { transactions: activities },
+    {
+      transactions: activities,
+      cardPurchases: cardPurchases.map((purchase) => ({
+        ...purchase,
+        cardName: purchase.card.name,
+        cardLastFour: purchase.card.lastFour,
+      })),
+    },
     { headers: { "Cache-Control": "no-store" } },
   );
 }

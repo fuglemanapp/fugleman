@@ -18,6 +18,7 @@ import {
 } from "@/components/financial/financial-context-switcher";
 import { CARD_COLORS } from "@/lib/card-colors";
 import { suggestCurrentInstallment } from "@/lib/credit-cards";
+import { nextStatementMonthInSaoPaulo, saoPauloCalendarDate } from "@/lib/financial-time";
 
 type Card = {
   id: string;
@@ -102,8 +103,7 @@ const categories = [
 ];
 const hexColorPattern = /^#[0-9A-F]{6}$/;
 function nextStatementMonth() {
-  const now = new Date();
-  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 12))
+  return nextStatementMonthInSaoPaulo()
     .toISOString()
     .slice(0, 7);
 }
@@ -114,7 +114,7 @@ function defaultPurchaseForm(): PurchaseForm {
   return {
     description: "",
     category: categories[0],
-    purchaseDate: new Date().toISOString().slice(0, 10),
+    purchaseDate: saoPauloCalendarDate(),
     mode: "CASH",
     amountPerInstallment: "",
     installments: "1",

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { monthKey, dateFromMonthKey, statementDueDate } from "@/lib/credit-cards";
 import { getCurrentUser } from "@/lib/current-user";
 import { resolveFinancialContext } from "@/lib/financial-context";
+import { nextStatementMonthInSaoPaulo } from "@/lib/financial-time";
 import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -15,18 +16,13 @@ function statementQueryStart(month: Date) {
   return new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth(), 1));
 }
 
-function nextStatementMonth() {
-  const now = new Date();
-  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 12));
-}
-
 export async function GET(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Faça login para acessar faturas." }, { status: 401 });
   const params = new URL(request.url).searchParams;
   const context = await resolveFinancialContext(user.id, params.get("context"));
   if (!context) return NextResponse.json({ error: "Espaço financeiro inválido ou sem acesso." }, { status: 403 });
-  const from = dateFromMonthKey(params.get("from") || monthKey(nextStatementMonth()));
+  const from = dateFromMonthKey(params.get("from") || monthKey(nextStatementMonthInSaoPaulo()));
   const months = Math.min(Math.max(Number(params.get("months") || 6), 1), 24);
   if (!from) return NextResponse.json({ error: "Período de fatura inválido." }, { status: 400 });
   const cardWhere = context.type === "FAMILY" ? { teamId: context.teamId } : { userId: user.id, teamId: null };

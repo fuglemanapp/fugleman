@@ -12,11 +12,13 @@ const mocks = vi.hoisted(() => ({
   dateFromMonthKey: vi.fn(),
   monthKey: vi.fn(),
   statementDueDate: vi.fn(),
+  nextStatementMonthInSaoPaulo: vi.fn(),
 }));
 
 vi.mock("@/lib/current-user", () => ({ getCurrentUser: mocks.getCurrentUser }));
 vi.mock("@/lib/financial-context", () => ({ resolveFinancialContext: mocks.resolveFinancialContext }));
 vi.mock("@/lib/credit-cards", () => ({ dateFromMonthKey: mocks.dateFromMonthKey, monthKey: mocks.monthKey, statementDueDate: mocks.statementDueDate }));
+vi.mock("@/lib/financial-time", () => ({ nextStatementMonthInSaoPaulo: mocks.nextStatementMonthInSaoPaulo }));
 vi.mock("@/lib/prisma", () => ({
   default: {
     creditCard: { findMany: mocks.creditCardFindMany, findFirst: mocks.creditCardFindFirst },
@@ -38,17 +40,14 @@ describe("card statements API context isolation", () => {
     mocks.dateFromMonthKey.mockImplementation((key: string) => new Date(`${key}-01T12:00:00.000Z`));
     mocks.monthKey.mockReturnValue("2026-08");
     mocks.statementDueDate.mockReturnValue(new Date("2026-08-10T12:00:00.000Z"));
+    mocks.nextStatementMonthInSaoPaulo.mockReturnValue(new Date("2026-09-01T12:00:00.000Z"));
     mocks.creditCardFindMany.mockResolvedValue([]);
     mocks.creditCardFindFirst.mockResolvedValue(null);
     mocks.cardInstallmentFindMany.mockResolvedValue([]);
     mocks.cardStatementPaymentFindMany.mockResolvedValue([]);
   });
 
-  it("opens the statement list at the following calendar month by default", async () => {
-    const now = new Date();
-    const expectedMonth = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1),
-    );
+  it("opens the statement list at the next São Paulo calendar month by default", async () => {
     mocks.monthKey.mockImplementation((date: Date) =>
       date.toISOString().slice(0, 7),
     );
@@ -59,7 +58,7 @@ describe("card statements API context isolation", () => {
 
     expect(response.status).toBe(200);
     expect(mocks.dateFromMonthKey).toHaveBeenCalledWith(
-      expectedMonth.toISOString().slice(0, 7),
+      "2026-09",
     );
   });
 
