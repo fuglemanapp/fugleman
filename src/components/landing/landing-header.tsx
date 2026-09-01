@@ -19,7 +19,7 @@ export function LandingHeader() {
         </Link>
         <nav aria-label="Navegação principal" className="hidden items-center gap-7 lg:flex">
           {navigation.map(([label, href]) => (
-            <a className="text-sm font-medium text-[#47705a] transition-colors hover:text-[#087d3c]" href={href} key={href}>
+            <a className="inline-flex min-h-11 items-center text-sm font-medium text-[#47705a] transition-colors hover:text-[#087d3c]" href={href} key={href}>
               {label}
             </a>
           ))}
