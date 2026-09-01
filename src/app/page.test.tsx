@@ -12,6 +12,9 @@ describe("Home", () => {
     expect(html).toContain("Cartões sem surpresa no fechamento");
     expect(html).toContain("Agenda e organização no mesmo ritmo");
     expect(html).toContain("Como funciona o WhatSpent");
+    expect(html).toContain("Tudo para começar com clareza.");
+    expect(html).toContain("O WhatSpent está gratuito durante a fase de validação.");
+    expect(html).toContain("Sua rotina cabe em uma conversa.");
     expect(html).toContain("Criar conta grátis");
     expect(html).toContain('alt="WhatSpent"');
   });
