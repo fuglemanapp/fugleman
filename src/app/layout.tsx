@@ -24,6 +24,10 @@ export const metadata: Metadata = {
   description:
     "Organize finanças, agenda, tarefas e conversas privadas com o WhatSpent.",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/brand/whatspent-icon.png",
+    apple: "/brand/whatspent-icon.png",
+  },
 };
 
 export default function RootLayout({
