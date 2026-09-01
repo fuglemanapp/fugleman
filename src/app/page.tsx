@@ -1,8 +1,26 @@
+import React from "react";
+import { LandingFeatureGrid } from "../components/landing/landing-feature-grid";
+import { LandingFooter } from "../components/landing/landing-footer";
+import { LandingHeader } from "../components/landing/landing-header";
+import { LandingHero } from "../components/landing/landing-hero";
 import { ArrowRight, Calendar, FolderOpen, Shield, Link2, CheckCircle2, Wallet, ChevronDown, Check } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
+  return (
+    <div className="landing-page min-h-screen">
+      <LandingHeader />
+      <main>
+        <LandingHero />
+        <LandingFeatureGrid />
+      </main>
+      <LandingFooter />
+    </div>
+  );
+}
+
+function LegacyFuglemanLanding() {
   return (
     <div className="flex flex-col min-h-screen bg-black text-white font-sans selection:bg-purple-500/30">
 
