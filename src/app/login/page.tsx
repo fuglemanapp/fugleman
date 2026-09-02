@@ -2,11 +2,12 @@ import { Suspense } from "react";
 
 import { AuthShell } from "@/components/auth/auth-shell";
 import { SignInForm } from "@/components/auth/sign-in-form";
+import { PUBLIC_BRAND_NAME } from "../../lib/public-brand";
 
 export const metadata = { title: "Entrar" };
 
 export default function LoginPage() {
-  return <AuthShell eyebrow="Sua conta" title="Seu painel, seu número, seus dados." description="Entre para ver seus lançamentos e conversar com o WhatSpent pelo número que você vinculou."><Suspense fallback={<AuthFormLoading />}><SignInForm /></Suspense></AuthShell>;
+  return <AuthShell eyebrow="Sua conta" title="Seu painel, seu número, seus dados." description={`Entre para ver seus lançamentos e conversar com o ${PUBLIC_BRAND_NAME} pelo número que você vinculou.`}><Suspense fallback={<AuthFormLoading />}><SignInForm /></Suspense></AuthShell>;
 }
 
 function AuthFormLoading() {

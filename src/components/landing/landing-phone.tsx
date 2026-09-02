@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { CheckCheck, ChevronLeft, Mic, Paperclip, Phone, Video } from "lucide-react";
+import { PUBLIC_BRAND_NAME } from "../../lib/public-brand";
 
 type LandingPhoneProps = {
   scenario: "finance" | "agenda";
@@ -35,9 +36,9 @@ export function LandingPhone({ compact = false, scenario }: LandingPhoneProps) {
           </div>
           <div className="flex items-center gap-2.5 border-b border-black/5 bg-white px-3 py-2.5">
             <ChevronLeft aria-hidden="true" className="size-5 text-[#1d5c3e]" />
-            <Image alt="Ícone WhatSpent" className="size-9 rounded-xl" height={72} src="/brand/whatspent-icon.png" unoptimized width={72} />
+            <Image alt={`Ícone ${PUBLIC_BRAND_NAME}`} className="size-9 rounded-xl" height={72} src="/brand/whatspent-icon.png" unoptimized width={72} />
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold leading-none text-[#173d2a]">WhatSpent</p>
+              <p className="text-sm font-bold leading-none text-[#173d2a]">{PUBLIC_BRAND_NAME}</p>
               <p className="mt-1 text-[10px] text-[#658272]">Conta comercial</p>
             </div>
             <Video aria-hidden="true" className="size-4 text-[#1d5c3e]" />
@@ -52,7 +53,7 @@ export function LandingPhone({ compact = false, scenario }: LandingPhoneProps) {
             <div className="mt-3 max-w-[93%] rounded-2xl rounded-tl-sm bg-white px-3 py-3 text-[13px] leading-relaxed text-[#315a41] shadow-sm">
               <div className="mb-2 flex items-center gap-2">
                 <Image alt="" aria-hidden="true" className="size-5 rounded-md" height={40} src="/brand/whatspent-icon.png" unoptimized width={40} />
-                <p className="text-xs font-bold text-[#173d2a]">WhatSpent</p>
+                <p className="text-xs font-bold text-[#173d2a]">{PUBLIC_BRAND_NAME}</p>
               </div>
               {message.response}
               <span className="mt-2 block text-right text-[9px] text-[#83a193]">09:41</span>

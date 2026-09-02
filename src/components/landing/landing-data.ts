@@ -37,7 +37,7 @@ export const journeySteps = [
   },
   {
     number: "02",
-    title: "O WhatSpent organiza",
+    title: `O ${PUBLIC_BRAND_NAME} organiza`,
     text: "A conversa vira informação estruturada para você conferir.",
   },
   {
@@ -50,7 +50,7 @@ export const journeySteps = [
 export const faqItems = [
   {
     question: "Preciso instalar um aplicativo?",
-    answer: "Não. Você cria sua conta no site, vincula seu número no painel e conversa com o WhatSpent pelo WhatsApp.",
+    answer: `Não. Você cria sua conta no site, vincula seu número no painel e conversa com o ${PUBLIC_BRAND_NAME} pelo WhatsApp.`,
   },
   {
     question: "Como conecto meu WhatsApp?",
@@ -66,10 +66,11 @@ export const faqItems = [
   },
   {
     question: "O acesso é pago?",
-    answer: "O WhatSpent está gratuito durante a fase de validação.",
+    answer: `O ${PUBLIC_BRAND_NAME} está gratuito durante a fase de validação.`,
   },
   {
     question: "Onde consigo ajuda?",
     answer: "Você pode falar com o suporte pelo e-mail suporte@whatspent.com.",
   },
 ] as const;
+import { PUBLIC_BRAND_NAME } from "../../lib/public-brand";
