@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { LandingLogo } from "./landing-logo";
+import { PUBLIC_BRAND_NAME } from "../../lib/public-brand";
 
 export function LandingFooter() {
   return (
@@ -32,7 +33,7 @@ export function LandingFooter() {
           </nav>
         </div>
         <div className="flex flex-col gap-4 py-7 text-xs text-[#a6c9b2] sm:flex-row sm:items-center sm:justify-between">
-          <p>WhatSpent · gratuito durante a fase de validação.</p>
+          <p>{PUBLIC_BRAND_NAME} · gratuito durante a fase de validação.</p>
           <nav aria-label="Links institucionais" className="flex flex-wrap gap-x-5 gap-y-2">
             <Link className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-white" href="/termos">Termos</Link>
             <Link className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-white" href="/privacidade">Privacidade</Link>

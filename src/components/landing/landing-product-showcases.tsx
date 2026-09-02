@@ -1,6 +1,7 @@
 import React from "react";
 import { ArrowUpRight, CalendarClock, CheckCircle2, CircleDollarSign, FileText, ListChecks, MoreHorizontal, ReceiptText, WalletCards } from "lucide-react";
 import { LandingPhone } from "./landing-phone";
+import { PUBLIC_BRAND_NAME } from "../../lib/public-brand";
 
 const categoryRows = [
   { label: "Alimentação", value: "R$ 648,00", width: "w-[78%]", color: "bg-[#00c853]" },
@@ -22,7 +23,7 @@ export function LandingProductShowcases() {
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-[#e7f9ed] px-3 py-1.5 text-xs font-bold text-[#087d3c]"><CircleDollarSign aria-hidden="true" className="size-4" />Finanças</span>
             <h2 className="mt-6 text-balance text-4xl font-semibold tracking-[-.055em] text-[#063d24]" id="financas-title">O retrato do mês, sem montar planilha.</h2>
-            <p className="mt-5 text-lg leading-relaxed text-[#5e806d]">Veja lançamentos, categorias e o que entrou ou saiu. A informação fica disponível no mesmo espaço em que você conversa com o WhatSpent.</p>
+            <p className="mt-5 text-lg leading-relaxed text-[#5e806d]">Veja lançamentos, categorias e o que entrou ou saiu. A informação fica disponível no mesmo espaço em que você conversa com o {PUBLIC_BRAND_NAME}.</p>
             <div className="mt-7 flex items-center gap-2 text-sm font-semibold text-[#087d3c]"><CheckCircle2 aria-hidden="true" className="size-4" />Painel privado para sua conta</div>
           </div>
           <div className="rounded-[1.6rem] border border-[#dcefe2] bg-[#f7fcf8] p-4 sm:p-6">
@@ -52,6 +53,6 @@ export function LandingProductShowcases() {
 }
 
 function Metric({ label, tone, value }: { label: string; tone: string; value: string }) { return <div className="rounded-2xl bg-white p-4"><p className="text-xs font-semibold text-[#749486]">{label}</p><p className={`mt-2 text-lg font-semibold ${tone}`}>{value}</p></div>; }
-function CardPreview({ className, name, number }: { className: string; name: string; number: string }) { return <div className={`min-h-[172px] rounded-[1.5rem] p-5 text-white shadow-xl ${className}`}><div className="flex size-9 items-center justify-center rounded-lg border border-white/30"><span className="h-3 w-5 rounded-sm border border-white/80" /></div><p className="mt-9 text-sm text-white/70">{name}</p><p className="mt-1 text-lg font-semibold tracking-[.15em]">{number}</p><p className="mt-6 text-xs text-white/70">WhatSpent</p></div>; }
+function CardPreview({ className, name, number }: { className: string; name: string; number: string }) { return <div className={`min-h-[172px] rounded-[1.5rem] p-5 text-white shadow-xl ${className}`}><div className="flex size-9 items-center justify-center rounded-lg border border-white/30"><span className="h-3 w-5 rounded-sm border border-white/80" /></div><p className="mt-9 text-sm text-white/70">{name}</p><p className="mt-1 text-lg font-semibold tracking-[.15em]">{number}</p><p className="mt-6 text-xs text-white/70">{PUBLIC_BRAND_NAME}</p></div>; }
 function StatementRow({ meta, name, value }: { meta: string; name: string; value: string }) { return <div className="flex items-center justify-between gap-4"><div><p className="font-medium text-[#315a41]">{name}</p><p className="text-xs text-[#789487]">{meta}</p></div><strong className="text-[#173d2a]">{value}</strong></div>; }
 function OrganizeCard({ detail, icon: Icon, label, title, tone }: { detail: string; icon: typeof ListChecks; label: string; title: string; tone: string }) { return <article className={`min-h-[180px] rounded-[1.5rem] p-6 ${tone}`}><Icon aria-hidden="true" className="size-5 text-[#087d3c]" /><p className="mt-7 text-xs font-bold uppercase tracking-[.15em] text-[#55906a]">{label}</p><h3 className="mt-2 text-lg font-semibold text-[#173d2a]">{title}</h3><p className="mt-2 text-sm text-[#62806f]">{detail}</p></article>; }

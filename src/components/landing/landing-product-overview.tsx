@@ -1,6 +1,7 @@
 import React from "react";
 import { CalendarDays, Check, CreditCard, Layers3, MessageCircleMore, Wallet } from "lucide-react";
 import { journeySteps, productCapabilities } from "./landing-data";
+import { PUBLIC_BRAND_NAME } from "../../lib/public-brand";
 
 const icons = {
   wallet: Wallet,
@@ -16,7 +17,7 @@ export function LandingProductOverview() {
         <div className="max-w-3xl">
           <p className="text-xs font-bold uppercase tracking-[.18em] text-[#00a646]">Um lugar para a vida real</p>
           <h2 className="mt-4 text-balance text-4xl font-semibold tracking-[-.055em] text-[#063d24] sm:text-5xl">Tudo o que você precisa acompanhar. Sem trocar de contexto.</h2>
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[#5e806d]">O WhatSpent reúne a conversa que você já usa com uma visão clara do que merece sua atenção.</p>
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[#5e806d]">O {PUBLIC_BRAND_NAME} reúne a conversa que você já usa com uma visão clara do que merece sua atenção.</p>
         </div>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -38,7 +39,7 @@ export function LandingProductOverview() {
           <div className="grid gap-10 lg:grid-cols-[.78fr_1.22fr] lg:items-end">
             <div>
               <div className="flex size-12 items-center justify-center rounded-2xl bg-[#087d3c] text-white"><MessageCircleMore aria-hidden="true" className="size-6" /></div>
-              <p className="mt-7 text-xs font-bold uppercase tracking-[.18em] text-[#00a646]">Como funciona o WhatSpent</p>
+              <p className="mt-7 text-xs font-bold uppercase tracking-[.18em] text-[#00a646]">Como funciona o {PUBLIC_BRAND_NAME}</p>
               <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-.05em] text-[#063d24] sm:text-4xl">Do que você fala ao que você enxerga.</h2>
               <p className="mt-5 max-w-md leading-relaxed text-[#5e806d]">A conversa abre a porta. O painel conserva o contexto para você consultar quando precisar.</p>
             </div>

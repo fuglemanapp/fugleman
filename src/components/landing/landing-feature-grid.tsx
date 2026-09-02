@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { CalendarDays, CreditCard, MessageCircle, ArrowUpRight } from "lucide-react";
+import { PUBLIC_BRAND_NAME } from "../../lib/public-brand";
 
 const features = [
   {
@@ -8,7 +9,7 @@ const features = [
     icon: MessageCircle,
     eyebrow: "Conversa que trabalha por você",
     title: "Fale naturalmente. O painel organiza.",
-    text: "Registre uma despesa ou faça uma pergunta como você falaria com alguém de confiança. O WhatSpent transforma sua intenção em organização.",
+    text: `Registre uma despesa ou faça uma pergunta como você falaria com alguém de confiança. O ${PUBLIC_BRAND_NAME} transforma sua intenção em organização.`,
   },
   {
     id: "cartoes",
@@ -35,7 +36,7 @@ export function LandingFeatureGrid() {
           <h2 className="mt-4 text-balance text-4xl font-semibold tracking-[-.055em] text-[#063d24] sm:text-5xl">Uma rotina mais leve começa com o que você já usa todos os dias.</h2>
         </div>
         <div className="mt-14 grid gap-12 border-t border-[#dff1e5] pt-8 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
-          <p className="max-w-sm text-lg leading-relaxed text-[#5e806d]">O WhatSpent foi desenhado para reduzir as pequenas pendências que consomem sua atenção ao longo do dia.</p>
+          <p className="max-w-sm text-lg leading-relaxed text-[#5e806d]">O {PUBLIC_BRAND_NAME} foi desenhado para reduzir as pequenas pendências que consomem sua atenção ao longo do dia.</p>
           <div>
             {features.map(({ eyebrow, icon: Icon, id, text, title }, index) => (
               <article className="group grid gap-4 border-b border-[#dff1e5] py-7 first:pt-0 sm:grid-cols-[3.25rem_1fr_auto] sm:gap-6" id={id} key={id}>
@@ -56,7 +57,7 @@ export function LandingFeatureGrid() {
           <div className="relative max-w-2xl" id="como-comecar">
             <p className="text-xs font-bold uppercase tracking-[.18em] text-[#7ce6a1]">Comece em poucos minutos</p>
             <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-.05em] sm:text-4xl">Crie sua conta, conecte seu número e comece a conversar.</h2>
-            <p className="mt-4 max-w-xl text-[#c4ead1]">Você escolhe o que quer registrar. O WhatSpent organiza o restante para você enxergar sua rotina com calma.</p>
+            <p className="mt-4 max-w-xl text-[#c4ead1]">Você escolhe o que quer registrar. O {PUBLIC_BRAND_NAME} organiza o restante para você enxergar sua rotina com calma.</p>
           </div>
           <Link className="relative mt-7 inline-flex items-center gap-2 rounded-2xl bg-[#00c853] px-6 py-4 font-semibold text-[#063d24] transition hover:-translate-y-0.5 hover:bg-[#72eb9c] lg:mt-0" href="/cadastro">Criar conta grátis <ArrowUpRight className="size-5" /></Link>
         </section>

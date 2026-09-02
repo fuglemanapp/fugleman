@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import { PUBLIC_BRAND_NAME } from "../../lib/public-brand";
 
 type LandingLogoProps = {
   className?: string;
@@ -9,7 +10,7 @@ type LandingLogoProps = {
 export function LandingLogo({ className, priority = false }: LandingLogoProps) {
   return (
     <Image
-      alt="WhatSpent"
+      alt={PUBLIC_BRAND_NAME}
       className={["h-auto w-[156px] sm:w-[174px]", className].filter(Boolean).join(" ")}
       height={88}
       priority={priority}

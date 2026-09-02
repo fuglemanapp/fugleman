@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { PUBLIC_BRAND_NAME } from "../../../lib/public-brand";
 
 type InvitePreview = { name?: string; error?: string };
 
@@ -53,7 +54,7 @@ export default function InvitePage() {
   return (
     <main className="grid min-h-screen place-items-center bg-[#f4f8f5] p-5 text-[#17372b]">
       <section className="w-full max-w-md rounded-[2rem] bg-white p-8 shadow-[0_26px_70px_-42px_rgba(12,100,53,0.32)]">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#079347]">Convite WhatSpent</p>
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#079347]">Convite {PUBLIC_BRAND_NAME}</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-[-0.05em]">
           {loading ? "Carregando convite…" : unavailable ? "Convite indisponível" : `Você foi convidada para ${name}.`}
         </h1>
@@ -64,7 +65,7 @@ export default function InvitePage() {
           <>
             <p className="mt-5 rounded-xl bg-[#fff1f1] px-4 py-3 text-sm text-[#a93636]">{error}</p>
             <Link href="/login" className="mt-6 inline-flex h-11 items-center rounded-xl bg-[#0b9d4e] px-5 text-sm font-bold text-white">
-              Entrar no WhatSpent
+              Entrar no {PUBLIC_BRAND_NAME}
             </Link>
           </>
         ) : !loading ? (

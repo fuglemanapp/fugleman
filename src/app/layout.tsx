@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { InstallAppPrompt } from "@/components/pwa/install-app-prompt";
 import { PwaRegistration } from "@/components/pwa/pwa-registration";
+import { PUBLIC_BRAND_NAME } from "../lib/public-brand";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -18,11 +19,11 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL("https://whatspent.com"),
   title: {
-    default: "WhatSpent | Finanças e organização em família",
-    template: "%s | WhatSpent",
+    default: `${PUBLIC_BRAND_NAME} | Finanças e organização em família`,
+    template: `%s | ${PUBLIC_BRAND_NAME}`,
   },
   description:
-    "Organize finanças, agenda, tarefas e conversas privadas com o WhatSpent.",
+    `Organize finanças, agenda, tarefas e conversas privadas com o ${PUBLIC_BRAND_NAME}.`,
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/brand/whatspent-icon.png",

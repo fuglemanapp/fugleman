@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { LandingLogo } from "./landing-logo";
+import { PUBLIC_BRAND_NAME } from "../../lib/public-brand";
 
 const navigation = [
   ["Como funciona", "#como-funciona"],
@@ -15,7 +16,7 @@ export function LandingHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-[#dff1e5]/90 bg-[#f7fcf8]/90 backdrop-blur-xl">
       <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-10">
-        <Link aria-label="Página inicial do WhatSpent" href="/">
+        <Link aria-label={`Página inicial do ${PUBLIC_BRAND_NAME}`} href="/">
           <LandingLogo priority />
         </Link>
         <nav aria-label="Navegação principal" className="hidden items-center gap-7 lg:flex">

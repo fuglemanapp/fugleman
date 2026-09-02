@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight, LockKeyhole, MessageCircleMore, Sparkles } from "lucide-react";
 import { LandingPhone } from "./landing-phone";
+import { PUBLIC_BRAND_NAME } from "../../lib/public-brand";
 
 const proofPoints = [
   { icon: MessageCircleMore, text: "Conversa natural" },
@@ -24,7 +25,7 @@ export function LandingHero() {
             Dinheiro e rotina, <span className="text-[#00a646]">organizados em uma conversa.</span>
           </h1>
           <p className="mt-7 max-w-xl text-pretty text-lg leading-relaxed text-[#527461] sm:text-xl">
-            Fale do seu jeito sobre gastos, cartões e compromissos. O WhatSpent organiza a informação e deixa tudo claro no seu painel.
+            Fale do seu jeito sobre gastos, cartões e compromissos. O {PUBLIC_BRAND_NAME} organiza a informação e deixa tudo claro no seu painel.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Link className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#087d3c] px-6 py-4 text-base font-semibold text-white shadow-[0_18px_38px_-18px_rgba(8,125,60,.8)] transition hover:-translate-y-0.5 hover:bg-[#063d24]" href="/cadastro">
