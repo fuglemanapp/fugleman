@@ -1,9 +1,11 @@
 "use client";
 
-import { CheckCircle2, LoaderCircle, Smartphone } from "lucide-react";
+import { CheckCircle2, ExternalLink, LoaderCircle, MessageCircle, Smartphone } from "lucide-react";
 import { useState } from "react";
 
 type WhatsAppLinkCardProps = { initialPhone: string | null };
+
+const WHATSPENT_WHATSAPP_URL = "https://wa.me/13218448741?text=Ol%C3%A1%2C%20acabei%20de%20criar%20minha%20conta%20no%20WhatSpent%20e%20quero%20come%C3%A7ar.";
 
 export function WhatsAppLinkCard({ initialPhone }: WhatsAppLinkCardProps) {
   const [phone, setPhone] = useState(initialPhone);
@@ -51,6 +53,16 @@ export function WhatsAppLinkCard({ initialPhone }: WhatsAppLinkCardProps) {
         <p className="mt-2 text-sm leading-relaxed text-[#678176]">Vincule o número do celular que você usará para falar com o WhatSpent. Assim, cada mensagem é associada somente à sua conta.</p>
       </div>
     </div>
+
+    <a
+      href={WHATSPENT_WHATSAPP_URL}
+      target="_blank"
+      rel="noreferrer"
+      className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#087d3c] px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-[#056c35] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#087d3c]"
+    >
+      <MessageCircle className="h-4 w-4" /> Abrir WhatsApp do WhatSpent <ExternalLink className="h-3.5 w-3.5" />
+    </a>
+    <p className="mt-2 text-center text-xs leading-relaxed text-[#789083]">Converse com o WhatSpent pelo número oficial para registrar gastos, compromissos e pedidos.</p>
 
     {!editing && phone ? <div className="mt-6 rounded-2xl border border-[#d2eadb] bg-[#f1fbf4] p-4">
       <div className="flex items-start justify-between gap-4">
