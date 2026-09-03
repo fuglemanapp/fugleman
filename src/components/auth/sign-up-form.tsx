@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 import { safeCallbackPath } from "@/lib/auth-navigation";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 
 export function SignUpForm() {
   const router = useRouter();
@@ -56,7 +57,16 @@ export function SignUpForm() {
       <h2 className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-[#17372b]">Crie sua conta</h2>
       <p className="mt-2 text-sm leading-relaxed text-[#678176]">Depois, no painel, vincule o número pelo qual você falará com o WhatSpent.</p>
 
-      <form className="mt-7 space-y-4" onSubmit={handleSubmit}>
+      <div className="mt-7">
+        <GoogleAuthButton callbackUrl={callbackUrl} label="Criar conta com Google" />
+        <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-[#9bb0a3]">
+          <span className="h-px flex-1 bg-[#e0ece5]" />
+          ou
+          <span className="h-px flex-1 bg-[#e0ece5]" />
+        </div>
+      </div>
+
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <label className="block text-sm font-semibold text-[#315f48]" htmlFor="name">
           Seu nome
           <input id="name" name="name" type="text" autoComplete="name" minLength={2} maxLength={80} required value={name} onChange={(event) => setName(event.target.value)} className="mt-2 h-12 w-full rounded-xl border border-[#cfe1d6] bg-white px-3 text-[#17372b] outline-none transition focus:border-[#079347] focus:ring-4 focus:ring-[#dff5e7]" />
