@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 import { safeCallbackPath } from "@/lib/auth-navigation";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 
 export function SignInForm() {
   const router = useRouter();
@@ -44,7 +45,16 @@ export function SignInForm() {
       <h2 className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-[#17372b]">Entre no WhatSpent</h2>
       <p className="mt-2 text-sm leading-relaxed text-[#678176]">Use o e-mail e a senha cadastrados para abrir seu painel.</p>
 
-      <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+      <div className="mt-8">
+        <GoogleAuthButton callbackUrl={callbackUrl} label="Entrar com Google" />
+        <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-[#9bb0a3]">
+          <span className="h-px flex-1 bg-[#e0ece5]" />
+          ou
+          <span className="h-px flex-1 bg-[#e0ece5]" />
+        </div>
+      </div>
+
+      <form className="space-y-5" onSubmit={handleSubmit}>
         <label className="block text-sm font-semibold text-[#315f48]" htmlFor="email">
           E-mail
           <input id="email" name="email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 h-12 w-full rounded-xl border border-[#cfe1d6] bg-white px-3 text-[#17372b] outline-none transition focus:border-[#079347] focus:ring-4 focus:ring-[#dff5e7]" />
