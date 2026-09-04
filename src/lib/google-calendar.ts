@@ -77,7 +77,15 @@ async function getAccessToken(userId: string, requirement: "events" | "sharing" 
     }),
   });
   const body = await response.json() as GoogleTokenResponse;
-  if (!response.ok || !body.access_token) return { error: "Não foi possível renovar a conexão com o Google Calendar." } as const;
+  if (!response.ok || !body.access_token) {
+    console.error("Google Calendar token refresh failed", {
+      userId,
+      status: response.status,
+      error: body.error ?? null,
+      errorDescription: (body as { error_description?: string }).error_description ?? null,
+    });
+    return { error: "Não foi possível renovar a conexão com o Google Calendar. Reconecte o Google Calendar no painel para voltar a sincronizar." } as const;
+  }
 
   await prisma.account.update({
     where: { id: account.id },

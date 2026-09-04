@@ -143,9 +143,16 @@ export async function processAssistantMessage(input: {
       });
       if (persistence.confirmation) reply = persistence.confirmation;
       if (persistence.warning) {
-        reply = persistence.warning;
-        const retryDraft = draftFromAction(resolution.action);
-        nextPendingAction = retryDraft ? pendingActionFromDraft(retryDraft, now) : null;
+        if (persistence.confirmation) {
+          // The action was saved; only a follow-up (e.g. Google Calendar sync)
+          // failed. Keep the confirmation and add the warning as a note — and do
+          // NOT schedule a retry, which would duplicate the saved action.
+          reply = `${persistence.confirmation}\n\n${persistence.warning}`;
+        } else {
+          reply = persistence.warning;
+          const retryDraft = draftFromAction(resolution.action);
+          nextPendingAction = retryDraft ? pendingActionFromDraft(retryDraft, now) : null;
+        }
       }
     } catch {
       reply = "Não consegui salvar essa ação com segurança. Tente novamente; nenhum lançamento foi criado.";
