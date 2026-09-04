@@ -15,7 +15,7 @@ export function AuthShell({ children, eyebrow, title, description }: AuthShellPr
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl overflow-hidden rounded-[2rem] border border-[#dcebe2] bg-white shadow-[0_32px_100px_-52px_rgba(12,100,53,.42)] lg:grid-cols-[1fr_.92fr]">
         <section className="flex flex-col bg-[#0b4d2b] p-7 text-white sm:p-10 lg:p-12">
           <Link href="/" className="inline-flex w-fit items-center" aria-label="Voltar para a página inicial do WhatSpent">
-            <Image src="/whatspent-logo.svg" alt="WhatSpent" width={184} height={36} className="h-9 w-auto brightness-0 invert" priority />
+            <Image src="/brand/whatspent-wordmark.png" alt="WhatSpent" width={320} height={88} className="h-20 w-auto brightness-0 invert sm:h-24" priority />
           </Link>
           <div className="my-auto max-w-md py-14">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9ee7b9]">{eyebrow}</p>
