@@ -79,7 +79,7 @@ export function DashboardNav({ activePath }: DashboardNavProps) {
     <header ref={headerRef} className="sticky top-0 z-40 border-b border-[#dcebe2] bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-10">
         <Link href="/dashboard" className="flex shrink-0 items-center" aria-label="Ir para o dashboard do WhatSpent" onClick={dismissMenus}>
-          <Image src="/brand/whatspent-wordmark.png" alt="WhatSpent" width={320} height={88} className="h-10 w-auto sm:h-12" priority />
+          <Image src="/brand/whatspent-wordmark-trim.png" alt="WhatSpent" width={1492} height={593} className="h-9 w-auto sm:h-10" priority />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Navegação principal">
