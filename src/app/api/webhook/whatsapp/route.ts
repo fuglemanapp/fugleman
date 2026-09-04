@@ -5,6 +5,8 @@ import { retryDatabaseOperation } from "@/lib/database-retry";
 import type { AgentAction } from "@/lib/personal-agent";
 import prisma from "@/lib/prisma";
 import { publicWhatsAppOnboardingReply } from "@/lib/whatsapp-onboarding";
+import { linkWhatsappByCode } from "@/lib/whatsapp-link";
+import { extractWhatsappLinkCode } from "@/lib/whatsapp-link-code";
 import { normalizePhone, parseZernioInboundMessage, sendZernioInboxMessage, verifyZernioSignature } from "@/lib/zernio";
 
 export const dynamic = "force-dynamic";
@@ -103,10 +105,22 @@ export async function POST(request: Request) {
       if (!event.responseText) {
         const user = await findUserByPhone(senderPhone);
         if (!user) {
-          event = await prisma.zernioWebhookEvent.update({
-            where: { id: event.id },
-            data: { responseText: publicWhatsAppOnboardingReply() },
-          });
+          const linkCode = extractWhatsappLinkCode(inbound.text);
+          const link = linkCode ? await linkWhatsappByCode(linkCode, senderPhone) : { linked: false as const };
+          if (link.linked) {
+            event = await prisma.zernioWebhookEvent.update({
+              where: { id: event.id },
+              data: {
+                userId: link.userId,
+                responseText: "✅ WhatsApp vinculado! A partir de agora é só me mandar seus gastos e compromissos por aqui.",
+              },
+            });
+          } else {
+            event = await prisma.zernioWebhookEvent.update({
+              where: { id: event.id },
+              data: { responseText: publicWhatsAppOnboardingReply() },
+            });
+          }
         } else {
           const reply = await createAssistantReply(user.id, inbound.text || "", inbound.hasAttachments, event.id);
           event = await prisma.zernioWebhookEvent.update({ where: { id: event.id }, data: { userId: user.id, responseText: reply } });

@@ -4,9 +4,13 @@ import { SignOutButton } from "@/components/account/sign-out-button";
 import { WhatsAppLinkCard } from "@/components/account/whatsapp-link-card";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { getCurrentUser } from "@/lib/current-user";
+import { ensureWhatsappLinkCode } from "@/lib/whatsapp-link";
+import { buildWhatsappLinkUrl } from "@/lib/whatsapp-link-code";
 
 export default async function ContaPage() {
   const user = await getCurrentUser();
+  const whatsappLinkCode = user ? await ensureWhatsappLinkCode(user.id) : null;
+  const whatsappLinkUrl = whatsappLinkCode ? buildWhatsappLinkUrl(whatsappLinkCode) : null;
   const displayName = user?.name?.trim() || "Sua conta";
   const initial = displayName.charAt(0).toUpperCase() || "W";
 
@@ -39,7 +43,7 @@ export default async function ContaPage() {
             </div>
           </section>
 
-          <WhatsAppLinkCard initialPhone={user?.phone || null} />
+          <WhatsAppLinkCard initialPhone={user?.phone || null} linkCode={whatsappLinkCode} linkUrl={whatsappLinkUrl} />
         </div>
 
         <section className="mt-6 flex flex-col gap-5 rounded-[1.75rem] border border-[#dcebe2] bg-white p-6 shadow-[0_20px_50px_-40px_rgba(12,100,53,.36)] sm:flex-row sm:items-center sm:justify-between sm:p-7">
