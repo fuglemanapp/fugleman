@@ -110,11 +110,6 @@ export function parseExplicitEventCommand(text: string, now: Date = new Date()):
   return { kind: "EVENT", title, description: null, startTime: startTime.toISOString(), endTime: endTime.toISOString() };
 }
 
-function isAppointmentMissingTime(text: string) {
-  const command = text.replace(/\b(?:para|pra)\s+mim\b/giu, " ").replace(/\s+/gu, " ").trim();
-  return /^\s*(?:crie|cria|criar|agende|agendar|marque|marcar)(?:\s+(?:um|uma))?\s+(?:compromisso|evento)(?:\s+para)?\s+(?:(?:hoje|amanhã|amanha)|(?:(?:o\s+)?dia\s+)?\d{1,2}\/\d{1,2}(?:\/\d{4})?)\s*[:\-]\s*.+\s*$/i.test(command);
-}
-
 function isActionRequest(text: string) {
   return /\b(crie|criar|agende|agendar|marque|marcar|registre|registrar|lance|lançar|adicione|adicionar)\b/i.test(text);
 }
@@ -198,9 +193,13 @@ export function parseAgentAction(value: unknown): AgentAction {
     const title = normalizedText(value.title, 120);
     const description = typeof value.description === "string" ? value.description.trim().slice(0, 1000) || null : null;
     const startTime = parseTimestamp(value.startTime);
-    const endTime = parseTimestamp(value.endTime);
+    let endTime = parseTimestamp(value.endTime);
 
-    if (title && startTime && endTime && endTime > startTime) {
+    if (title && startTime) {
+      // End time is optional: default to one hour after the start.
+      if (!endTime || endTime <= startTime) {
+        endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
+      }
       return { kind: "EVENT", title, description, startTime: startTime.toISOString(), endTime: endTime.toISOString() };
     }
   }
@@ -273,13 +272,6 @@ export async function runPersonalAgent(input: { userId: string; text: string; no
     return { reply: "Vou salvar esse compromisso agora.", action: explicitEvent };
   }
 
-  if (isAppointmentMissingTime(input.text)) {
-    return {
-      reply: "Para criar esse compromisso, me informe o horário. Ex.: “Crie um compromisso dia 26/09/2026 às 12:00: Prova de Engenharia”.",
-      action: { kind: "NONE" } as const,
-    };
-  }
-
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     return noKeyResponse();
@@ -302,10 +294,12 @@ export async function runPersonalAgent(input: { userId: string; text: string; no
             content: [
               "Você é WhatSpent, um assistente financeiro pessoal brasileiro. Responda sempre em português.",
               "Retorne exclusivamente JSON válido com as chaves reply, action e pendingAction.",
-              "action deve ser EXPENSE, INCOME, CARD_PURCHASE, EVENT ou NONE. Para EXPENSE/INCOME use amount, description, category e date YYYY-MM-DD. Para CARD_PURCHASE use os mesmos campos e cardReference. Para EVENT use title, startTime ISO, endTime ISO e description.",
+              "action deve ser EXPENSE, INCOME, CARD_PURCHASE, EVENT ou NONE. Para EXPENSE/INCOME use amount, description, category e date YYYY-MM-DD. Para CARD_PURCHASE use os mesmos campos e cardReference.",
+              "Para EVENT bastam title e startTime ISO. Entenda o pedido em linguagem natural (não exija um formato fixo) e calcule startTime a partir da data/hora atual do Brasil para expressões como 'hoje', 'amanhã', 'depois de amanhã' ou dias da semana; interprete o horário informado (ex.: '15h' = 15:00). endTime é opcional: se o usuário não disser, assuma 1 hora após o início. description é opcional. NUNCA peça o horário de término — só peça o que realmente falta (título ou data/horário de início).",
+              "Se a mensagem já descreve um novo compromisso completo (título e data/horário de início), crie-o imediatamente como novo e ignore qualquer pendência anterior não relacionada.",
               "pendingAction deve conter um rascunho parcial com kind e somente os campos informados quando ainda faltar algo. Caso não haja pendência, use null.",
               "Nunca invente valores, datas ou confirmações. Quando faltar informação, use action NONE, pendingAction e peça somente o próximo dado necessário.",
-              input.pendingAction ? `Pendência atual (não descarte os dados já confirmados): ${JSON.stringify(input.pendingAction)}.` : "Não há pendência atual.",
+              input.pendingAction ? `Pendência atual (use apenas se a nova mensagem for a resposta que faltava para ela; caso a nova mensagem seja um pedido diferente, descarte esta pendência): ${JSON.stringify(input.pendingAction)}.` : "Não há pendência atual.",
               `Data atual no Brasil: ${saoPauloCalendarDate(now)}. Resumo pessoal do mês: entradas R$ ${summary.income.toFixed(2)}, saídas R$ ${summary.expense.toFixed(2)}, saldo R$ ${summary.balance.toFixed(2)}.`,
             ].join("\n"),
           },
