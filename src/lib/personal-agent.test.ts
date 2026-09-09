@@ -66,6 +66,19 @@ describe("parseAgentAction", () => {
     ).toMatchObject({ kind: "EVENT" });
   });
 
+  it("accepts an event without an end time, defaulting to one hour later", () => {
+    const action = parseAgentAction({
+      kind: "EVENT",
+      title: "Academia",
+      startTime: "2026-09-10T18:00:00.000Z",
+    });
+    expect(action).toMatchObject({
+      kind: "EVENT",
+      startTime: "2026-09-10T18:00:00.000Z",
+      endTime: "2026-09-10T19:00:00.000Z",
+    });
+  });
+
   it("turns an explicit tomorrow appointment into a São Paulo event", () => {
     expect(
       parseExplicitEventCommand("Crie um compromisso para amanhã às 17:00: Aula de inglês", new Date("2026-08-17T12:00:00.000Z")),
@@ -102,15 +115,17 @@ describe("parseAgentAction", () => {
     });
   });
 
-  it("asks for a time instead of sending an incomplete appointment to the AI", async () => {
+  it("no longer forces a fixed format for an appointment missing a time", async () => {
     const result = await runPersonalAgent({
       userId: "user-1",
       text: "Cria um compromisso pra mim dia 26/09/2026: Prova Engenharia, ciência e Tecnologia",
       now: new Date("2026-08-31T07:00:00.000Z"),
     });
 
+    // The old rigid nudge ("Ex.: Crie um compromisso dia 26/09/2026 às 12:00") is gone;
+    // a timeless appointment now goes to the AI path (NONE here since no GROQ key in tests).
     expect(result.action).toEqual({ kind: "NONE" });
-    expect(result.reply).toContain("horário");
+    expect(result.reply).not.toContain("às 12:00");
   });
 
   it("only uses a created confirmation for persisted event actions", () => {
