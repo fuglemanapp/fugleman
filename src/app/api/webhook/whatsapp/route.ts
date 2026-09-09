@@ -69,6 +69,18 @@ export async function POST(request: Request) {
   const inbound = parseZernioInboundMessage(body);
   if (!inbound) return NextResponse.json({ status: "ignored" });
 
+  // TEMP (feat/whatsapp-attachments): discover the exact shape Zernio sends for
+  // media so we can build download + OCR. Logs only metadata, truncated. Remove
+  // once the attachment format is captured.
+  if (inbound.hasAttachments) {
+    try {
+      const rawAttachments = (body as { message?: { attachments?: unknown } })?.message?.attachments;
+      console.log("[zernio-attachments-debug]", JSON.stringify(rawAttachments)?.slice(0, 3000));
+    } catch (error) {
+      console.log("[zernio-attachments-debug] failed to serialize", error);
+    }
+  }
+
   const configuredAccountId = process.env.ZERNIO_WHATSAPP_ACCOUNT_ID;
   if (!process.env.ZERNIO_API_KEY) {
     return NextResponse.json({ error: "A chave da integração do WhatsApp ainda não foi configurada." }, { status: 503 });
